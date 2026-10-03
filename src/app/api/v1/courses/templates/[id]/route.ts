@@ -11,8 +11,8 @@ export async function GET(
 
   const { id } = await params;
   const template = await courseService.getCourseById(id);
-  if (!template || !template.isTemplate) {
-    return apiError('Template not found', 404);
+  if (!template) {
+    return apiError('Course not found', 404);
   }
 
   return apiSuccess(template);

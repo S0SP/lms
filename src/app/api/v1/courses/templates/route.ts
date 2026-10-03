@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
         sellingPageJson: body.sellingPageJson ?? null,
         educatorIds: body.educatorIds ?? [],
         sections: body.sections ?? [],
+        isTemplate: body.isTemplate !== undefined ? Boolean(body.isTemplate) : true,
       },
       session!.user!.id as string
     );

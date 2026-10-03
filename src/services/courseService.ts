@@ -78,6 +78,7 @@ export const courseService = {
       educatorIds?: string[];
       sections?: any[];
       orgId?: string;
+      isTemplate?: boolean;
     },
     userId: string
   ) {

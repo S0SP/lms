@@ -71,7 +71,9 @@ export interface PaymentPlanItem {
   sessionCredits?: number;
   autoRenew?: boolean;
   billingCycle?: string;
+  gracePeriod?: string;
   gracePeriodDays?: number;
+  invoiceLead?: string;
   invoiceLeadDays?: number;
   description?: string;
 }
@@ -228,15 +230,20 @@ export function CourseSellingPageWizardModal({
   // Step 3: Payment Plans
   const [paymentPlans, setPaymentPlans] = useState<PaymentPlanItem[]>([]);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [isPlanTypePickerOpen, setIsPlanTypePickerOpen] = useState(false);
   const [planModalType, setPlanModalType] = useState<PaymentPlanItem['type']>('session_package');
   const [planName, setPlanName] = useState('Billing Plan 1');
   const [planPrice, setPlanPrice] = useState<string>('');
+  const [planCurrency, setPlanCurrency] = useState('INR');
   const [planSessionCredits, setPlanSessionCredits] = useState<string>('');
   const [planAutoRenew, setPlanAutoRenew] = useState(false);
   const [planBillingCycle, setPlanBillingCycle] = useState('Monthly');
   const [planGracePeriod, setPlanGracePeriod] = useState('3 days');
   const [planInvoiceLead, setPlanInvoiceLead] = useState('5 days');
+
+  // Copy Resource Modal
+  const [copyResourceModalSectionId, setCopyResourceModalSectionId] = useState<string | null>(null);
 
   // Step 4: Scheduling
   const [sessionDurationStr, setSessionDurationStr] = useState('1 hr');
@@ -578,6 +585,7 @@ export function CourseSellingPageWizardModal({
           isFreePreview: r.isFreePreview,
         })),
       })),
+      isTemplate: isTemplateMode !== undefined ? isTemplateMode : (initialData?.isTemplate ?? false),
     };
 
     try {
@@ -597,7 +605,7 @@ export function CourseSellingPageWizardModal({
 
       if (!res.ok) {
         const errJson = await res.json();
-        throw new Error(errJson.error || 'Failed to save course template');
+        throw new Error(errJson.error || 'Failed to save course');
       }
 
       const savedData = await res.json();
@@ -623,7 +631,7 @@ export function CourseSellingPageWizardModal({
         {/* Top Header Bar */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#10141D]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            Course Selling Page: {courseTitle || 'test'}
+            {isTemplateMode ? 'Course Template' : '1-on-1 Course Selling Page'}: {courseTitle || 'test'}
           </h2>
 
           <div className="flex items-center gap-3">
@@ -1063,9 +1071,17 @@ export function CourseSellingPageWizardModal({
                   <button
                     type="button"
                     onClick={() => {
-                      setPlanName('Billing Plan 1');
+                      setEditingPlanId(null);
+                      setPlanModalType('session_package');
+                      setPlanName(`Billing Plan ${paymentPlans.length + 1}`);
                       setPlanPrice('');
-                      setPlanSessionCredits('');
+                      setPlanCurrency('INR');
+                      setPlanSessionCredits('4');
+                      setPlanAutoRenew(false);
+                      setPlanBillingCycle('Monthly');
+                      setPlanGracePeriod('3 days');
+                      setPlanInvoiceLead('5 days');
+                      setIsPlanTypePickerOpen(false);
                       setIsPlanModalOpen(true);
                     }}
                     className="px-3.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 shadow-sm"
@@ -1095,27 +1111,80 @@ export function CourseSellingPageWizardModal({
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                              {plan.type.replace('_', ' ')}
+                              {plan.type === 'session_package' && 'Session Based Packages'}
+                              {plan.type === 'postpaid_session' && 'Postpaid Per Session'}
+                              {plan.type === 'prepaid_session' && 'Prepaid Per Session'}
+                              {plan.type === 'session_subscription' && 'Session Based Subscription'}
                             </span>
                             <span className="text-xs font-bold text-gray-900 dark:text-white">{plan.name}</span>
                           </div>
-                          <p className="text-sm font-extrabold text-blue-600 dark:text-blue-400">
-                            ₹{plan.price}{' '}
-                            {plan.sessionCredits && (
-                              <span className="text-xs font-normal text-gray-400">
-                                • {plan.sessionCredits} Session credits
-                              </span>
+                          <p className="text-sm font-extrabold text-blue-600 dark:text-blue-400 flex items-center flex-wrap gap-x-2 gap-y-0.5">
+                            {plan.type === 'session_package' && (
+                              <>
+                                <span>₹{plan.price} {plan.currency || 'INR'}</span>
+                                <span className="text-xs font-normal text-gray-400">
+                                  • {plan.sessionCredits || 1} Session credits • {plan.autoRenew ? 'Auto-renews' : 'Manual renewal'}
+                                </span>
+                              </>
+                            )}
+                            {plan.type === 'postpaid_session' && (
+                              <>
+                                <span>₹{plan.price} {plan.currency || 'INR'} / session credit</span>
+                                <span className="text-xs font-normal text-gray-400">
+                                  • Invoiced: {plan.billingCycle || 'Monthly'} • Grace: {plan.gracePeriod || (plan.gracePeriodDays ? `${plan.gracePeriodDays} days` : '3 days')}
+                                </span>
+                              </>
+                            )}
+                            {plan.type === 'prepaid_session' && (
+                              <>
+                                <span>₹{plan.price} {plan.currency || 'INR'} / session credit</span>
+                                <span className="text-xs font-normal text-gray-400">
+                                  • Invoiced ahead • Cycle: {plan.billingCycle || 'Monthly'} • Lead time: {plan.invoiceLead || (plan.invoiceLeadDays ? `${plan.invoiceLeadDays} days` : '5 days')}
+                                </span>
+                              </>
+                            )}
+                            {plan.type === 'session_subscription' && (
+                              <>
+                                <span>₹{plan.price} {plan.currency || 'INR'} / {plan.billingCycle || 'Monthly'}</span>
+                                <span className="text-xs font-normal text-gray-400">
+                                  • {plan.sessionCredits || 1} Credits / cycle • Grace: {plan.gracePeriod || (plan.gracePeriodDays ? `${plan.gracePeriodDays} days` : '3 days')}
+                                </span>
+                              </>
                             )}
                           </p>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => setPaymentPlans((prev) => prev.filter((p) => p.id !== plan.id))}
-                          className="p-1.5 text-gray-400 hover:text-rose-500 rounded-lg transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            title="Edit Plan"
+                            onClick={() => {
+                              setEditingPlanId(plan.id);
+                              setPlanModalType(plan.type);
+                              setPlanName(plan.name);
+                              setPlanPrice(plan.price ? plan.price.toString() : '');
+                              setPlanCurrency(plan.currency || 'INR');
+                              setPlanSessionCredits(plan.sessionCredits ? plan.sessionCredits.toString() : '4');
+                              setPlanAutoRenew(Boolean(plan.autoRenew));
+                              setPlanBillingCycle(plan.billingCycle || 'Monthly');
+                              setPlanGracePeriod(plan.gracePeriod || (plan.gracePeriodDays ? `${plan.gracePeriodDays} days` : '3 days'));
+                              setPlanInvoiceLead(plan.invoiceLead || (plan.invoiceLeadDays ? `${plan.invoiceLeadDays} days` : '5 days'));
+                              setIsPlanTypePickerOpen(false);
+                              setIsPlanModalOpen(true);
+                            }}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg transition"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete Plan"
+                            onClick={() => setPaymentPlans((prev) => prev.filter((p) => p.id !== plan.id))}
+                            className="p-1.5 text-gray-400 hover:text-rose-500 rounded-lg transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1598,10 +1667,12 @@ export function CourseSellingPageWizardModal({
                     .map((sec) => (
                       <div
                         key={sec.id}
-                        className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden shadow-sm"
+                        className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-all ${
+                          activeMenuSectionId === sec.id ? 'relative z-30 overflow-visible' : 'overflow-hidden'
+                        }`}
                       >
                         {/* Section Card Header */}
-                        <div className="p-3.5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
+                        <div className="p-3.5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 rounded-t-xl">
                           <div className="flex items-center gap-3">
                             <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
                             <div>
@@ -1635,7 +1706,12 @@ export function CourseSellingPageWizardModal({
 
                               {/* Exact Content Popup Menu from signal-2026-10-01-23-37-06-043_018.png */}
                               {activeMenuSectionId === sec.id && (
-                                <div className="absolute right-0 top-9 w-52 bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-1.5 z-50 animate-fadeIn space-y-0.5">
+                                <>
+                                  <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setActiveMenuSectionId(null)}
+                                  />
+                                  <div className="absolute right-0 top-9 w-56 max-h-[380px] overflow-y-auto bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-1.5 z-50 animate-fadeIn space-y-0.5">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -1815,8 +1891,21 @@ export function CourseSellingPageWizardModal({
                                     <Code className="w-4 h-4 text-gray-500" />
                                     <span>Embed Link</span>
                                   </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setCopyResourceModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <Copy className="w-4 h-4 text-gray-500" />
+                                    <span>Copy Resource</span>
+                                  </button>
                                 </div>
-                              )}
+                              </>
+                            )}
                             </div>
 
                             <button
@@ -2054,13 +2143,15 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: ADD PAYMENT PLAN
+          SUB-MODAL: ADD / EDIT PAYMENT PLAN (Matches screenshots 006, 007, 008, 009)
       ═══════════════════════════════════════════════════════════════════════ */}
       {isPlanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h4 className="text-base font-bold text-gray-900 dark:text-white">Add Payment Plan</h4>
+              <h4 className="text-base font-bold text-gray-900 dark:text-white">
+                {editingPlanId ? 'Edit Payment Plan' : 'Add Payment Plan'}
+              </h4>
               <button onClick={() => setIsPlanModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
@@ -2069,7 +2160,7 @@ export function CourseSellingPageWizardModal({
             {/* Plan Type Header Card */}
             <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center shadow-sm">
                   <DollarSign className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
@@ -2091,7 +2182,7 @@ export function CourseSellingPageWizardModal({
               <button
                 type="button"
                 onClick={() => setIsPlanTypePickerOpen(!isPlanTypePickerOpen)}
-                className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[11px] font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[11px] font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-650 flex items-center gap-1 shadow-xs"
               >
                 <Edit2 className="w-3 h-3" />
                 Change
@@ -2100,109 +2191,344 @@ export function CourseSellingPageWizardModal({
 
             {/* Plan Type Selector */}
             {isPlanTypePickerOpen && (
-              <div className="grid grid-cols-2 gap-2 p-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 animate-fadeIn">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlanModalType('session_package');
-                    setIsPlanTypePickerOpen(false);
-                  }}
-                  className="p-2 text-left rounded-lg hover:bg-white dark:hover:bg-gray-700 text-xs font-bold"
-                >
-                  Session Package
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlanModalType('postpaid_session');
-                    setIsPlanTypePickerOpen(false);
-                  }}
-                  className="p-2 text-left rounded-lg hover:bg-white dark:hover:bg-gray-700 text-xs font-bold"
-                >
-                  Postpaid Per Session
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlanModalType('prepaid_session');
-                    setIsPlanTypePickerOpen(false);
-                  }}
-                  className="p-2 text-left rounded-lg hover:bg-white dark:hover:bg-gray-700 text-xs font-bold"
-                >
-                  Prepaid Per Session
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlanModalType('session_subscription');
-                    setIsPlanTypePickerOpen(false);
-                  }}
-                  className="p-2 text-left rounded-lg hover:bg-white dark:hover:bg-gray-700 text-xs font-bold"
-                >
-                  Subscription
-                </button>
-              </div>
-            )}
-
-            {/* Amount */}
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-gray-900 dark:text-white">Amount</label>
-              <p className="text-[11px] text-gray-400">Amount to be charged for the package</p>
-              <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
-                <div className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs font-bold flex items-center">
-                  ₹
-                </div>
-                <input
-                  type="number"
-                  value={planPrice}
-                  onChange={(e) => setPlanPrice(e.target.value)}
-                  placeholder="Enter"
-                  className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
-                />
-                <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-500 font-semibold border-l border-gray-200 dark:border-gray-700 flex items-center gap-1">
-                  <span>INR</span>
-                  <ChevronDown className="w-3 h-3" />
-                </div>
-              </div>
-            </div>
-
-            {/* Session Credits */}
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-gray-900 dark:text-white">Session Credits</label>
-              <p className="text-[11px] text-gray-400">
-                Session credits to be added on payment of the invoice • 1 Session credits = 60 mins
-              </p>
-              <input
-                type="number"
-                value={planSessionCredits}
-                onChange={(e) => setPlanSessionCredits(e.target.value)}
-                placeholder="Enter"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
-              />
-            </div>
-
-            {/* Auto Renew Toggle */}
-            {planModalType === 'session_package' && (
-              <div className="flex items-center justify-between py-1">
-                <div>
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">Auto-Renew Package</p>
-                  <p className="text-[11px] text-gray-400">Renewal invoice will be generated when sessions are completed</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPlanAutoRenew(!planAutoRenew)}
-                  className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${planAutoRenew ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 animate-fadeIn">
+                {[
+                  {
+                    type: 'session_package',
+                    title: 'Session Based Packages',
+                    desc: 'Buy a bundle of session credits upfront and draw them down',
+                  },
+                  {
+                    type: 'postpaid_session',
+                    title: 'Postpaid Per Session',
+                    desc: 'Charged at the end of the cycle for sessions actually used',
+                  },
+                  {
+                    type: 'prepaid_session',
+                    title: 'Prepaid Per Session',
+                    desc: "Charged ahead of each session as it's scheduled",
+                  },
+                  {
+                    type: 'session_subscription',
+                    title: 'Session Based Subscription',
+                    desc: 'Recurring payments tied to a set number of sessions each cycle',
+                  },
+                ].map((item) => (
+                  <button
+                    key={item.type}
+                    type="button"
+                    onClick={() => {
+                      setPlanModalType(item.type as any);
+                      setIsPlanTypePickerOpen(false);
+                    }}
+                    className={`p-2.5 text-left rounded-lg border transition ${
+                      planModalType === item.type
+                        ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/30'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${planAutoRenew ? 'left-5' : 'left-0.5'
-                      }`}
-                  />
-                </button>
+                  >
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">{item.title}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5 leading-snug">{item.desc}</p>
+                  </button>
+                ))}
               </div>
             )}
 
-            {/* Plan Name */}
+            {/* ── CONDITIONAL MODEL FIELDS ── */}
+
+            {/* 1. MODEL: Session Based Packages (Screenshot 006) */}
+            {planModalType === 'session_package' && (
+              <>
+                {/* Amount */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Amount</label>
+                  <p className="text-[11px] text-gray-400">Amount to be charged for the package</p>
+                  <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                    <div className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs font-bold flex items-center">
+                      {planCurrency === 'USD' ? '$' : planCurrency === 'EUR' ? '€' : planCurrency === 'GBP' ? '£' : '₹'}
+                    </div>
+                    <input
+                      type="number"
+                      value={planPrice}
+                      onChange={(e) => setPlanPrice(e.target.value)}
+                      placeholder="Enter"
+                      className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
+                    />
+                    <select
+                      value={planCurrency}
+                      onChange={(e) => setPlanCurrency(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Session Credits */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Session Credits</label>
+                  <p className="text-[11px] text-gray-400">
+                    Session credits to be added on payment of the invoice • 1 Session credits = 60 mins
+                  </p>
+                  <input
+                    type="number"
+                    value={planSessionCredits}
+                    onChange={(e) => setPlanSessionCredits(e.target.value)}
+                    placeholder="Enter"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
+                  />
+                </div>
+
+                {/* Auto Renew Toggle */}
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">Auto-Renew Package</p>
+                    <p className="text-[11px] text-gray-400">Renewal invoice will be generated when sessions are completed</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPlanAutoRenew(!planAutoRenew)}
+                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
+                      planAutoRenew ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${
+                        planAutoRenew ? 'left-5' : 'left-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* 2. MODEL: Postpaid Per Session (Screenshot 007) */}
+            {planModalType === 'postpaid_session' && (
+              <>
+                {/* Price Per Session Credit */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Price Per Session Credit</label>
+                  <p className="text-[11px] text-gray-400">Price per session credit to be charged • 1 Session credits = 60 mins</p>
+                  <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                    <div className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs font-bold flex items-center">
+                      {planCurrency === 'USD' ? '$' : planCurrency === 'EUR' ? '€' : planCurrency === 'GBP' ? '£' : '₹'}
+                    </div>
+                    <input
+                      type="number"
+                      value={planPrice}
+                      onChange={(e) => setPlanPrice(e.target.value)}
+                      placeholder="Enter"
+                      className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
+                    />
+                    <select
+                      value={planCurrency}
+                      onChange={(e) => setPlanCurrency(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Billing Cycle */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Billing Cycle</label>
+                  <p className="text-[11px] text-gray-400">Select how often invoices are generated</p>
+                  <CustomSelect
+                    value={planBillingCycle}
+                    onChange={(v) => setPlanBillingCycle(v)}
+                    options={[
+                      { value: 'Weekly', label: 'Weekly' },
+                      { value: 'Every 2 Weeks', label: 'Every 2 Weeks' },
+                      { value: 'Monthly', label: 'Monthly' },
+                      { value: 'Quarterly', label: 'Quarterly' },
+                      { value: 'Half-Yearly', label: 'Half-Yearly' },
+                      { value: 'Yearly', label: 'Yearly' },
+                    ]}
+                  />
+                </div>
+
+                {/* Grace Period */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Grace Period</label>
+                  <p className="text-[11px] text-gray-400">Platform access will be restricted if invoice is not paid</p>
+                  <CustomSelect
+                    value={planGracePeriod}
+                    onChange={(v) => setPlanGracePeriod(v)}
+                    options={[
+                      { value: '0 days', label: '0 days' },
+                      { value: '3 days', label: '3 days' },
+                      { value: '5 days', label: '5 days' },
+                      { value: '7 days', label: '7 days' },
+                      { value: '14 days', label: '14 days' },
+                      { value: '30 days', label: '30 days' },
+                    ]}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* 3. MODEL: Prepaid Per Session (Screenshot 008) */}
+            {planModalType === 'prepaid_session' && (
+              <>
+                {/* Price Per Session Credit */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Price Per Session Credit</label>
+                  <p className="text-[11px] text-gray-400">Price per session credit to be charged • 1 Session credits = 60 mins</p>
+                  <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                    <div className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs font-bold flex items-center">
+                      {planCurrency === 'USD' ? '$' : planCurrency === 'EUR' ? '€' : planCurrency === 'GBP' ? '£' : '₹'}
+                    </div>
+                    <input
+                      type="number"
+                      value={planPrice}
+                      onChange={(e) => setPlanPrice(e.target.value)}
+                      placeholder="Enter"
+                      className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
+                    />
+                    <select
+                      value={planCurrency}
+                      onChange={(e) => setPlanCurrency(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Billing Cycle */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Billing Cycle</label>
+                  <p className="text-[11px] text-gray-400">Select how often invoices are generated</p>
+                  <CustomSelect
+                    value={planBillingCycle}
+                    onChange={(v) => setPlanBillingCycle(v)}
+                    options={[
+                      { value: 'Weekly', label: 'Weekly' },
+                      { value: 'Every 2 Weeks', label: 'Every 2 Weeks' },
+                      { value: 'Monthly', label: 'Monthly' },
+                      { value: 'Quarterly', label: 'Quarterly' },
+                      { value: 'Half-Yearly', label: 'Half-Yearly' },
+                      { value: 'Yearly', label: 'Yearly' },
+                    ]}
+                  />
+                </div>
+
+                {/* Invoice Lead Time */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Invoice Lead Time</label>
+                  <p className="text-[11px] text-gray-400">Set days before the cycle to create invoices</p>
+                  <CustomSelect
+                    value={planInvoiceLead}
+                    onChange={(v) => setPlanInvoiceLead(v)}
+                    options={[
+                      { value: '1 day', label: '1 day' },
+                      { value: '2 days', label: '2 days' },
+                      { value: '3 days', label: '3 days' },
+                      { value: '5 days', label: '5 days' },
+                      { value: '7 days', label: '7 days' },
+                      { value: '10 days', label: '10 days' },
+                      { value: '15 days', label: '15 days' },
+                    ]}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* 4. MODEL: Session Based Subscription (Screenshot 009) */}
+            {planModalType === 'session_subscription' && (
+              <>
+                {/* Amount */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Amount</label>
+                  <p className="text-[11px] text-gray-400">Amount to be charged for the subscription</p>
+                  <div className="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                    <div className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs font-bold flex items-center">
+                      {planCurrency === 'USD' ? '$' : planCurrency === 'EUR' ? '€' : planCurrency === 'GBP' ? '£' : '₹'}
+                    </div>
+                    <input
+                      type="number"
+                      value={planPrice}
+                      onChange={(e) => setPlanPrice(e.target.value)}
+                      placeholder="Enter"
+                      className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
+                    />
+                    <select
+                      value={planCurrency}
+                      onChange={(e) => setPlanCurrency(e.target.value)}
+                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Session Credits */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Session Credits</label>
+                  <p className="text-[11px] text-gray-400">
+                    Session credits to be added for each cycle • 1 Session credits = 60 mins
+                  </p>
+                  <input
+                    type="number"
+                    value={planSessionCredits}
+                    onChange={(e) => setPlanSessionCredits(e.target.value)}
+                    placeholder="Enter"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
+                  />
+                </div>
+
+                {/* Billing Cycle */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Billing Cycle</label>
+                  <p className="text-[11px] text-gray-400">Select how often invoices are generated</p>
+                  <CustomSelect
+                    value={planBillingCycle}
+                    onChange={(v) => setPlanBillingCycle(v)}
+                    options={[
+                      { value: 'Weekly', label: 'Weekly' },
+                      { value: 'Every 2 Weeks', label: 'Every 2 Weeks' },
+                      { value: 'Monthly', label: 'Monthly' },
+                      { value: 'Quarterly', label: 'Quarterly' },
+                      { value: 'Half-Yearly', label: 'Half-Yearly' },
+                      { value: 'Yearly', label: 'Yearly' },
+                    ]}
+                  />
+                </div>
+
+                {/* Grace Period */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-gray-900 dark:text-white">Grace Period</label>
+                  <p className="text-[11px] text-gray-400">Platform access will be restricted if invoice is not paid</p>
+                  <CustomSelect
+                    value={planGracePeriod}
+                    onChange={(v) => setPlanGracePeriod(v)}
+                    options={[
+                      { value: '0 days', label: '0 days' },
+                      { value: '3 days', label: '3 days' },
+                      { value: '5 days', label: '5 days' },
+                      { value: '7 days', label: '7 days' },
+                      { value: '14 days', label: '14 days' },
+                      { value: '30 days', label: '30 days' },
+                    ]}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Plan Name (Applies to all 4 models) */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-gray-900 dark:text-white">Plan Name</label>
               <p className="text-[11px] text-gray-400">Subtitle for your plan</p>
@@ -2215,33 +2541,58 @@ export function CourseSellingPageWizardModal({
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
               <button
                 type="button"
                 onClick={() => setIsPlanModalOpen(false)}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 transition"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  if (!planName.trim()) return;
-                  setPaymentPlans((prev) => [
-                    ...prev,
-                    {
-                      id: `plan-${Date.now()}`,
-                      type: planModalType,
-                      name: planName.trim(),
-                      price: Number(planPrice) || 2000,
-                      currency: 'INR',
-                      sessionCredits: Number(planSessionCredits) || 4,
-                      autoRenew: planAutoRenew,
-                    },
-                  ]);
+                  const finalName = planName.trim() || 'Billing Plan 1';
+                  const newPlan: PaymentPlanItem = {
+                    id: editingPlanId || `plan-${Date.now()}`,
+                    type: planModalType,
+                    name: finalName,
+                    price: Number(planPrice) || 0,
+                    currency: planCurrency || 'INR',
+                    sessionCredits:
+                      planModalType === 'session_package' || planModalType === 'session_subscription'
+                        ? Number(planSessionCredits) || 1
+                        : undefined,
+                    autoRenew: planModalType === 'session_package' ? planAutoRenew : undefined,
+                    billingCycle:
+                      planModalType === 'postpaid_session' ||
+                      planModalType === 'prepaid_session' ||
+                      planModalType === 'session_subscription'
+                        ? planBillingCycle
+                        : undefined,
+                    gracePeriod:
+                      planModalType === 'postpaid_session' || planModalType === 'session_subscription'
+                        ? planGracePeriod
+                        : undefined,
+                    gracePeriodDays:
+                      planModalType === 'postpaid_session' || planModalType === 'session_subscription'
+                        ? parseInt(planGracePeriod) || 3
+                        : undefined,
+                    invoiceLead: planModalType === 'prepaid_session' ? planInvoiceLead : undefined,
+                    invoiceLeadDays:
+                      planModalType === 'prepaid_session' ? parseInt(planInvoiceLead) || 5 : undefined,
+                  };
+
+                  setPaymentPlans((prev) => {
+                    if (editingPlanId) {
+                      return prev.map((p) => (p.id === editingPlanId ? newPlan : p));
+                    }
+                    return [...prev, newPlan];
+                  });
                   setIsPlanModalOpen(false);
                 }}
-                className="px-6 py-2 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B] transition"
+                className="px-6 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold transition shadow-sm"
               >
                 Save
               </button>
@@ -2985,6 +3336,93 @@ export function CourseSellingPageWizardModal({
                 className="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
               >
                 Add Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          COPY RESOURCE MODAL (Screenshot 018)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {copyResourceModalSectionId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Copy className="w-5 h-5 text-blue-600" />
+                <h4 className="text-base font-bold text-gray-900 dark:text-white">Copy Resource</h4>
+              </div>
+              <button
+                onClick={() => setCopyResourceModalSectionId(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Select an existing resource from any section in this course to copy into this section.
+            </p>
+
+            <div className="space-y-3">
+              {sections.flatMap((s) => s.resources).length === 0 ? (
+                <div className="py-6 text-center text-xs text-gray-400">
+                  No existing resources found to copy from. Add a video, file, or link first.
+                </div>
+              ) : (
+                <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+                  {sections.map((sec) =>
+                    sec.resources.map((res) => (
+                      <div
+                        key={`${sec.id}-${res.id}`}
+                        onClick={() => {
+                          setSections((prev) =>
+                            prev.map((s) =>
+                              s.id === copyResourceModalSectionId
+                                ? {
+                                    ...s,
+                                    resources: [
+                                      ...s.resources,
+                                      {
+                                        ...res,
+                                        id: `res-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                                        title: `${res.title} (Copy)`,
+                                      },
+                                    ],
+                                  }
+                                : s
+                            )
+                          );
+                          setCopyResourceModalSectionId(null);
+                        }}
+                        className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 hover:border-blue-500 hover:bg-blue-50/40 dark:hover:bg-blue-900/20 cursor-pointer flex items-center justify-between transition group"
+                      >
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition">
+                            {res.title}
+                          </p>
+                          <p className="text-[10px] text-gray-400">
+                            From: <span className="font-semibold text-gray-500 dark:text-gray-300">{sec.title}</span> • {res.type}
+                          </p>
+                        </div>
+                        <span className="text-[11px] font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition">
+                          Copy +
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => setCopyResourceModalSectionId(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 transition"
+              >
+                Cancel
               </button>
             </div>
           </div>

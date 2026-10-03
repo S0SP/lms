@@ -111,13 +111,13 @@ export const courseRepository = {
           createdAt: courses.createdAt,
           enrollmentCount: sql<number>`(
             SELECT count(*)::int FROM course_enrollments
-            WHERE course_id = ${courses.id} AND status = 'active'
+            WHERE course_enrollments.course_id = courses.id AND course_enrollments.status = 'active'
           )`,
           educators: sql<any>`(
             SELECT COALESCE(json_agg(json_build_object('id', u.id, 'name', u.name, 'email', u.email, 'avatarUrl', u.avatar_url)), '[]'::json)
             FROM course_educators ce
             JOIN users u ON ce.educator_id = u.id
-            WHERE ce.course_id = ${courses.id}
+            WHERE ce.course_id = courses.id
           )`,
         })
         .from(courses)
@@ -477,9 +477,11 @@ export const courseRepository = {
     sellingPageJson?: any;
     educatorIds?: string[];
     sections?: any[];
+    isTemplate?: boolean;
   }) {
     return await db.transaction(async (tx) => {
       const shortCode = params.shortCode || params.name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      const isTemplate = params.isTemplate !== undefined ? params.isTemplate : true;
       const [template] = await tx
         .insert(courses)
         .values({
@@ -492,11 +494,11 @@ export const courseRepository = {
           board: params.board,
           grade: params.grade,
           thumbnailUrl: params.thumbnailUrl,
-          urlSlug: slugify(`template-${params.name}`),
+          urlSlug: slugify(`${isTemplate ? 'template-' : ''}${params.name}-${Date.now().toString().slice(-4)}`),
           defaultSessionDurationMin: params.defaultSessionDurationMin ?? 60,
           isAdminBooked: true,
           sellingPageJson: params.sellingPageJson ?? null,
-          isTemplate: true,
+          isTemplate,
           createdBy: params.createdBy,
         })
         .returning();

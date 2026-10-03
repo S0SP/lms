@@ -49,6 +49,7 @@ export default function Courses1on1Page() {
   // Wizard Modal state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Course | null>(null);
+  const [isTemplateModalMode, setIsTemplateModalMode] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -171,6 +172,7 @@ export default function Courses1on1Page() {
             <button
               onClick={() => {
                 setEditingTemplate(null);
+                setIsTemplateModalMode(true);
                 setIsWizardOpen(true);
               }}
               className="px-4 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-2"
@@ -182,6 +184,7 @@ export default function Courses1on1Page() {
             <button
               onClick={() => {
                 setEditingTemplate(null);
+                setIsTemplateModalMode(false);
                 setIsWizardOpen(true);
               }}
               className="px-4 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-2"
@@ -259,7 +262,11 @@ export default function Courses1on1Page() {
               </p>
               <div className="pt-2 flex items-center justify-center gap-3">
                 <button
-                  onClick={() => setIsWizardOpen(true)}
+                  onClick={() => {
+                    setEditingTemplate(null);
+                    setIsTemplateModalMode(false);
+                    setIsWizardOpen(true);
+                  }}
                   className="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition"
                 >
                   Create Course
@@ -327,13 +334,26 @@ export default function Courses1on1Page() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <Link
-                          href={`/admin/courses/1-on-1/${course.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold text-xs hover:bg-[#0F172A] hover:text-white dark:hover:bg-white dark:hover:text-black transition inline-flex items-center gap-1"
-                        >
-                          Workspace
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            title="Edit Selling Page & Course Details"
+                            onClick={() => {
+                              setEditingTemplate(course);
+                              setIsTemplateModalMode(false);
+                              setIsWizardOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <Link
+                            href={`/admin/courses/1-on-1/${course.id}`}
+                            className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold text-xs hover:bg-[#0F172A] hover:text-white dark:hover:bg-white dark:hover:text-black transition inline-flex items-center gap-1"
+                          >
+                            Workspace
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -428,6 +448,7 @@ export default function Courses1on1Page() {
                       title="Edit Template in 9-Step Wizard"
                       onClick={() => {
                         setEditingTemplate(tmpl);
+                        setIsTemplateModalMode(true);
                         setIsWizardOpen(true);
                       }}
                       className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
@@ -468,11 +489,15 @@ export default function Courses1on1Page() {
           setEditingTemplate(null);
         }}
         onSuccess={() => {
-          showNotification('Course template successfully saved and synchronized with database!');
+          showNotification(
+            isTemplateModalMode
+              ? 'Course template successfully saved and synchronized with database!'
+              : '1-on-1 course successfully saved and synchronized with database!'
+          );
           loadData();
         }}
         initialData={editingTemplate}
-        isTemplateMode={true}
+        isTemplateMode={isTemplateModalMode}
       />
     </div>
   );
