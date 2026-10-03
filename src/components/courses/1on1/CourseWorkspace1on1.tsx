@@ -105,7 +105,7 @@ export function CourseWorkspace1on1({
       setCourseNameInput(c.name || '');
       setCourseSubjectInput(c.subject || '');
       setCourseGradeInput(c.grade || '');
-      setCourseBoardInput(c.curriculum || '');
+      setCourseBoardInput(c.board || (typeof c.curriculum === 'string' ? c.curriculum : 'Cambridge IGCSE'));
       setCourseStatusInput(c.status || 'active');
 
       const primaryEducator = c.educators?.[0];
@@ -118,8 +118,17 @@ export function CourseWorkspace1on1({
       );
       if (creditsRes.ok) {
         const credData = await creditsRes.json();
-        setCredits(credData.credits || { remaining: 0, consumed: 0, total: 0 });
-        setCreditHistory(credData.history || []);
+        const cred = credData.data?.credit || credData.credit;
+        setCredits(
+          cred
+            ? {
+                remaining: Number(cred.total || 0) - Number(cred.consumed || 0),
+                consumed: Number(cred.consumed || 0),
+                total: Number(cred.total || 0),
+              }
+            : { remaining: 0, consumed: 0, total: 0 }
+        );
+        setCreditHistory(credData.data?.history || credData.history || []);
       }
 
       // 3. Sessions
@@ -144,8 +153,14 @@ export function CourseWorkspace1on1({
       }
 
       // 6. Content curriculum sections
-      if (c.sections && Array.isArray(c.sections) && c.sections.length > 0) {
-        setContentSections(c.sections);
+      const loadedSections = (c.curriculum && Array.isArray(c.curriculum) && c.curriculum.length > 0)
+        ? c.curriculum
+        : (c.sections && Array.isArray(c.sections) && c.sections.length > 0)
+        ? c.sections
+        : null;
+
+      if (loadedSections) {
+        setContentSections(loadedSections);
       } else {
         // Fallback or seed default curriculum section
         setContentSections([
@@ -255,6 +270,7 @@ export function CourseWorkspace1on1({
           name: courseNameInput,
           subject: courseSubjectInput,
           grade: courseGradeInput,
+          board: courseBoardInput,
           curriculum: courseBoardInput,
           status: courseStatusInput,
         }),
@@ -330,7 +346,7 @@ export function CourseWorkspace1on1({
                 </span>
               </div>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                {course?.grade || 'Grade 9'} • {course?.subject || 'Physics'} • {course?.curriculum || 'Cambridge IGCSE'}
+                {course?.grade || 'Grade 9'} • {course?.subject || 'Physics'} • {course?.board || (typeof course?.curriculum === 'string' ? course?.curriculum : 'Cambridge IGCSE')}
               </p>
             </div>
           </div>

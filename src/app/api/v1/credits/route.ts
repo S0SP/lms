@@ -11,8 +11,15 @@ export async function GET(req: NextRequest) {
   const courseId = searchParams.get('courseId');
   const learnerId = searchParams.get('learnerId');
 
-  if (!courseId || !learnerId) {
-    return apiError('courseId and learnerId are required', 400);
+  if (!courseId) {
+    return apiError('courseId is required', 400);
+  }
+
+  if (!learnerId) {
+    return apiSuccess({
+      credit: { total: 0, consumed: 0, remaining: 0 },
+      history: [],
+    });
   }
 
   const includeHistory = searchParams.get('history') === 'true';
