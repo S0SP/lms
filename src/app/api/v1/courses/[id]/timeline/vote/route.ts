@@ -2,7 +2,7 @@ import { type NextRequest } from 'next/server';
 import { requireAuth, apiSuccess, apiError } from '@/lib/api';
 import { db } from '@/lib/drizzle';
 import { pollResponses, pollOptions, polls } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, asc, sql, inArray } from 'drizzle-orm';
 
 // POST /api/v1/courses/[id]/timeline/vote
 export async function POST(
@@ -45,17 +45,55 @@ export async function POST(
   }
 
   // Insert the vote
-  const [response] = await db
+  await db
     .insert(pollResponses)
     .values({
       optionId,
       learnerId: userId,
-    })
-    .returning();
+    });
+
+  // Fetch updated votes for this poll
+  const optionsRows = await db
+    .select()
+    .from(pollOptions)
+    .where(eq(pollOptions.pollId, option.pollId))
+    .orderBy(asc(pollOptions.sortOrder));
+
+  const allOptionIds = optionsRows.map((o) => o.id);
+  let voteCounts: Record<string, number> = {};
+
+  if (allOptionIds.length > 0) {
+    const votes = await db
+      .select({
+        optionId: pollResponses.optionId,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(pollResponses)
+      .where(inArray(pollResponses.optionId, allOptionIds))
+      .groupBy(pollResponses.optionId);
+
+    for (const v of votes) {
+      voteCounts[v.optionId] = v.count;
+    }
+  }
+
+  const pOptions = optionsRows.map((o) => ({
+    id: o.id,
+    body: o.body,
+    isCorrect: o.isCorrect,
+    votes: voteCounts[o.id] || 0,
+  }));
+
+  const totalVotes = pOptions.reduce((acc, curr) => acc + curr.votes, 0);
 
   return apiSuccess({
     voted: true,
     optionId,
     isCorrect: option.isCorrect,
+    totalVotes,
+    options: pOptions.map((o) => ({
+      ...o,
+      pct: totalVotes > 0 ? Math.round((o.votes / totalVotes) * 100) : 0,
+    })),
   });
 }

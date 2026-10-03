@@ -1,5 +1,5 @@
 import { db } from '@/lib/drizzle';
-import { credits, creditLedger, users } from '@/db/schema';
+import { credits, creditLedger, users, courseEnrollments } from '@/db/schema';
 import { eq, and, sql, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { adjustCreditSchema } from '@/validators/creditValidator';
@@ -35,6 +35,16 @@ export const creditRepository = {
   },
 
   async adjustCredit(data: z.infer<typeof adjustCreditSchema>, adminId: string) {
+    // 0. Ensure learner is enrolled in the course
+    await db
+      .insert(courseEnrollments)
+      .values({
+        courseId: data.courseId,
+        learnerId: data.learnerId,
+        status: 'active',
+      })
+      .onConflictDoNothing();
+
     // 1. Upsert the credits balance
     await db
       .insert(credits)

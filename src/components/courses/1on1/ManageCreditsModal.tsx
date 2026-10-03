@@ -1,21 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Loader2, User } from 'lucide-react';
 
 interface ManageCreditsModalProps {
   isOpen: boolean;
   onClose: () => void;
   courseId: string;
-  learnerId: string;
+  learnerId?: string;
   onSuccess?: () => void;
 }
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function ManageCreditsModal({
   isOpen,
   onClose,
   courseId,
-  learnerId,
+  learnerId: initialLearnerId,
   onSuccess,
 }: ManageCreditsModalProps) {
   const [tab, setTab] = useState<'add' | 'deduct'>('add');
@@ -24,12 +26,57 @@ export function ManageCreditsModal({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Learner selection
+  const [selectedLearnerId, setSelectedLearnerId] = useState<string>('');
+  const [availableLearners, setAvailableLearners] = useState<Array<{ id: string; name: string; email?: string }>>([]);
+  const [loadingLearners, setLoadingLearners] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Check if initialLearnerId is a valid UUID
+    const isValidUUID = initialLearnerId && UUID_REGEX.test(initialLearnerId);
+    if (isValidUUID) {
+      setSelectedLearnerId(initialLearnerId);
+    } else {
+      setSelectedLearnerId('');
+    }
+
+    // Always fetch available learners in case admin needs to select or change learner
+    async function loadLearners() {
+      try {
+        setLoadingLearners(true);
+        const res = await fetch('/api/v1/learners?perPage=100');
+        if (res.ok) {
+          const json = await res.json();
+          const list = json.data || [];
+          setAvailableLearners(list);
+          if (!isValidUUID && list.length > 0) {
+            setSelectedLearnerId(list[0].id);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load learners:', err);
+      } finally {
+        setLoadingLearners(false);
+      }
+    }
+
+    loadLearners();
+  }, [isOpen, initialLearnerId]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async () => {
     const num = parseFloat(amount);
     if (isNaN(num) || num <= 0) {
       setErrorMsg('Please enter a valid positive number of credits.');
+      return;
+    }
+
+    const effectiveLearnerId = selectedLearnerId || initialLearnerId;
+    if (!effectiveLearnerId || !UUID_REGEX.test(effectiveLearnerId)) {
+      setErrorMsg('Please select a valid learner to adjust credits.');
       return;
     }
 
@@ -44,7 +91,7 @@ export function ManageCreditsModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           courseId,
-          learnerId,
+          learnerId: effectiveLearnerId,
           delta,
           reason: notes.trim() || (tab === 'add' ? 'Credits Added' : 'Credits Deducted'),
         }),
@@ -57,7 +104,18 @@ export function ManageCreditsModal({
         onClose();
       } else {
         const json = await res.json();
-        setErrorMsg(json.error || 'Failed to update credits.');
+        let displayError = json.error || 'Failed to update credits.';
+        if (typeof displayError === 'string' && displayError.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(displayError);
+            if (Array.isArray(parsed) && parsed[0]?.message) {
+              displayError = parsed[0].message;
+            }
+          } catch {
+            // keep string
+          }
+        }
+        setErrorMsg(displayError);
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Network error while updating credits.');
@@ -65,6 +123,8 @@ export function ManageCreditsModal({
       setLoading(false);
     }
   };
+
+  const showLearnerDropdown = !initialLearnerId || !UUID_REGEX.test(initialLearnerId) || availableLearners.length > 1;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
@@ -85,7 +145,7 @@ export function ManageCreditsModal({
         {/* Content */}
         <div className="p-6 space-y-5">
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
               {errorMsg}
             </div>
           )}
@@ -120,6 +180,38 @@ export function ManageCreditsModal({
             </button>
           </div>
 
+          {/* Learner Selector */}
+          {showLearnerDropdown && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-blue-500" />
+                <span>Select Learner</span>
+              </label>
+              {loadingLearners ? (
+                <div className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs text-gray-400 flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Loading learners...</span>
+                </div>
+              ) : availableLearners.length === 0 ? (
+                <div className="p-2.5 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 text-xs">
+                  No learners found. Please create or invite a learner first.
+                </div>
+              ) : (
+                <select
+                  value={selectedLearnerId}
+                  onChange={(e) => setSelectedLearnerId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 transition shadow-2xs"
+                >
+                  {availableLearners.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.name} {l.email ? `(${l.email})` : ''}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
+
           {/* Credit input */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
@@ -131,7 +223,7 @@ export function ManageCreditsModal({
               min="0.5"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter amount"
+              placeholder="e.g. 10"
               className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 transition shadow-2xs"
             />
           </div>
@@ -149,39 +241,36 @@ export function ManageCreditsModal({
               placeholder="Enter your note here"
               className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 transition resize-none shadow-2xs"
             />
-            <div className="flex justify-end">
-              <span className="text-[11px] text-gray-400 font-medium">
-                {notes.length}/100
-              </span>
+            <div className="text-right text-[10px] text-gray-400">
+              {notes.length}/100
             </div>
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="pt-2 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading || !amount}
-              className="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <span>{tab === 'add' ? 'Add Credits' : 'Deduct Credits'}</span>
-              )}
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/20">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !amount || parseFloat(amount) <= 0 || (showLearnerDropdown && !selectedLearnerId)}
+            className="px-6 py-2.5 bg-[#0F172A] hover:bg-[#1E293B] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Processing...</span>
+              </>
+            ) : tab === 'add' ? (
+              'Add Credits'
+            ) : (
+              'Deduct Credits'
+            )}
+          </button>
         </div>
       </div>
     </div>

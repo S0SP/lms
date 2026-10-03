@@ -29,7 +29,7 @@ export async function GET(
       authorRole: users.role,
     })
     .from(timelinePosts)
-    .innerJoin(users, eq(timelinePosts.authorId, users.id))
+    .leftJoin(users, eq(timelinePosts.authorId, users.id))
     .where(eq(timelinePosts.courseId, courseId))
     .orderBy(desc(timelinePosts.createdAt));
 
@@ -49,7 +49,7 @@ export async function GET(
         authorAvatarUrl: users.avatarUrl,
       })
       .from(timelineComments)
-      .innerJoin(users, eq(timelineComments.authorId, users.id))
+      .leftJoin(users, eq(timelineComments.authorId, users.id))
       .where(inArray(timelineComments.postId, postIds))
       .orderBy(timelineComments.createdAt);
 
@@ -118,9 +118,11 @@ export async function GET(
           }));
 
         const totalVotes = pOptions.reduce((acc, curr) => acc + curr.votes, 0);
+        const postMatching = posts.find((pt) => pt.id === p.postId);
 
         pollsByPostId[p.postId] = {
           id: p.id,
+          question: postMatching?.body || '',
           isQuizMode: p.isQuizMode,
           showResultsImmediately: p.showResultsImmediately,
           userVotedOptionId,
@@ -241,6 +243,7 @@ export async function POST(
         authorRole: author?.role || 'educator',
         poll: {
           id: newPoll.id,
+          question: newPost.bodyRichtext,
           isQuizMode: newPoll.isQuizMode,
           showResultsImmediately: newPoll.showResultsImmediately,
           totalVotes: 0,

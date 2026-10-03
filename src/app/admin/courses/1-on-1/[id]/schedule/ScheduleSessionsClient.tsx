@@ -83,6 +83,13 @@ function generateDurationOptions() {
   return options;
 }
 
+function getLocalDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 const DURATION_OPTIONS = generateDurationOptions();
 
 export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
@@ -90,7 +97,8 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
 
   // Course Data
   const [course, setCourse] = useState<any>(null);
-  const [educators, setEducators] = useState<any[]>([]);
+  const [allEducators, setAllEducators] = useState<any[]>([]);
+  const [allLearners, setAllLearners] = useState<any[]>([]);
   const [existingSessions, setExistingSessions] = useState<CalendarSessionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -99,16 +107,20 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
   const [sessionTitle, setSessionTitle] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>(['Physics', 'IGCSE']);
   const [selectedEducatorId, setSelectedEducatorId] = useState<string>('');
+  const [selectedLearnerId, setSelectedLearnerId] = useState<string>('');
   const [durationMin, setDurationMin] = useState<string>('60');
 
   // Slots
-  const [slots, setSlots] = useState<SlotEntry[]>([
-    {
-      id: 'slot-1',
-      date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-      time: '16:00',
-    },
-  ]);
+  const [slots, setSlots] = useState<SlotEntry[]>(() => {
+    const tomorrow = new Date(Date.now() + 86400000);
+    return [
+      {
+        id: 'slot-1',
+        date: getLocalDateString(tomorrow),
+        time: '16:00',
+      },
+    ];
+  });
 
   // Calendar Controls
   const [calendarViewRole, setCalendarViewRole] = useState<'educator' | 'learner'>('educator');
@@ -133,42 +145,47 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
   const loadData = async () => {
     setLoading(true);
     try {
-      // 1. Course
-      const cRes = await fetch(`/api/v1/courses/${courseId}`);
+      const [cRes, eduRes, learnRes] = await Promise.all([
+        fetch(`/api/v1/courses/${courseId}`),
+        fetch('/api/v1/educators?perPage=100'),
+        fetch('/api/v1/learners?perPage=100'),
+      ]);
+
+      let loadedCourse: any = null;
       if (cRes.ok) {
         const cData = await cRes.json();
-        const c = cData.data || cData;
-        setCourse(c);
-        setSessionTitle(`${c.name || 'Physics'} 1-on-1 Session`);
-        if (c.educators && c.educators.length > 0) {
-          setEducators(c.educators);
-          setSelectedEducatorId(c.educators[0].id);
-        }
+        loadedCourse = cData.data || cData;
+        setCourse(loadedCourse);
+        setSessionTitle(`${loadedCourse.name || 'Physics'} 1-on-1 Session`);
       }
 
-      // 2. Existing Sessions
-      const sRes = await fetch(`/api/v1/sessions?courseId=${courseId}&perPage=200`);
-      if (sRes.ok) {
-        const sData = await sRes.json();
-        const items = (sData.data || sData.sessions || []).map((s: any) => ({
-          id: s.id,
-          title: s.title,
-          courseId: s.courseId,
-          educatorId: s.educatorId,
-          educatorName: s.educatorName,
-          studentName: s.studentName,
-          startTime: s.scheduledAt || s.startTime,
-          endTime:
-            s.endTime ||
-            new Date(new Date(s.scheduledAt || s.startTime).getTime() + (s.durationMin || 60) * 60000).toISOString(),
-          status: s.status?.toUpperCase() || 'SCHEDULED',
-          meetingUrl: s.zoomMeetingUrl || s.meetingUrl,
-          recordingUrl: s.recordingUrl,
-          tags: s.tags || [],
-          aiSummary: s.aiSummary,
-          creditsDeducted: s.creditsConsumed || 1,
-        }));
-        setExistingSessions(items);
+      let eduList: any[] = [];
+      if (eduRes.ok) {
+        const eduData = await eduRes.json();
+        eduList = eduData.data || [];
+        setAllEducators(eduList);
+      }
+
+      let learnList: any[] = [];
+      if (learnRes.ok) {
+        const learnData = await learnRes.json();
+        learnList = learnData.data || [];
+        setAllLearners(learnList);
+      }
+
+      // Initial educator selection
+      if (loadedCourse?.educators && loadedCourse.educators.length > 0) {
+        setSelectedEducatorId(loadedCourse.educators[0].id);
+      } else if (eduList.length > 0) {
+        setSelectedEducatorId(eduList[0].id);
+      }
+
+      // Initial learner selection
+      if (loadedCourse?.learners && loadedCourse.learners.length > 0) {
+        setSelectedLearnerId(loadedCourse.learners[0].id);
+      } else if (learnList.length > 0) {
+        const match = learnList.find((l: any) => l.name?.toLowerCase().includes('swayam')) || learnList[0];
+        setSelectedLearnerId(match.id);
       }
     } catch (err) {
       console.error('Failed to load schedule data:', err);
@@ -180,6 +197,61 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (courseId) loadData();
   }, [courseId]);
+
+  // Fetch calendar events dynamically based on selected tab and user
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function fetchCalendarSessions() {
+      try {
+        let url = '';
+        if (calendarViewRole === 'educator') {
+          if (!selectedEducatorId) {
+            setExistingSessions([]);
+            return;
+          }
+          url = `/api/v1/sessions?educatorId=${selectedEducatorId}&perPage=200`;
+        } else {
+          if (!selectedLearnerId) {
+            setExistingSessions([]);
+            return;
+          }
+          url = `/api/v1/sessions?learnerId=${selectedLearnerId}&perPage=200`;
+        }
+
+        const res = await fetch(url);
+        if (res.ok && !isCancelled) {
+          const sData = await res.json();
+          const items = (sData.data || sData.sessions || []).map((s: any) => ({
+            id: s.id,
+            title: s.title,
+            courseId: s.courseId,
+            educatorId: s.educatorId,
+            educatorName: s.educatorName,
+            studentName: s.studentName,
+            startTime: s.scheduledAt || s.startTime,
+            endTime:
+              s.endTime ||
+              new Date(new Date(s.scheduledAt || s.startTime).getTime() + (s.durationMin || 60) * 60000).toISOString(),
+            status: s.status?.toUpperCase() || 'SCHEDULED',
+            meetingUrl: s.zoomMeetingUrl || s.meetingUrl,
+            recordingUrl: s.recordingUrl,
+            tags: s.tags || [],
+            aiSummary: s.aiSummary,
+            creditsDeducted: s.creditsConsumed || 1,
+          }));
+          setExistingSessions(items);
+        }
+      } catch (err) {
+        console.error('Failed to load calendar events:', err);
+      }
+    }
+
+    fetchCalendarSessions();
+    return () => {
+      isCancelled = true;
+    };
+  }, [calendarViewRole, selectedEducatorId, selectedLearnerId]);
 
   // Conflict Detection: check if any slot overlaps with existing sessions
   const conflictsCount = useMemo(() => {
@@ -217,7 +289,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
       ...slots,
       {
         id: `slot-${Date.now()}`,
-        date: nextDate.toISOString().split('T')[0],
+        date: getLocalDateString(nextDate),
         time: lastSlot ? lastSlot.time : '16:00',
       },
     ]);
@@ -243,7 +315,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
       if (rule.frequency === 'Day') {
         newSlots.push({
           id: `rec-${generated}-${Date.now()}`,
-          date: current.toISOString().split('T')[0],
+          date: getLocalDateString(current),
           time: baseTime,
         });
         generated++;
@@ -252,7 +324,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
         if (rule.daysOfWeek.includes(current.getDay())) {
           newSlots.push({
             id: `rec-${generated}-${Date.now()}`,
-            date: current.toISOString().split('T')[0],
+            date: getLocalDateString(current),
             time: baseTime,
           });
           generated++;
@@ -261,7 +333,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
       } else if (rule.frequency === 'Month') {
         newSlots.push({
           id: `rec-${generated}-${Date.now()}`,
-          date: current.toISOString().split('T')[0],
+          date: getLocalDateString(current),
           time: baseTime,
         });
         generated++;
@@ -287,13 +359,39 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
 
     setCreating(true);
     try {
-      const learnerId = course?.learners?.[0]?.id;
+      const learnerId = course?.learners?.[0]?.id || selectedLearnerId;
       const dur = parseInt(durationMin);
+
+      // Auto-assign educator to course if not already assigned
+      const isEduAssigned = course?.educators?.some((e: any) => e.id === selectedEducatorId);
+      if (!isEduAssigned && courseId) {
+        await fetch(`/api/v1/courses/${courseId}/educators`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ educatorId: selectedEducatorId }),
+        }).catch((err) => console.error('Failed to auto-assign educator:', err));
+      }
+
+      // Auto-enroll learner in course if not already enrolled
+      const isLearnerEnrolled = course?.learners?.some((l: any) => l.id === learnerId);
+      if (!isLearnerEnrolled && learnerId && courseId) {
+        await fetch('/api/v1/credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            courseId,
+            learnerId,
+            amount: 0,
+            type: 'credit',
+            reason: 'Auto-enroll for 1-on-1 personalized schedule',
+          }),
+        }).catch((err) => console.error('Failed to auto-enroll learner:', err));
+      }
 
       // Create each session sequentially
       for (const slot of slots) {
         const scheduledAt = new Date(`${slot.date}T${slot.time}:00`).toISOString();
-        await fetch('/api/v1/sessions', {
+        const res = await fetch('/api/v1/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -308,13 +406,18 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
             tags: selectedTags,
           }),
         });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to create session');
+        }
       }
 
       // Success: redirect back to course workspace
       router.push(`/admin/courses/1-on-1/${courseId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create sessions:', err);
-      alert('Error creating sessions. Please try again.');
+      alert(err.message || 'Error creating sessions. Please try again.');
     } finally {
       setCreating(false);
     }
@@ -357,7 +460,12 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
     );
   }
 
-  const primaryLearner = course?.learners?.[0] || { name: 'S.Y.Swayammirithika' };
+  const primaryLearner =
+    course?.learners?.find((l: any) => l.id === selectedLearnerId) ||
+    course?.learners?.[0] ||
+    allLearners.find((l: any) => l.id === selectedLearnerId) ||
+    allLearners[0] ||
+    { name: 'Learner' };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-neutral-950 flex flex-col text-neutral-900 dark:text-neutral-100">
@@ -470,16 +578,34 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
                 value={selectedEducatorId}
                 onChange={(val) => setSelectedEducatorId(val as string)}
                 options={
-                  educators.length > 0
-                    ? educators.map((e) => ({
+                  allEducators.length > 0
+                    ? allEducators.map((e) => ({
                         value: e.id,
                         label: e.name || 'Educator',
                         subLabel: e.email,
                       }))
-                    : [{ value: 'default', label: 'Abir Sir' }]
+                    : [{ value: '', label: 'Loading educators...' }]
                 }
               />
             </div>
+
+            {/* Learner selector (if not enrolled yet or customizable) */}
+            {(!course?.learners || course.learners.length === 0) && allLearners.length > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
+                  Enrolled Learner
+                </label>
+                <CustomSelect
+                  value={selectedLearnerId}
+                  onChange={(val) => setSelectedLearnerId(val as string)}
+                  options={allLearners.map((l) => ({
+                    value: l.id,
+                    label: l.name || 'Learner',
+                    subLabel: l.email,
+                  }))}
+                />
+              </div>
+            )}
 
             {/* Duration selector (CustomSelect) */}
             <div className="space-y-1.5">
@@ -711,12 +837,12 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
 
                       {/* 7 Day cells for this hour */}
                       {weekDays.map((date, colIdx) => {
-                        const dateStr = date.toISOString().split('T')[0];
+                        const dateStr = getLocalDateString(date);
 
                         // Find existing sessions in this hour cell
                         const cellSessions = existingSessions.filter((s) => {
                           const sDate = new Date(s.startTime);
-                          const sDateStr = sDate.toISOString().split('T')[0];
+                          const sDateStr = getLocalDateString(sDate);
                           return sDateStr === dateStr && sDate.getHours() === hour;
                         });
 

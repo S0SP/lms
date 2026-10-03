@@ -92,12 +92,18 @@ export function CourseWorkspace1on1({
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
-  // Fetch all course workspace data
+  // Fetch all course workspace data concurrently
   const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Course details
-      const courseRes = await fetch(`/api/v1/courses/${courseId}`);
+      // 1. Fetch main datasets in parallel
+      const [courseRes, sessionsRes, timelineRes, educatorsRes] = await Promise.all([
+        fetch(`/api/v1/courses/${courseId}`),
+        fetch(`/api/v1/sessions?courseId=${courseId}&perPage=100`),
+        fetch(`/api/v1/courses/${courseId}/timeline`),
+        fetch(`/api/v1/courses/${courseId}/educators`),
+      ]);
+
       if (!courseRes.ok) throw new Error('Course not found');
       const courseData = await courseRes.json();
       const c = courseData.data || courseData;
@@ -108,51 +114,31 @@ export function CourseWorkspace1on1({
       setCourseBoardInput(c.board || (typeof c.curriculum === 'string' ? c.curriculum : 'Cambridge IGCSE'));
       setCourseStatusInput(c.status || 'active');
 
-      const primaryEducator = c.educators?.[0];
-      if (primaryEducator) setSelectedEducatorId(primaryEducator.id);
-
-      // 2. Credits & ledger history
-      const learnerId = c.learners?.[0]?.id;
-      const creditsRes = await fetch(
-        `/api/v1/credits?courseId=${courseId}${learnerId ? `&learnerId=${learnerId}` : ''}&history=true`
-      );
-      if (creditsRes.ok) {
-        const credData = await creditsRes.json();
-        const cred = credData.data?.credit || credData.credit;
-        setCredits(
-          cred
-            ? {
-                remaining: Number(cred.total || 0) - Number(cred.consumed || 0),
-                consumed: Number(cred.consumed || 0),
-                total: Number(cred.total || 0),
-              }
-            : { remaining: 0, consumed: 0, total: 0 }
-        );
-        setCreditHistory(credData.data?.history || credData.history || []);
+      // 2. Process Educators
+      let eduList: any[] = [];
+      if (educatorsRes.ok) {
+        const eduData = await educatorsRes.json();
+        eduList = eduData.data || eduData.educators || [];
       }
+      if (eduList.length === 0 && Array.isArray(c.educators) && c.educators.length > 0) {
+        eduList = c.educators;
+      }
+      setEducators(eduList);
+      if (eduList.length > 0) setSelectedEducatorId(eduList[0].id);
 
-      // 3. Sessions
-      const sessionsRes = await fetch(`/api/v1/sessions?courseId=${courseId}&perPage=100`);
+      // 3. Process Sessions
       if (sessionsRes.ok) {
         const sessData = await sessionsRes.json();
         setSessions(sessData.data || sessData.sessions || []);
       }
 
-      // 4. Timeline
-      const timelineRes = await fetch(`/api/v1/courses/${courseId}/timeline`);
+      // 4. Process Timeline Posts
       if (timelineRes.ok) {
         const timeData = await timelineRes.json();
-        setTimelinePosts(timeData.posts || []);
+        setTimelinePosts(timeData.data || timeData.posts || []);
       }
 
-      // 5. Educators
-      const educatorsRes = await fetch(`/api/v1/courses/${courseId}/educators`);
-      if (educatorsRes.ok) {
-        const eduData = await educatorsRes.json();
-        setEducators(eduData.educators || []);
-      }
-
-      // 6. Content curriculum sections
+      // 5. Process Content curriculum sections
       const loadedSections = (c.curriculum && Array.isArray(c.curriculum) && c.curriculum.length > 0)
         ? c.curriculum
         : (c.sections && Array.isArray(c.sections) && c.sections.length > 0)
@@ -161,41 +147,36 @@ export function CourseWorkspace1on1({
 
       if (loadedSections) {
         setContentSections(loadedSections);
-      } else {
-        // Fallback or seed default curriculum section
-        setContentSections([
-          {
-            id: 'sec-1',
-            title: 'Module 1: Kinematics, Forces and Energy',
-            resources: [
-              {
-                id: 'res-1',
-                title: 'IGCSE Physics Student Workbook - Motion & Acceleration.pdf',
-                type: 'pdf',
-                externalUrl: 'https://example.com/materials/physics-chapter1.pdf',
-              },
-              {
-                id: 'res-2',
-                title: 'Vectors and Velocity Notes - Formulas & Derivations',
-                type: 'document',
-                externalUrl: '#',
-              },
-            ],
-          },
-          {
-            id: 'sec-2',
-            title: 'Module 2: Thermal Physics & Properties of Matter',
-            resources: [
-              {
-                id: 'res-3',
-                title: 'Specific Heat Capacity Lab Reference.pdf',
-                type: 'pdf',
-                externalUrl: '#',
-              },
-            ],
-          },
-        ]);
       }
+
+      // 6. Fast Credits Initialization
+      if (c.credits) {
+        setCredits({
+          remaining: Number(c.credits.total || 0) - Number(c.credits.consumed || 0),
+          consumed: Number(c.credits.consumed || 0),
+          total: Number(c.credits.total || 0),
+        });
+      }
+
+      // Fetch credits & history asynchronously without blocking
+      const learnerId = c.learners?.[0]?.id;
+      fetch(`/api/v1/credits?courseId=${courseId}${learnerId ? `&learnerId=${learnerId}` : ''}&history=true`)
+        .then(async (res) => {
+          if (res.ok) {
+            const credData = await res.json();
+            const cred = credData.data?.credit || credData.credit;
+            if (cred) {
+              setCredits({
+                remaining: Number(cred.total || 0) - Number(cred.consumed || 0),
+                consumed: Number(cred.consumed || 0),
+                total: Number(cred.total || 0),
+              });
+            }
+            setCreditHistory(credData.data?.history || credData.history || []);
+          }
+        })
+        .catch((e) => console.error('Credit load error:', e));
+
     } catch (err) {
       console.error('Failed to load course workspace data:', err);
     } finally {
@@ -218,7 +199,8 @@ export function CourseWorkspace1on1({
         body: JSON.stringify({ pollId, optionId }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const json = await res.json();
+        const voteRes = json.data || json;
         // Update local timeline posts
         setTimelinePosts((prev) =>
           prev.map((post) => {
@@ -227,9 +209,9 @@ export function CourseWorkspace1on1({
                 ...post,
                 poll: {
                   ...post.poll,
-                  totalVotes: data.totalVotes,
+                  totalVotes: voteRes.totalVotes ?? (post.poll.totalVotes || 0) + 1,
                   userVotedOptionId: optionId,
-                  options: data.options,
+                  options: voteRes.options || post.poll.options,
                 },
               };
             }
@@ -295,21 +277,8 @@ export function CourseWorkspace1on1({
     );
   }
 
-  const learner = course?.learners?.[0] || {
-    id: 'learn-1',
-    name: 'S.Y.Swayammirithika',
-    email: 'swayam@unboundyou.com',
-    phone: '+91 95666 40437',
-    avatarUrl: null,
-  };
-
-  const primaryEducator = educators?.[0] || course?.educators?.[0] || {
-    id: 'edu-1',
-    name: 'Abir Sir',
-    email: 'abirsan.saha@gmail.com',
-    phone: '+91 98300 12345',
-    payoutOverride: '800',
-  };
+  const learner = course?.learners?.[0] || null;
+  const primaryEducator = educators?.[0] || course?.educators?.[0] || null;
 
   // Group sessions into Upcoming and Completed/Past
   const now = new Date();
@@ -559,7 +528,7 @@ export function CourseWorkspace1on1({
                               </div>
                               <p className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-2 mt-1">
                                 <Clock className="w-3.5 h-3.5" />
-                                {timeStr} • Credits: {session.creditsConsumed || 1} • Educator: {session.educatorName || primaryEducator.name}
+                                {timeStr} • Credits: {session.creditsConsumed || 1} • Educator: {session.educatorName || primaryEducator?.name || 'Educator'}
                               </p>
                             </div>
                           </div>
@@ -572,7 +541,7 @@ export function CourseWorkspace1on1({
                                     title: session.title,
                                     url: session.recordingUrl,
                                     date: d.toLocaleDateString(),
-                                    educatorName: session.educatorName || primaryEducator.name,
+                                    educatorName: session.educatorName || primaryEducator?.name || 'Educator',
                                   })
                                 }
                                 className="px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg flex items-center gap-1.5 transition"
@@ -661,21 +630,43 @@ export function CourseWorkspace1on1({
 
               {/* Learner Card */}
               <div className="bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl p-6 shadow-xs">
-                <h2 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-4">
-                  Enrolled Learner
-                </h2>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 text-white font-bold flex items-center justify-center text-base shadow-sm">
-                    {learner.name?.slice(0, 2).toUpperCase() || 'SY'}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
-                      {learner.name}
-                    </h3>
-                    <p className="text-xs text-neutral-500">{learner.email}</p>
-                    <p className="text-xs text-neutral-400 mt-0.5">{learner.phone}</p>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    Enrolled Learner
+                  </h2>
+                  {userRole !== 'learner' && !learner && (
+                    <button
+                      onClick={() => setIsManageCreditsModalOpen(true)}
+                      className="text-xs font-semibold text-blue-600 hover:underline"
+                    >
+                      + Enroll
+                    </button>
+                  )}
                 </div>
+                {learner ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 text-white font-bold flex items-center justify-center text-base shadow-sm">
+                      {learner.name?.slice(0, 2).toUpperCase() || 'SY'}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                        {learner.name}
+                      </h3>
+                      <p className="text-xs text-neutral-500">{learner.email}</p>
+                      {learner.phone && <p className="text-xs text-neutral-400 mt-0.5">{learner.phone}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 text-center space-y-2">
+                    <p className="text-xs text-neutral-400">No learner enrolled yet.</p>
+                    <button
+                      onClick={() => setIsManageCreditsModalOpen(true)}
+                      className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-100 transition inline-block"
+                    >
+                      + Assign Learner & Credits
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Educators Card */}
@@ -694,24 +685,40 @@ export function CourseWorkspace1on1({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 text-white font-bold flex items-center justify-center text-base shadow-sm">
-                      {primaryEducator.name?.slice(0, 2).toUpperCase() || 'AS'}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
-                        {primaryEducator.name}
-                      </h3>
-                      <p className="text-xs text-neutral-500">{primaryEducator.email}</p>
-                      {primaryEducator.payoutOverride && (
-                        <span className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-md">
-                          Payout: ₹{primaryEducator.payoutOverride}/session
-                        </span>
-                      )}
-                    </div>
+                {educators.length > 0 ? (
+                  <div className="space-y-3">
+                    {educators.map((edu) => (
+                      <div key={edu.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            {edu.name?.slice(0, 2).toUpperCase() || 'ED'}
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                              {edu.name}
+                            </h3>
+                            <p className="text-xs text-neutral-500">{edu.email}</p>
+                            {edu.payoutRateOverride && (
+                              <span className="inline-block mt-0.5 text-[11px] font-semibold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-md">
+                                Payout: ₹{edu.payoutRateOverride}/hr
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 text-center space-y-2">
+                    <p className="text-xs text-neutral-400">No educators assigned yet.</p>
+                    <button
+                      onClick={() => setIsAddEducatorModalOpen(true)}
+                      className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-100 transition inline-block"
+                    >
+                      + Assign Educator
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Admin / Manager Card */}
@@ -823,7 +830,7 @@ export function CourseWorkspace1on1({
                     </div>
 
                     {/* Post Content */}
-                    {post.body && (
+                    {post.body && !isPoll && (
                       <p className="text-sm text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap leading-relaxed">
                         {post.body}
                       </p>
@@ -859,7 +866,7 @@ export function CourseWorkspace1on1({
                     {isPoll && post.poll && (
                       <div className="mt-3 space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">
                         <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                          {post.poll.question}
+                          {post.poll.question || post.body}
                         </h4>
 
                         <div className="space-y-2">
@@ -1334,7 +1341,7 @@ export function CourseWorkspace1on1({
         isOpen={isManageCreditsModalOpen}
         onClose={() => setIsManageCreditsModalOpen(false)}
         courseId={courseId}
-        learnerId={learner.id}
+        learnerId={learner?.id}
         onSuccess={fetchData}
       />
 
@@ -1368,7 +1375,12 @@ export function CourseWorkspace1on1({
         isOpen={isPollQuizModalOpen}
         onClose={() => setIsPollQuizModalOpen(false)}
         courseId={courseId}
-        onPollCreated={fetchData}
+        onPollCreated={(newPost) => {
+          if (newPost) {
+            setTimelinePosts((prev) => [newPost, ...prev]);
+          }
+          fetchData();
+        }}
       />
 
       {/* 6. Create Chit Chat Modal (Screenshot 021, 022) */}
@@ -1376,7 +1388,12 @@ export function CourseWorkspace1on1({
         isOpen={isChitChatModalOpen}
         onClose={() => setIsChitChatModalOpen(false)}
         courseId={courseId}
-        onCreated={fetchData}
+        onCreated={(newPost) => {
+          if (newPost) {
+            setTimelinePosts((prev) => [newPost, ...prev]);
+          }
+          fetchData();
+        }}
       />
 
       {/* 7. Session Details Modal (Screenshot 013) */}

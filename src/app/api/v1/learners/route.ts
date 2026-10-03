@@ -7,7 +7,7 @@ import { users, orgs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {
-  const { session, error } = await requireAuth(['owner', 'admin']);
+  const { session, error } = await requireAuth(['owner', 'admin', 'educator']);
   if (error) return error;
 
   const { searchParams } = new URL(req.url);

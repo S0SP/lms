@@ -43,7 +43,10 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const parsed = adjustCreditSchema.safeParse(body);
-  if (!parsed.success) return apiError(parsed.error.message);
+  if (!parsed.success) {
+    const errorMsg = parsed.error.issues?.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ') || 'Validation error';
+    return apiError(errorMsg, 400);
+  }
 
   const adminId = session!.user!.id as string;
   const updated = await creditService.adjustCredit(parsed.data, adminId);
