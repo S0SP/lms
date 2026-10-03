@@ -403,7 +403,7 @@ export function EducatorProfileModal({
                     <span>
                       {educator?.payoutDetails?.accountNumber
                         ? 'Edit Payout Details'
-                        : '+ Add Payout Details'}
+                        : ' Add Payout Details'}
                     </span>
                   </button>
                 </div>
@@ -460,11 +460,10 @@ export function EducatorProfileModal({
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`pb-3 text-xs font-semibold tracking-tight whitespace-nowrap transition-colors relative cursor-pointer ${
-                  activeTab === t.id
+                className={`pb-3 text-xs font-semibold tracking-tight whitespace-nowrap transition-colors relative cursor-pointer ${activeTab === t.id
                     ? 'text-gray-900 dark:text-white font-bold'
                     : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
+                  }`}
               >
                 {t.label}
                 {activeTab === t.id && (
@@ -535,11 +534,10 @@ export function EducatorProfileModal({
                               </span>
                               <div
                                 style={{ height: `${m.sessions > 0 ? heightPct : 6}%` }}
-                                className={`w-full max-w-[48px] rounded-t-sm transition-all ${
-                                  m.sessions > 0
+                                className={`w-full max-w-[48px] rounded-t-sm transition-all ${m.sessions > 0
                                     ? 'bg-[#22d3ee] dark:bg-cyan-500'
                                     : 'bg-gray-100 dark:bg-gray-800'
-                                }`}
+                                  }`}
                               />
                               <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
                                 {m.month}
@@ -579,9 +577,8 @@ export function EducatorProfileModal({
                               </span>
                               <div
                                 style={{ height: `${total > 0 ? heightPct : 6}%` }}
-                                className={`w-full max-w-[48px] rounded-t-sm transition-all flex flex-col justify-end overflow-hidden ${
-                                  total > 0 ? 'bg-violet-600' : 'bg-gray-100 dark:bg-gray-800'
-                                }`}
+                                className={`w-full max-w-[48px] rounded-t-sm transition-all flex flex-col justify-end overflow-hidden ${total > 0 ? 'bg-violet-600' : 'bg-gray-100 dark:bg-gray-800'
+                                  }`}
                               >
                                 {m.paid > 0 && (
                                   <div
@@ -908,11 +905,10 @@ export function EducatorProfileModal({
                       <button
                         type="button"
                         onClick={() => setSessionSubTab('upcoming')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                          sessionSubTab === 'upcoming'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${sessionSubTab === 'upcoming'
                             ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-2xs border border-gray-300 dark:border-gray-700'
                             : 'text-gray-500 hover:text-gray-800 dark:text-gray-400'
-                        }`}
+                          }`}
                       >
                         Upcoming{' '}
                         <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-gray-100 dark:bg-gray-700">
@@ -923,11 +919,10 @@ export function EducatorProfileModal({
                       <button
                         type="button"
                         onClick={() => setSessionSubTab('past')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                          sessionSubTab === 'past'
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${sessionSubTab === 'past'
                             ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-2xs border border-gray-300 dark:border-gray-700'
                             : 'text-gray-500 hover:text-gray-800 dark:text-gray-400'
-                        }`}
+                          }`}
                       >
                         Past{' '}
                         <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-gray-100 dark:bg-gray-700">
@@ -1035,11 +1030,10 @@ export function EducatorProfileModal({
 
                                         <div className="mt-1.5">
                                           <span
-                                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
-                                              sess.status === 'completed'
+                                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${sess.status === 'completed'
                                                 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
                                                 : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-                                            }`}
+                                              }`}
                                           >
                                             {sess.status === 'completed' ? 'Completed' : 'Upcoming'}
                                           </span>
@@ -1215,9 +1209,8 @@ export function EducatorProfileModal({
                         return (
                           <div
                             key={idx}
-                            className={`py-3 border-r border-gray-100 dark:border-gray-800 last:border-r-0 ${
-                              isToday ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''
-                            }`}
+                            className={`py-3 border-r border-gray-100 dark:border-gray-800 last:border-r-0 ${isToday ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''
+                              }`}
                           >
                             <span
                               className={

@@ -7,7 +7,12 @@ export const creditService = {
     return await creditRepository.getCredit(courseId, learnerId);
   },
 
+  async getCreditHistory(courseId: string, learnerId: string, limit = 50) {
+    return await creditRepository.getCreditHistory(courseId, learnerId, limit);
+  },
+
   async adjustCredit(data: z.infer<typeof adjustCreditSchema>, adminId: string) {
     return await creditRepository.adjustCredit(data, adminId);
   }
 };
+

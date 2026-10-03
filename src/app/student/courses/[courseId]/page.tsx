@@ -21,6 +21,18 @@ export default async function CourseWorkspacePage({ params }: { params: Promise<
   const educatorNames = workspace.educators.map((e) => e.name);
   const primaryEducator = educatorNames.length > 0 ? educatorNames.join(', ') : 'No educator assigned';
 
+  // If this is a 1-on-1 personalization course, provide the full 5-tab workspace replica for the learner
+  if (workspace.course.type === 'one_on_one') {
+    const { CourseWorkspace1on1 } = await import('@/components/courses/1on1/CourseWorkspace1on1');
+    return (
+      <CourseWorkspace1on1
+        courseId={courseId}
+        userRole="learner"
+        currentUserId={session.user.id as string}
+      />
+    );
+  }
+
   return (
     <CourseWorkspaceClient
       course={{
@@ -54,3 +66,4 @@ export default async function CourseWorkspacePage({ params }: { params: Promise<
     />
   );
 }
+

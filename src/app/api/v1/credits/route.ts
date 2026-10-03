@@ -15,10 +15,20 @@ export async function GET(req: NextRequest) {
     return apiError('courseId and learnerId are required', 400);
   }
 
-  const credit = await creditService.getLearnerCourseCredit(courseId, learnerId);
+  const includeHistory = searchParams.get('history') === 'true';
 
-  return apiSuccess(credit ?? null);
+  const credit = await creditService.getLearnerCourseCredit(courseId, learnerId);
+  let history: any[] = [];
+  if (includeHistory) {
+    history = await creditService.getCreditHistory(courseId, learnerId);
+  }
+
+  return apiSuccess({
+    credit: credit ?? null,
+    history,
+  });
 }
+
 
 export async function POST(req: NextRequest) {
   const { session, error } = await requireAuth(['owner', 'admin']);

@@ -204,13 +204,43 @@ export const courseRepository = {
       resources: resourcesBySectionId[sec.id] || [],
     }));
 
+    // Fetch enrolled learners
+    const learnersResult = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        avatarUrl: users.avatarUrl,
+        enrollmentId: courseEnrollments.id,
+        enrolledAt: courseEnrollments.enrolledAt,
+        status: courseEnrollments.status,
+      })
+      .from(courseEnrollments)
+      .innerJoin(users, eq(courseEnrollments.learnerId, users.id))
+      .where(eq(courseEnrollments.courseId, id));
+
+    // Fetch credits for the primary enrolled learner (especially for 1-on-1)
+    let creditsData = null;
+    if (learnersResult.length > 0) {
+      const [cr] = await db
+        .select()
+        .from(credits)
+        .where(and(eq(credits.courseId, id), eq(credits.learnerId, learnersResult[0].id)))
+        .limit(1);
+      creditsData = cr || null;
+    }
+
     return {
       ...course,
       educators: educatorsResult,
+      learners: learnersResult,
+      credits: creditsData,
       activeEnrollments: enrollmentStats?.count ?? 0,
       curriculum,
     };
   },
+
 
   async findPublicCatalog(filters: { category?: string; q?: string; page?: number; perPage?: number }) {
     const page = filters.page || 1;

@@ -287,10 +287,12 @@ export default function Courses1on1Page() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800 text-xs">
                   {courses.map((course) => (
-                    <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                    <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
                       <td className="py-4 px-6 font-semibold text-gray-900 dark:text-gray-100">
-                        <div className="font-bold text-sm">{course.name}</div>
-                        {course.shortCode && <div className="text-[11px] text-gray-400">{course.shortCode}</div>}
+                        <Link href={`/admin/courses/1-on-1/${course.id}`} className="hover:text-blue-600 transition-colors">
+                          <div className="font-bold text-sm">{course.name}</div>
+                          {course.shortCode && <div className="text-[11px] text-gray-400">{course.shortCode}</div>}
+                        </Link>
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
                         {course.board ? `${course.board} • ` : ''}{course.grade || '—'}
@@ -326,8 +328,8 @@ export default function Courses1on1Page() {
                       </td>
                       <td className="py-4 px-6 text-right">
                         <Link
-                          href={`/educator/courses/${course.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold text-xs hover:bg-gray-200 transition inline-flex items-center gap-1"
+                          href={`/admin/courses/1-on-1/${course.id}`}
+                          className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold text-xs hover:bg-[#0F172A] hover:text-white dark:hover:bg-white dark:hover:text-black transition inline-flex items-center gap-1"
                         >
                           Workspace
                           <ArrowRight className="w-3.5 h-3.5" />

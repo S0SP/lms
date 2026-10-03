@@ -16,6 +16,7 @@ import {
 import { AddLearnerModal } from './AddLearnerModal';
 import { AddEducatorModal } from './AddEducatorModal';
 import { EducatorProfileModal } from './EducatorProfileModal';
+import { UserFilterModal, FilterCourseOption, FilterTagOption } from './UserFilterModal';
 
 export interface LearnerRow {
   id: string;
@@ -41,41 +42,116 @@ export interface EducatorRow {
 interface UsersWorkspaceClientProps {
   learners: LearnerRow[];
   educators: EducatorRow[];
+  allCourses?: FilterCourseOption[];
+  allTags?: FilterTagOption[];
 }
 
-export function UsersWorkspaceClient({ learners, educators }: UsersWorkspaceClientProps) {
+export function UsersWorkspaceClient({
+  learners,
+  educators,
+  allCourses,
+  allTags,
+}: UsersWorkspaceClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'learners' | 'educators'>('learners');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedEducatorId, setSelectedEducatorId] = useState<string | null>(null);
 
-  // Filter learners
-  const filteredLearners = useMemo(() => {
-    if (!searchQuery.trim()) return learners;
-    const q = searchQuery.toLowerCase();
-    return learners.filter(
-      (l) =>
-        l.name.toLowerCase().includes(q) ||
-        l.email.toLowerCase().includes(q) ||
-        (l.phone && l.phone.includes(q)) ||
-        l.courses.some((c) => c.name.toLowerCase().includes(q)) ||
-        l.parents.some((p) => p.name.toLowerCase().includes(q)),
-    );
-  }, [learners, searchQuery]);
+  // Filter state
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeCourseFilters, setActiveCourseFilters] = useState<string[]>([]);
+  const [activeTagFilters, setActiveTagFilters] = useState<string[]>([]);
 
-  // Filter educators
+  // Available courses and tags for the Filter modal
+  const availableCourses: FilterCourseOption[] = useMemo(() => {
+    if (allCourses && allCourses.length > 0) return allCourses;
+    const map = new Map<string, string>();
+    learners.forEach((l) => l.courses.forEach((c) => map.set(c.id, c.name)));
+    educators.forEach((e) => e.courses.forEach((c) => map.set(c.id, c.name)));
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [allCourses, learners, educators]);
+
+  const availableTags: FilterTagOption[] = useMemo(() => {
+    if (allTags && allTags.length > 0) return allTags;
+    return [
+      { id: 'tag-1', name: 'Telugu', color: '#EC4899' },
+      { id: 'tag-2', name: 'IB', color: '#F59E0B' },
+      { id: 'tag-3', name: 'Chemistry', color: '#3B82F6' },
+      { id: 'tag-4', name: 'Physics', color: '#10B981' },
+    ];
+  }, [allTags]);
+
+  // Filter learners with search + active course + tag filters
+  const filteredLearners = useMemo(() => {
+    return learners.filter((l) => {
+      // 1. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+          l.name.toLowerCase().includes(q) ||
+          l.email.toLowerCase().includes(q) ||
+          (l.phone && l.phone.includes(q)) ||
+          l.courses.some((c) => c.name.toLowerCase().includes(q)) ||
+          l.parents.some((p) => p.name.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
+
+      // 2. Course Filter
+      if (activeCourseFilters.length > 0) {
+        const matchesCourse = l.courses.some((c) =>
+          activeCourseFilters.includes(c.name)
+        );
+        if (!matchesCourse) return false;
+      }
+
+      // 3. Tag Filter
+      if (activeTagFilters.length > 0) {
+        const matchesTag = l.courses.some((c) =>
+          activeTagFilters.some((tag) => c.name.toLowerCase().includes(tag.toLowerCase()))
+        );
+        if (!matchesTag) return false;
+      }
+
+      return true;
+    });
+  }, [learners, searchQuery, activeCourseFilters, activeTagFilters]);
+
+  // Filter educators with search + active course + tag filters
   const filteredEducators = useMemo(() => {
-    if (!searchQuery.trim()) return educators;
-    const q = searchQuery.toLowerCase();
-    return educators.filter(
-      (e) =>
-        e.name.toLowerCase().includes(q) ||
-        e.email.toLowerCase().includes(q) ||
-        (e.phone && e.phone.includes(q)) ||
-        e.courses.some((c) => c.name.toLowerCase().includes(q)),
-    );
-  }, [educators, searchQuery]);
+    return educators.filter((e) => {
+      // 1. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+          e.name.toLowerCase().includes(q) ||
+          e.email.toLowerCase().includes(q) ||
+          (e.phone && e.phone.includes(q)) ||
+          e.courses.some((c) => c.name.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
+
+      // 2. Course Filter
+      if (activeCourseFilters.length > 0) {
+        const matchesCourse = e.courses.some((c) =>
+          activeCourseFilters.includes(c.name)
+        );
+        if (!matchesCourse) return false;
+      }
+
+      // 3. Tag Filter
+      if (activeTagFilters.length > 0) {
+        const matchesTag = e.courses.some((c) =>
+          activeTagFilters.some((tag) => c.name.toLowerCase().includes(tag.toLowerCase()))
+        );
+        if (!matchesTag) return false;
+      }
+
+      return true;
+    });
+  }, [educators, searchQuery, activeCourseFilters, activeTagFilters]);
+
+  const totalActiveFilters = activeCourseFilters.length + activeTagFilters.length;
 
   const getInitial = (name: string) => {
     return name?.trim()?.[0]?.toUpperCase() || 'U';
@@ -199,10 +275,20 @@ export function UsersWorkspaceClient({ learners, educators }: UsersWorkspaceClie
 
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-2xs"
+            onClick={() => setIsFilterModalOpen(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer ${
+              totalActiveFilters > 0
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-700 dark:text-blue-300'
+                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
           >
-            <Filter className="w-3.5 h-3.5 text-gray-500" />
+            <Filter className={`w-3.5 h-3.5 ${totalActiveFilters > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`} />
             <span>Filter</span>
+            {totalActiveFilters > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.2 bg-blue-600 text-white text-[10px] font-bold rounded-full">
+                {totalActiveFilters}
+              </span>
+            )}
           </button>
 
           <button
@@ -215,6 +301,55 @@ export function UsersWorkspaceClient({ learners, educators }: UsersWorkspaceClie
           </button>
         </div>
       </div>
+
+      {/* Active Filter Chips Bar */}
+      {totalActiveFilters > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 p-2.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 rounded-xl text-xs">
+          <span className="font-semibold text-blue-900 dark:text-blue-200">Active filters:</span>
+          {activeCourseFilters.map((c) => (
+            <span
+              key={c}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 rounded-lg text-xs shadow-2xs font-medium"
+            >
+              Course: <strong className="font-semibold">{c}</strong>
+              <button
+                type="button"
+                onClick={() => setActiveCourseFilters(activeCourseFilters.filter((x) => x !== c))}
+                className="hover:text-red-500 ml-0.5 cursor-pointer"
+                title="Remove course filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          {activeTagFilters.map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 rounded-lg text-xs shadow-2xs font-medium"
+            >
+              Tag: <strong className="font-semibold">{t}</strong>
+              <button
+                type="button"
+                onClick={() => setActiveTagFilters(activeTagFilters.filter((x) => x !== t))}
+                className="hover:text-red-500 ml-0.5 cursor-pointer"
+                title="Remove tag filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveCourseFilters([]);
+              setActiveTagFilters([]);
+            }}
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline ml-auto cursor-pointer"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
 
       {/* Main Table Card */}
       <div className="bg-white dark:bg-[#111622] rounded-xl border border-gray-200 dark:border-gray-800 shadow-xs overflow-hidden">
@@ -468,6 +603,24 @@ export function UsersWorkspaceClient({ learners, educators }: UsersWorkspaceClie
           onUpdated={() => router.refresh()}
         />
       )}
+
+      {/* User Filter Modal matching Screenshots 1 & 2 */}
+      <UserFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        courses={availableCourses}
+        tags={availableTags}
+        activeCourses={activeCourseFilters}
+        activeTags={activeTagFilters}
+        onApply={(selectedC, selectedT) => {
+          setActiveCourseFilters(selectedC);
+          setActiveTagFilters(selectedT);
+        }}
+        onClear={() => {
+          setActiveCourseFilters([]);
+          setActiveTagFilters([]);
+        }}
+      />
     </div>
   );
 }

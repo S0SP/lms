@@ -619,7 +619,7 @@ export function CourseSellingPageWizardModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto animate-fadeIn">
       {/* Exact Replica Window Frame matching screenshot signal-2026-10-01-23-37-06-043.png */}
       <div className="bg-white dark:bg-[#10141D] rounded-2xl shadow-2xl w-full max-w-[1180px] h-[90vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100">
-        
+
         {/* Top Header Bar */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#10141D]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -646,7 +646,7 @@ export function CourseSellingPageWizardModal({
 
         {/* Modal Center Layout: Left Sidebar + Right Content Area */}
         <div className="flex-1 flex overflow-hidden">
-          
+
           {/* ═══════════════════════════════════════════════════════════════════════
               LEFT VERTICAL SIDEBAR (Fixed Width, No Overflowing Chevrons)
           ═══════════════════════════════════════════════════════════════════════ */}
@@ -657,11 +657,10 @@ export function CourseSellingPageWizardModal({
                 <button
                   key={s.step}
                   onClick={() => setCurrentStep(s.step)}
-                  className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group ${
-                    isActive
+                  className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group ${isActive
                       ? `${s.activeBorder} shadow-sm ring-1 ring-black/5 dark:ring-white/5`
                       : 'border-transparent hover:bg-gray-100/70 dark:hover:bg-gray-800/60'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
@@ -671,9 +670,8 @@ export function CourseSellingPageWizardModal({
                     </div>
                     <div className="min-w-0 flex-1 pr-1">
                       <p
-                        className={`text-xs font-bold truncate ${
-                          isActive ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
-                        }`}
+                        className={`text-xs font-bold truncate ${isActive ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
+                          }`}
                       >
                         {s.title}
                       </p>
@@ -681,9 +679,8 @@ export function CourseSellingPageWizardModal({
                     </div>
                   </div>
                   <ChevronRight
-                    className={`w-4 h-4 shrink-0 transition ${
-                      isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600'
-                    }`}
+                    className={`w-4 h-4 shrink-0 transition ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600'
+                      }`}
                   />
                 </button>
               );
@@ -897,22 +894,20 @@ export function CourseSellingPageWizardModal({
                   <button
                     type="button"
                     onClick={() => setEducatorTab('existing')}
-                    className={`py-2 rounded-lg text-xs font-bold transition ${
-                      educatorTab === 'existing'
+                    className={`py-2 rounded-lg text-xs font-bold transition ${educatorTab === 'existing'
                         ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                         : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                    }`}
+                      }`}
                   >
                     Select Existing
                   </button>
                   <button
                     type="button"
                     onClick={() => setEducatorTab('new')}
-                    className={`py-2 rounded-lg text-xs font-bold transition ${
-                      educatorTab === 'new'
+                    className={`py-2 rounded-lg text-xs font-bold transition ${educatorTab === 'new'
                         ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                         : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                    }`}
+                      }`}
                   >
                     New Educator
                   </button>
@@ -1173,11 +1168,10 @@ export function CourseSellingPageWizardModal({
                   <div className="space-y-3">
                     <div
                       onClick={() => setSchedulerRole('admin')}
-                      className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${
-                        schedulerRole === 'admin'
+                      className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${schedulerRole === 'admin'
                           ? 'border-gray-900 dark:border-white bg-gray-50/50 dark:bg-gray-800/40 shadow-sm'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-gray-900 dark:text-white">Admin Schedules sessions</p>
@@ -1192,11 +1186,10 @@ export function CourseSellingPageWizardModal({
 
                     <div
                       onClick={() => setSchedulerRole('learner')}
-                      className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${
-                        schedulerRole === 'learner'
+                      className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${schedulerRole === 'learner'
                           ? 'border-gray-900 dark:border-white bg-gray-50/50 dark:bg-gray-800/40 shadow-sm'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-gray-900 dark:text-white">Learners Schedule sessions</p>
@@ -1389,14 +1382,12 @@ export function CourseSellingPageWizardModal({
                   <button
                     type="button"
                     onClick={() => setRegistrationEnabled(!registrationEnabled)}
-                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
-                      registrationEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-                    }`}
+                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${registrationEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${
-                        registrationEnabled ? 'left-5' : 'left-0.5'
-                      }`}
+                      className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${registrationEnabled ? 'left-5' : 'left-0.5'
+                        }`}
                     />
                   </button>
                 </div>
@@ -1653,12 +1644,12 @@ export function CourseSellingPageWizardModal({
                                         prev.map((s) =>
                                           s.id === sec.id
                                             ? {
-                                                ...s,
-                                                resources: [
-                                                  ...s.resources,
-                                                  { id: `res-${Date.now()}`, title: 'New Folder', type: 'folder' },
-                                                ],
-                                              }
+                                              ...s,
+                                              resources: [
+                                                ...s.resources,
+                                                { id: `res-${Date.now()}`, title: 'New Folder', type: 'folder' },
+                                              ],
+                                            }
                                             : s
                                         )
                                       );
@@ -1701,12 +1692,12 @@ export function CourseSellingPageWizardModal({
                                         prev.map((s) =>
                                           s.id === sec.id
                                             ? {
-                                                ...s,
-                                                resources: [
-                                                  ...s.resources,
-                                                  { id: `res-${Date.now()}`, title: 'Chit Chat Discussion Room', type: 'chit_chat' },
-                                                ],
-                                              }
+                                              ...s,
+                                              resources: [
+                                                ...s.resources,
+                                                { id: `res-${Date.now()}`, title: 'Chit Chat Discussion Room', type: 'chit_chat' },
+                                              ],
+                                            }
                                             : s
                                         )
                                       );
@@ -1737,12 +1728,12 @@ export function CourseSellingPageWizardModal({
                                         prev.map((s) =>
                                           s.id === sec.id
                                             ? {
-                                                ...s,
-                                                resources: [
-                                                  ...s.resources,
-                                                  { id: `res-${Date.now()}`, title: 'Class Poll', type: 'poll' },
-                                                ],
-                                              }
+                                              ...s,
+                                              resources: [
+                                                ...s.resources,
+                                                { id: `res-${Date.now()}`, title: 'Class Poll', type: 'poll' },
+                                              ],
+                                            }
                                             : s
                                         )
                                       );
@@ -1761,12 +1752,12 @@ export function CourseSellingPageWizardModal({
                                         prev.map((s) =>
                                           s.id === sec.id
                                             ? {
-                                                ...s,
-                                                resources: [
-                                                  ...s.resources,
-                                                  { id: `res-${Date.now()}`, title: 'Graded Assessment Assignment', type: 'assessment' },
-                                                ],
-                                              }
+                                              ...s,
+                                              resources: [
+                                                ...s.resources,
+                                                { id: `res-${Date.now()}`, title: 'Graded Assessment Assignment', type: 'assessment' },
+                                              ],
+                                            }
                                             : s
                                         )
                                       );
@@ -1809,12 +1800,12 @@ export function CourseSellingPageWizardModal({
                                         prev.map((s) =>
                                           s.id === sec.id
                                             ? {
-                                                ...s,
-                                                resources: [
-                                                  ...s.resources,
-                                                  { id: `res-${Date.now()}`, title: 'Embedded Widget', type: 'embed' },
-                                                ],
-                                              }
+                                              ...s,
+                                              resources: [
+                                                ...s.resources,
+                                                { id: `res-${Date.now()}`, title: 'Embedded Widget', type: 'embed' },
+                                              ],
+                                            }
                                             : s
                                         )
                                       );
@@ -2200,14 +2191,12 @@ export function CourseSellingPageWizardModal({
                 <button
                   type="button"
                   onClick={() => setPlanAutoRenew(!planAutoRenew)}
-                  className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
-                    planAutoRenew ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-                  }`}
+                  className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${planAutoRenew ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
                 >
                   <div
-                    className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${
-                      planAutoRenew ? 'left-5' : 'left-0.5'
-                    }`}
+                    className={`w-5 h-5 rounded-full bg-white transition-transform absolute top-0.5 ${planAutoRenew ? 'left-5' : 'left-0.5'
+                      }`}
                   />
                 </button>
               </div>
@@ -2301,9 +2290,8 @@ export function CourseSellingPageWizardModal({
                     className="focus:outline-none"
                   >
                     <Star
-                      className={`w-6 h-6 ${
-                        star <= reviewRating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                      }`}
+                      className={`w-6 h-6 ${star <= reviewRating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                        }`}
                     />
                   </button>
                 ))}
@@ -2560,22 +2548,20 @@ export function CourseSellingPageWizardModal({
               <button
                 type="button"
                 onClick={() => setVideoUploadTab('upload')}
-                className={`py-2 rounded-lg text-xs font-bold transition ${
-                  videoUploadTab === 'upload'
+                className={`py-2 rounded-lg text-xs font-bold transition ${videoUploadTab === 'upload'
                     ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+                  }`}
               >
                 Upload Video File (MP4/WebM)
               </button>
               <button
                 type="button"
                 onClick={() => setVideoUploadTab('url')}
-                className={`py-2 rounded-lg text-xs font-bold transition ${
-                  videoUploadTab === 'url'
+                className={`py-2 rounded-lg text-xs font-bold transition ${videoUploadTab === 'url'
                     ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+                  }`}
               >
                 Video URL / Stream Link
               </button>
@@ -2822,17 +2808,17 @@ export function CourseSellingPageWizardModal({
                     prev.map((s) =>
                       s.id === youtubeModalSectionId
                         ? {
-                            ...s,
-                            resources: [
-                              ...s.resources,
-                              {
-                                id: `res-${Date.now()}`,
-                                title: youtubeTitle.trim(),
-                                type: 'youtube',
-                                externalUrl: youtubeUrl.trim(),
-                              },
-                            ],
-                          }
+                          ...s,
+                          resources: [
+                            ...s.resources,
+                            {
+                              id: `res-${Date.now()}`,
+                              title: youtubeTitle.trim(),
+                              type: 'youtube',
+                              externalUrl: youtubeUrl.trim(),
+                            },
+                          ],
+                        }
                         : s
                     )
                   );
@@ -2902,16 +2888,16 @@ export function CourseSellingPageWizardModal({
                     prev.map((s) =>
                       s.id === testModalSectionId
                         ? {
-                            ...s,
-                            resources: [
-                              ...s.resources,
-                              {
-                                id: `res-${Date.now()}`,
-                                title: `${testTitle.trim()} (${testQuestionCount} Qs)`,
-                                type: 'test',
-                              },
-                            ],
-                          }
+                          ...s,
+                          resources: [
+                            ...s.resources,
+                            {
+                              id: `res-${Date.now()}`,
+                              title: `${testTitle.trim()} (${testQuestionCount} Qs)`,
+                              type: 'test',
+                            },
+                          ],
+                        }
                         : s
                     )
                   );
@@ -2978,17 +2964,17 @@ export function CourseSellingPageWizardModal({
                     prev.map((s) =>
                       s.id === linkModalSectionId
                         ? {
-                            ...s,
-                            resources: [
-                              ...s.resources,
-                              {
-                                id: `res-${Date.now()}`,
-                                title: linkTitle.trim(),
-                                type: 'link',
-                                externalUrl: linkUrl.trim(),
-                              },
-                            ],
-                          }
+                          ...s,
+                          resources: [
+                            ...s.resources,
+                            {
+                              id: `res-${Date.now()}`,
+                              title: linkTitle.trim(),
+                              type: 'link',
+                              externalUrl: linkUrl.trim(),
+                            },
+                          ],
+                        }
                         : s
                     )
                   );

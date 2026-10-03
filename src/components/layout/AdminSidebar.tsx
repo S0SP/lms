@@ -61,7 +61,6 @@ export default function AdminSidebar(props: AdminSidebarProps) {
           >
             <Plus className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
             <span>Add User</span>
-            <ChevronDown className="w-3 h-3 text-gray-500 dark:text-gray-400 ml-1" />
           </button>
         }
       />

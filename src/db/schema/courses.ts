@@ -119,6 +119,29 @@ export const credits = pgTable(
   ],
 );
 
+// ─── Credit Ledger — immutable transaction log for every credit adjustment ─────
+export const creditLedger = pgTable(
+  'credit_ledger',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    courseId: uuid('course_id').references(() => courses.id, { onDelete: 'cascade' }).notNull(),
+    learnerId: uuid('learner_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    // Positive = added, Negative = deducted
+    delta: numeric('delta', { precision: 8, scale: 2 }).notNull(),
+    balanceAfter: numeric('balance_after', { precision: 8, scale: 2 }).notNull(),
+    note: text('note'),
+    // 'admin' = manual adjustment, 'session' = auto-deducted on session completion, 'system' = other
+    source: text('source').notNull().default('admin'),
+    sessionId: uuid('session_id'), // optional FK to sessions.id (set null on delete)
+    adjustedBy: uuid('adjusted_by').references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index('credit_ledger_course_learner_idx').on(t.courseId, t.learnerId),
+    index('credit_ledger_created_idx').on(t.createdAt),
+  ],
+);
+
 // ─── Payment Plans (per wizard Step 3) ────────────────────────────────────────
 export const paymentPlans = pgTable(
   'payment_plans',
@@ -207,3 +230,4 @@ export type NewCourse = typeof courses.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type Credits = typeof credits.$inferSelect;
 export type Coupon = typeof coupons.$inferSelect;
+export type CreditLedgerEntry = typeof creditLedger.$inferSelect;

@@ -1,5 +1,5 @@
 import { db } from '@/lib/drizzle';
-import { users, parentProfiles, courseEnrollments, courses, courseEducators } from '@/db/schema';
+import { users, parentProfiles, courseEnrollments, courses, courseEducators, tags } from '@/db/schema';
 import { eq, inArray, desc } from 'drizzle-orm';
 import { UsersWorkspaceClient, LearnerRow, EducatorRow } from '@/components/admin/UsersWorkspaceClient';
 
@@ -129,5 +129,31 @@ export default async function AdminUsersPage() {
     courses: educatorCoursesMap.get(e.id) || [],
   }));
 
-  return <UsersWorkspaceClient learners={learners} educators={educators} />;
+  // 6. Fetch all platform courses for Filter modal
+  const allCourses = await db
+    .select({
+      id: courses.id,
+      name: courses.name,
+    })
+    .from(courses)
+    .orderBy(courses.name);
+
+  // 7. Fetch all tags for Filter modal
+  const allTags = await db
+    .select({
+      id: tags.id,
+      name: tags.name,
+      color: tags.colorHex,
+    })
+    .from(tags)
+    .orderBy(tags.name);
+
+  return (
+    <UsersWorkspaceClient
+      learners={learners}
+      educators={educators}
+      allCourses={allCourses}
+      allTags={allTags}
+    />
+  );
 }
