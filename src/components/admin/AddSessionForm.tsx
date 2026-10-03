@@ -9,7 +9,7 @@ import { CustomSelect } from '@/components/ui/CustomSelect';
 interface AddSessionFormProps {
   courses: { id: string; name: string }[];
   educators: { id: string; name: string }[];
-  learners: { id: string; name: string }[];
+  learners: { id: string; name: string; email?: string | null }[];
 }
 
 export function AddSessionForm({ courses, educators, learners }: AddSessionFormProps) {
@@ -43,25 +43,31 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
     setError(null);
 
     try {
-      if (!title || !courseId || !educatorId || !scheduledAtDate || !scheduledAtTime) {
-        throw new Error('Please fill out all required fields.');
+      if (!title.trim() || !courseId || !educatorId || !scheduledAtDate || !scheduledAtTime) {
+        throw new Error('Please fill out all required fields marked with an asterisk (*).');
       }
       if (selectedLearners.length === 0) {
-        throw new Error('Please select at least one learner.');
+        throw new Error('Please select at least one learner for this session.');
       }
 
-      // Construct ISO datetime string
-      const scheduledAt = new Date(`${scheduledAtDate}T${scheduledAtTime}`).toISOString();
+      // Robust date & time validation
+      const dateStr = `${scheduledAtDate}T${scheduledAtTime}`;
+      const parsedDate = new Date(dateStr);
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error('Invalid date or time format. Please check the scheduling fields.');
+      }
+
+      const scheduledAt = parsedDate.toISOString();
 
       const payload = {
-        title,
-        topic: topic || undefined,
+        title: title.trim(),
+        topic: topic.trim() || undefined,
         courseId,
         educatorId,
         scheduledAt,
         durationMin: Number(durationMin),
         creditsConsumed: Number(creditsConsumed),
-        learnerIds: selectedLearners,
+        learnerIds: Array.from(new Set(selectedLearners)),
         createZoomMeeting
       };
 
@@ -71,10 +77,18 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let responseData: any = null;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : null;
+      } catch (parseErr) {
+        console.error('Failed to parse response body:', responseText);
+        throw new Error(`Server returned error (${res.status}): ${responseText || res.statusText || 'Unable to parse response'}`);
+      }
 
       if (!res.ok) {
-        throw new Error(data.message || data.error || 'Failed to create session');
+        const errorMsg = responseData?.error || responseData?.message || `Failed to schedule session (${res.status})`;
+        throw new Error(errorMsg);
       }
 
       // Success feedback and redirect
@@ -84,7 +98,7 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
         router.refresh();
       }, 900);
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      setError(err.message || 'An unexpected error occurred while scheduling session');
       setLoading(false);
     }
   };
@@ -218,7 +232,7 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
             </label>
             <div className="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2 scrollbar-thin">
               {learners.length === 0 ? (
-                <p className="text-sm text-gray-500">No learners found.</p>
+                <p className="text-sm text-gray-500 p-2">No active learners found.</p>
               ) : (
                 learners.map((learner) => (
                   <label key={learner.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors cursor-pointer select-none">
@@ -228,7 +242,10 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
                       onChange={() => toggleLearner(learner.id)}
                       className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
                     />
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">{learner.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">{learner.name}</span>
+                      {learner.email && <span className="text-xs text-gray-400">({learner.email})</span>}
+                    </div>
                   </label>
                 ))
               )}
@@ -263,7 +280,7 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
           type="button"
           onClick={() => router.push('/admin/calendar')}
           disabled={loading}
-          className="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
@@ -273,7 +290,7 @@ export function AddSessionForm({ courses, educators, learners }: AddSessionFormP
           success={sessionCreated}
           loadingText="Creating Session..."
           successText="Session Created ✓"
-          className="px-6 py-2.5 font-bold"
+          className="px-6 py-2.5 rounded-xl font-bold bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-sm"
         >
           Add Session
         </FeedbackButton>

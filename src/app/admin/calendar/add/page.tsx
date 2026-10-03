@@ -28,13 +28,23 @@ export default async function AddSessionPage() {
     .where(eq(users.role, 'educator'));
 
   // Fetch all learners
-  const learners = await db
+  const rawLearners = await db
     .select({
       id: users.id,
       name: users.name,
+      email: users.email,
     })
     .from(users)
     .where(eq(users.role, 'learner'));
+
+  // Deduplicate by ID
+  const learnersMap = new Map<string, { id: string; name: string; email?: string | null }>();
+  for (const l of rawLearners) {
+    if (!learnersMap.has(l.id)) {
+      learnersMap.set(l.id, l);
+    }
+  }
+  const learners = Array.from(learnersMap.values());
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto w-full">

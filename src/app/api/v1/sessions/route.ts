@@ -34,22 +34,41 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { session, error } = await requireAuth(['owner', 'admin', 'educator']);
-  if (error) return error;
+  try {
+    const { session, error } = await requireAuth(['owner', 'admin', 'educator']);
+    if (error) return error;
 
-  const role = (session!.user as any).role as string;
-  const currentUserId = session!.user!.id as string;
-  const body = await req.json();
+    const role = (session!.user as any).role as string;
+    const currentUserId = session!.user!.id as string;
+    
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseErr) {
+      return apiError('Invalid JSON request body', 400);
+    }
 
-  if (role === 'educator') {
-    body.educatorId = currentUserId;
+    if (role === 'educator') {
+      body.educatorId = currentUserId;
+    }
+
+    if (Array.isArray(body.learnerIds)) {
+      body.learnerIds = Array.from(new Set(body.learnerIds));
+    }
+
+    const parsed = createSessionSchema.safeParse(body);
+    if (!parsed.success) {
+      const issueMsgs = parsed.error.issues.map((i) => `${i.path.join('.') || 'input'}: ${i.message}`).join(', ');
+      return apiError(`Validation failed: ${issueMsgs}`, 400);
+    }
+
+    const newSession = await sessionService.createSession(parsed.data);
+
+    return apiSuccess(newSession, undefined, 201);
+  } catch (err: any) {
+    console.error('[sessions/POST] Error creating session:', err);
+    return apiError(err?.message || 'Failed to create session', 500);
   }
-
-  const parsed = createSessionSchema.safeParse(body);
-  if (!parsed.success) return apiError(parsed.error.message);
-
-  const newSession = await sessionService.createSession(parsed.data);
-
-  return apiSuccess(newSession, undefined, 201);
 }
+
 

@@ -363,8 +363,16 @@ export const sessionService = {
     }
 
     if (sess.status === 'scheduled') {
-      await scheduleSessionReminders(sess.id, new Date(sess.scheduledAt));
-      notifySessionParties({ type: 'scheduled', session: sess });
+      try {
+        await scheduleSessionReminders(sess.id, new Date(sess.scheduledAt));
+      } catch (remErr) {
+        console.error('[sessionService] Failed to schedule reminders:', remErr);
+      }
+      try {
+        await notifySessionParties({ type: 'scheduled', session: sess });
+      } catch (notifErr) {
+        console.error('[sessionService] Failed to notify session parties:', notifErr);
+      }
     }
 
     // If recurrence was specified, auto-create the recurring sessions series

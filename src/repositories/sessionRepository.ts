@@ -120,8 +120,9 @@ export const sessionRepository = {
 
       // 2. Add attendees
       if (data.learnerIds && data.learnerIds.length > 0) {
+        const uniqueLearners = Array.from(new Set(data.learnerIds));
         await tx.insert(sessionAttendees).values(
-          data.learnerIds.map((learnerId) => ({
+          uniqueLearners.map((learnerId) => ({
             sessionId: sess.id,
             learnerId,
           }))
