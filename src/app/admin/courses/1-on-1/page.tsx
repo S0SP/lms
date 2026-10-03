@@ -18,7 +18,8 @@ import {
   FileCheck,
   CheckCircle2,
   ExternalLink,
-  Filter
+  Filter,
+  MoreVertical
 } from 'lucide-react';
 import { CourseSellingPageWizardModal } from '@/components/admin/CourseSellingPageWizardModal';
 
@@ -156,7 +157,7 @@ export default function Courses1on1Page() {
         </div>
       )}
 
-      {/* Header & Actions */}
+      {/* Header & Actions with Clean Black Button matching app aesthetic */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">1-on-1 Personalized Courses</h1>
@@ -172,10 +173,10 @@ export default function Courses1on1Page() {
                 setEditingTemplate(null);
                 setIsWizardOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20 flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              + Add New Template
+              <span>Add new template</span>
             </button>
           ) : (
             <button
@@ -183,28 +184,28 @@ export default function Courses1on1Page() {
                 setEditingTemplate(null);
                 setIsWizardOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20 flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              + Create 1-on-1 Course
+              <span>Create 1-on-1 Course</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Modern Subtabs Navigation (matching Users & Calendar tabs aesthetic) */}
+      {/* Modern Subtabs Navigation with Pill Counters */}
       <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2">
         <button
           onClick={() => setActiveTab('courses')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'courses'
-              ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+              ? 'bg-[#0F172A] text-white shadow-sm'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           <BookOpen className="w-4 h-4" />
           <span>Active 1-on-1 Courses</span>
-          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'courses' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'courses' ? 'bg-gray-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
             {courses.length}
           </span>
         </button>
@@ -213,13 +214,13 @@ export default function Courses1on1Page() {
           onClick={() => setActiveTab('templates')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'templates'
-              ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+              ? 'bg-[#0F172A] text-white shadow-sm'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           <Layers className="w-4 h-4" />
           <span>Course Templates</span>
-          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'templates' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === 'templates' ? 'bg-gray-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
             {templates.length}
           </span>
         </button>
@@ -236,7 +237,7 @@ export default function Courses1on1Page() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={activeTab === 'courses' ? 'Search active courses...' : 'Search course templates...'}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 shadow-sm"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 shadow-sm"
             />
           </div>
         </div>
@@ -244,7 +245,7 @@ export default function Courses1on1Page() {
         {/* Content Body */}
         {loading ? (
           <div className="py-28 text-center space-y-3">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto" />
+            <Loader2 className="w-8 h-8 text-gray-700 dark:text-gray-300 animate-spin mx-auto" />
             <p className="text-xs text-gray-400">Loading {activeTab}...</p>
           </div>
         ) : activeTab === 'courses' ? (
@@ -259,7 +260,7 @@ export default function Courses1on1Page() {
               <div className="pt-2 flex items-center justify-center gap-3">
                 <button
                   onClick={() => setIsWizardOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition"
+                  className="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition"
                 >
                   Create Course
                 </button>
@@ -297,7 +298,7 @@ export default function Courses1on1Page() {
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
                         {course.educators && course.educators.length > 0 ? (
                           <div className="flex items-center gap-1.5">
-                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold text-[10px] flex items-center justify-center">
+                            <span className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold text-[10px] flex items-center justify-center">
                               {course.educators[0].name ? course.educators[0].name[0] : 'E'}
                             </span>
                             <span>{course.educators.map((e) => e.name).join(', ')}</span>
@@ -326,7 +327,7 @@ export default function Courses1on1Page() {
                       <td className="py-4 px-6 text-right">
                         <Link
                           href={`/educator/courses/${course.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold text-xs hover:bg-blue-100 transition inline-flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold text-xs hover:bg-gray-200 transition inline-flex items-center gap-1"
                         >
                           Workspace
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -353,10 +354,10 @@ export default function Courses1on1Page() {
                     setEditingTemplate(null);
                     setIsWizardOpen(true);
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition shadow-md shadow-blue-500/20 flex items-center gap-2 mx-auto"
+                  className="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition shadow-sm flex items-center gap-2 mx-auto"
                 >
                   <Plus className="w-4 h-4" />
-                  + Create First Template
+                  <span>Add new template</span>
                 </button>
               </div>
             </div>
@@ -365,11 +366,11 @@ export default function Courses1on1Page() {
               {templates.map((tmpl) => (
                 <div
                   key={tmpl.id}
-                  className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#131722] hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all p-5 flex flex-col justify-between space-y-4 shadow-sm group"
+                  className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#131722] hover:border-gray-400 dark:hover:border-gray-600 transition-all p-5 flex flex-col justify-between space-y-4 shadow-sm group"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700">
                         {tmpl.board || 'IGCSE'} • {tmpl.grade || 'Grade 9'}
                       </span>
                       <span className="text-[11px] text-gray-400 flex items-center gap-1">
@@ -379,7 +380,7 @@ export default function Courses1on1Page() {
                     </div>
 
                     <div>
-                      <h4 className="font-bold text-base text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition">
+                      <h4 className="font-bold text-base text-gray-900 dark:text-white line-clamp-1">
                         {tmpl.name}
                       </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
@@ -409,13 +410,13 @@ export default function Courses1on1Page() {
                     <button
                       onClick={() => handleInstantiateCourse(tmpl)}
                       disabled={actionLoadingId === tmpl.id}
-                      className="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20"
+                      className="flex-1 py-2 px-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
                     >
                       {actionLoadingId === tmpl.id ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
                         <>
-                          <Sparkles className="w-3.5 h-3.5" />
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                           <span>Create 1-on-1</span>
                         </>
                       )}

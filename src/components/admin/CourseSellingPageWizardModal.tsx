@@ -49,7 +49,8 @@ import {
   Hash,
   List,
   UploadCloud,
-  Loader2
+  Loader2,
+  ExternalLink
 } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
@@ -127,63 +128,63 @@ const SIDEBAR_STEPS = [
     title: 'Course Details',
     subtitle: 'Add course details and description',
     badgeColor: 'text-blue-600 bg-blue-50 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800',
-    activeBorder: 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20',
+    activeBorder: 'border-blue-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 2,
     title: 'Educators',
     subtitle: 'Assign the educator to conduct sessions',
     badgeColor: 'text-emerald-600 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800',
-    activeBorder: 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20',
+    activeBorder: 'border-emerald-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 3,
     title: 'Payment Plans',
     subtitle: 'Choose how and when to bill',
     badgeColor: 'text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800',
-    activeBorder: 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20',
+    activeBorder: 'border-amber-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 4,
     title: 'Scheduling',
     subtitle: 'Manage session scheduling',
     badgeColor: 'text-cyan-600 bg-cyan-50 border-cyan-200 dark:bg-cyan-950/50 dark:text-cyan-400 dark:border-cyan-800',
-    activeBorder: 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/20',
+    activeBorder: 'border-cyan-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 5,
     title: 'Course Highlights',
     subtitle: 'Highlight key outcomes and benefits',
     badgeColor: 'text-indigo-600 bg-indigo-50 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-400 dark:border-indigo-800',
-    activeBorder: 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20',
+    activeBorder: 'border-indigo-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 6,
     title: 'Reviews',
     subtitle: 'Display reviews to build trust',
     badgeColor: 'text-rose-600 bg-rose-50 border-rose-200 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800',
-    activeBorder: 'border-rose-500 bg-rose-50/40 dark:bg-rose-950/20',
+    activeBorder: 'border-rose-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 7,
     title: 'Coupons',
     subtitle: 'Manage discount coupons for this course',
     badgeColor: 'text-orange-600 bg-orange-50 border-orange-200 dark:bg-orange-950/50 dark:text-orange-400 dark:border-orange-800',
-    activeBorder: 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20',
+    activeBorder: 'border-orange-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 8,
     title: 'Registration Questions',
     subtitle: 'Collect extra details from buyers at checkout',
     badgeColor: 'text-purple-600 bg-purple-50 border-purple-200 dark:bg-purple-950/50 dark:text-purple-400 dark:border-purple-800',
-    activeBorder: 'border-purple-500 bg-purple-50/40 dark:bg-purple-950/20',
+    activeBorder: 'border-purple-500 bg-white dark:bg-[#161B26]',
   },
   {
     step: 9,
     title: 'Course Content',
     subtitle: 'Add sections, resources, tests and more',
     badgeColor: 'text-teal-600 bg-teal-50 border-teal-200 dark:bg-teal-950/50 dark:text-teal-400 dark:border-teal-800',
-    activeBorder: 'border-teal-500 bg-teal-50/40 dark:bg-teal-950/20',
+    activeBorder: 'border-teal-500 bg-white dark:bg-[#161B26]',
   },
 ];
 
@@ -208,6 +209,7 @@ export function CourseSellingPageWizardModal({
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [coverPhotoUploading, setCoverPhotoUploading] = useState(false);
   const coverFileInputRef = useRef<HTMLInputElement | null>(null);
+  const descriptionTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Step 2: Educators
   const [educatorTab, setEducatorTab] = useState<'existing' | 'new'>('existing');
@@ -271,8 +273,9 @@ export function CourseSellingPageWizardModal({
     { id: 'q-1', label: 'Name', type: 'text', required: true },
     { id: 'q-2', label: 'Email', type: 'email', required: false },
   ]);
+  const [editingQuestion, setEditingQuestion] = useState<RegistrationQuestion | null>(null);
 
-  // Step 9: Course Content & Video Upload
+  // Step 9: Course Content & Resource Modals
   const [contentSearch, setContentSearch] = useState('');
   const [sections, setSections] = useState<ContentSectionItem[]>([
     { id: 'sec-1', title: 'Section 1', resources: [], isExpanded: true },
@@ -280,26 +283,25 @@ export function CourseSellingPageWizardModal({
   ]);
   const [activeMenuSectionId, setActiveMenuSectionId] = useState<string | null>(null);
 
-  // Dedicated Resource Modals
+  // Dedicated Video Modal
   const [videoModalSectionId, setVideoModalSectionId] = useState<string | null>(null);
   const [videoUploadTab, setVideoUploadTab] = useState<'upload' | 'url'>('upload');
   const [videoTitle, setVideoTitle] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
-  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
   const [videoDuration, setVideoDuration] = useState('15:00');
   const [videoFreePreview, setVideoFreePreview] = useState(false);
   const videoFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Generic File Upload Modal
+  // Dedicated File Modal
   const [fileModalSectionId, setFileModalSectionId] = useState<string | null>(null);
   const [fileTitle, setFileTitle] = useState('');
   const [fileObject, setFileObject] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
   const genericFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Youtube Modal
+  // YouTube Modal
   const [youtubeModalSectionId, setYoutubeModalSectionId] = useState<string | null>(null);
   const [youtubeTitle, setYoutubeTitle] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -308,6 +310,14 @@ export function CourseSellingPageWizardModal({
   const [linkModalSectionId, setLinkModalSectionId] = useState<string | null>(null);
   const [linkTitle, setLinkTitle] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
+
+  // Test / Quiz Modal
+  const [testModalSectionId, setTestModalSectionId] = useState<string | null>(null);
+  const [testTitle, setTestTitle] = useState('');
+  const [testQuestionCount, setTestQuestionCount] = useState('10');
+
+  // Resource Playback / Preview Modal
+  const [previewingResource, setPreviewingResource] = useState<ContentResourceItem | null>(null);
 
   // Public Preview Modal
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -367,7 +377,7 @@ export function CourseSellingPageWizardModal({
     }
   }, [initialData]);
 
-  // Load registered educators from DB
+  // Load educators from DB
   useEffect(() => {
     async function loadEducators() {
       try {
@@ -385,7 +395,26 @@ export function CourseSellingPageWizardModal({
 
   if (!isOpen) return null;
 
-  // File Upload Helper to presigned / local storage
+  // Rich Text Formatting Helper
+  const applyFormatting = (tag: string, wrapper: [string, string]) => {
+    const textarea = descriptionTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = description.substring(start, end);
+    const replacement = `${wrapper[0]}${selectedText || tag}${wrapper[1]}`;
+
+    const newText = description.substring(0, start) + replacement + description.substring(end);
+    setDescription(newText);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + wrapper[0].length, start + replacement.length - wrapper[1].length);
+    }, 10);
+  };
+
+  // Upload File Helper
   const handleUploadFile = async (file: File, folder: string = 'course-content'): Promise<string> => {
     try {
       const res = await fetch('/api/v1/uploads/presigned-url', {
@@ -410,28 +439,20 @@ export function CourseSellingPageWizardModal({
       if (!putRes.ok) throw new Error('Upload to storage failed');
       return data.publicUrl || `/uploads/${data.key}`;
     } catch (err: any) {
-      console.error('Upload error:', err);
-      // Fallback object URL
+      console.error('Upload fallback:', err);
       return URL.createObjectURL(file);
     }
   };
 
   // Video Save Handler
   const handleSaveVideo = async () => {
-    if (!videoTitle.trim()) {
-      alert('Please enter a video title');
-      return;
-    }
-    if (!videoModalSectionId) return;
-
+    if (!videoTitle.trim() || !videoModalSectionId) return;
     setVideoUploading(true);
     let finalUrl = videoUrl;
 
     if (videoUploadTab === 'upload' && videoFile) {
       try {
-        setVideoUploadProgress(30);
         finalUrl = await handleUploadFile(videoFile, 'videos');
-        setVideoUploadProgress(100);
       } catch (e) {
         console.error(e);
       }
@@ -449,8 +470,8 @@ export function CourseSellingPageWizardModal({
               title: videoTitle.trim(),
               type: 'video',
               externalUrl: finalUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
-              duration: videoDuration || '10:00',
-              fileSize: videoFile ? `${(videoFile.size / (1024 * 1024)).toFixed(1)} MB` : '15 MB',
+              duration: videoDuration || '15:00',
+              fileSize: videoFile ? `${(videoFile.size / (1024 * 1024)).toFixed(1)} MB` : '12 MB',
               isFreePreview: videoFreePreview,
             },
           ],
@@ -465,7 +486,7 @@ export function CourseSellingPageWizardModal({
     setVideoFile(null);
   };
 
-  // Generic File Save Handler
+  // File Save Handler
   const handleSaveGenericFile = async () => {
     if (!fileTitle.trim() || !fileModalSectionId) return;
     setFileUploading(true);
@@ -502,7 +523,7 @@ export function CourseSellingPageWizardModal({
     setFileObject(null);
   };
 
-  // Final Course / Template Save Handler
+  // Save All Changes
   const handleSaveAll = async (preview: boolean = false) => {
     if (!courseTitle.trim()) {
       setError('Please provide a course title in Step 1.');
@@ -596,20 +617,20 @@ export function CourseSellingPageWizardModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto animate-fadeIn">
-      {/* Exact replica window frame matching reference screenshot signal-2026-10-01-23-37-06-043.png */}
+      {/* Exact Replica Window Frame matching screenshot signal-2026-10-01-23-37-06-043.png */}
       <div className="bg-white dark:bg-[#10141D] rounded-2xl shadow-2xl w-full max-w-[1180px] h-[90vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100">
         
         {/* Top Header Bar */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#10141D]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            Course Selling Page: {courseTitle || 'Untitled'}
+            Course Selling Page: {courseTitle || 'test'}
           </h2>
 
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsPreviewOpen(true)}
-              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2 shadow-sm"
+              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-750 transition flex items-center gap-2 shadow-sm"
             >
               <Eye className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               <span>Preview Public Page</span>
@@ -623,13 +644,13 @@ export function CourseSellingPageWizardModal({
           </div>
         </div>
 
-        {/* Modal Center Layout: Left Sidebar + Right Main Workspace */}
+        {/* Modal Center Layout: Left Sidebar + Right Content Area */}
         <div className="flex-1 flex overflow-hidden">
           
           {/* ═══════════════════════════════════════════════════════════════════════
-              LEFT VERTICAL SIDEBAR (Numbered 1-9 exact style)
+              LEFT VERTICAL SIDEBAR (Fixed Width, No Overflowing Chevrons)
           ═══════════════════════════════════════════════════════════════════════ */}
-          <div className="w-80 border-r border-gray-200 dark:border-gray-800 overflow-y-auto p-4 space-y-2 bg-gray-50/40 dark:bg-gray-900/30 shrink-0">
+          <div className="w-[340px] border-r border-gray-200 dark:border-gray-800 overflow-y-auto p-4 space-y-2 bg-gray-50/40 dark:bg-gray-900/30 shrink-0">
             {SIDEBAR_STEPS.map((s) => {
               const isActive = currentStep === s.step;
               return (
@@ -638,17 +659,17 @@ export function CourseSellingPageWizardModal({
                   onClick={() => setCurrentStep(s.step)}
                   className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group ${
                     isActive
-                      ? `${s.activeBorder} shadow-sm`
+                      ? `${s.activeBorder} shadow-sm ring-1 ring-black/5 dark:ring-white/5`
                       : 'border-transparent hover:bg-gray-100/70 dark:hover:bg-gray-800/60'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
                       className={`w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-sm shrink-0 ${s.badgeColor}`}
                     >
                       {s.step}
                     </div>
-                    <div className="overflow-hidden">
+                    <div className="min-w-0 flex-1 pr-1">
                       <p
                         className={`text-xs font-bold truncate ${
                           isActive ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
@@ -670,12 +691,12 @@ export function CourseSellingPageWizardModal({
           </div>
 
           {/* ═══════════════════════════════════════════════════════════════════════
-              RIGHT MAIN CONTENT AREA
+              RIGHT MAIN WORKSPACE
           ═══════════════════════════════════════════════════════════════════════ */}
           <div className="flex-1 overflow-y-auto p-8 relative">
             {error && (
               <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -692,7 +713,7 @@ export function CourseSellingPageWizardModal({
                     value={courseTitle}
                     onChange={(e) => setCourseTitle(e.target.value)}
                     placeholder="Enter course title"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 shadow-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
                   />
                 </div>
 
@@ -705,7 +726,7 @@ export function CourseSellingPageWizardModal({
                     value={subtitle}
                     onChange={(e) => setSubtitle(e.target.value)}
                     placeholder="Enter course subtitle"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 shadow-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
                   />
                 </div>
 
@@ -714,23 +735,94 @@ export function CourseSellingPageWizardModal({
                     Course Description
                   </label>
                   <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
-                    {/* Rich text tool bar matching signal-2026-10-01-23-37-06-043.png */}
+                    {/* Interactive Rich Text Toolbar matching screenshot */}
                     <div className="flex items-center gap-3 px-3.5 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 text-gray-600 dark:text-gray-300 text-xs flex-wrap">
-                      <button type="button" className="font-bold hover:text-blue-600 px-1">B</button>
-                      <button type="button" className="italic hover:text-blue-600 px-1">I</button>
-                      <button type="button" className="underline hover:text-blue-600 px-1">U</button>
-                      <button type="button" className="hover:text-blue-600 px-1 font-mono text-[11px]">&lt;/&gt;</button>
-                      <button type="button" className="hover:text-blue-600 px-1 line-through">S</button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('bold', ['**', '**'])}
+                        className="font-bold hover:text-blue-600 px-1"
+                        title="Bold"
+                      >
+                        B
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('italic', ['*', '*'])}
+                        className="italic hover:text-blue-600 px-1"
+                        title="Italic"
+                      >
+                        I
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('underline', ['<u>', '</u>'])}
+                        className="underline hover:text-blue-600 px-1"
+                        title="Underline"
+                      >
+                        U
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('code', ['`', '`'])}
+                        className="hover:text-blue-600 px-1 font-mono text-[11px]"
+                        title="Code snippet"
+                      >
+                        &lt;/&gt;
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('strikethrough', ['~~', '~~'])}
+                        className="hover:text-blue-600 px-1 line-through"
+                        title="Strikethrough"
+                      >
+                        S
+                      </button>
                       <span className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1" />
-                      <button type="button" className="hover:text-blue-600 px-1">≡ List</button>
-                      <button type="button" className="hover:text-blue-600 px-1">1. Numbered</button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('list', ['\n• ', ''])}
+                        className="hover:text-blue-600 px-1"
+                        title="Bullet List"
+                      >
+                        ≡ List
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('numbered', ['\n1. ', ''])}
+                        className="hover:text-blue-600 px-1"
+                        title="Numbered List"
+                      >
+                        1. Numbered
+                      </button>
                       <span className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1" />
-                      <button type="button" className="hover:text-blue-600 px-1">x₂</button>
-                      <button type="button" className="hover:text-blue-600 px-1">x²</button>
-                      <button type="button" className="hover:text-blue-600 px-1 italic">fx</button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('subscript', ['_{', '}'])}
+                        className="hover:text-blue-600 px-1"
+                        title="Subscript"
+                      >
+                        x₂
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('superscript', ['^{', '}'])}
+                        className="hover:text-blue-600 px-1"
+                        title="Superscript"
+                      >
+                        x²
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatting('formula', ['\n$$ ', ' $$\n'])}
+                        className="hover:text-blue-600 px-1 italic"
+                        title="Math Formula"
+                      >
+                        fx
+                      </button>
                       <span className="text-[11px] text-gray-400 ml-auto">Normal ▾</span>
                     </div>
                     <textarea
+                      ref={descriptionTextareaRef}
                       rows={6}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
@@ -835,7 +927,7 @@ export function CourseSellingPageWizardModal({
                         value={educatorSearch}
                         onChange={(e) => setEducatorSearch(e.target.value)}
                         placeholder="Search Educator"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 shadow-sm"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
                       />
                     </div>
 
@@ -895,7 +987,6 @@ export function CourseSellingPageWizardModal({
                     </div>
                   </div>
                 ) : (
-                  /* New Educator tab matching signal-2026-10-01-23-37-06-043_004.png */
                   <div className="space-y-4">
                     <div>
                       <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
@@ -956,7 +1047,7 @@ export function CourseSellingPageWizardModal({
                           setNewEduPhone('');
                           setEducatorTab('existing');
                         }}
-                        className="px-5 py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B] transition"
+                        className="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold transition"
                       >
                         Add Educator
                       </button>
@@ -990,7 +1081,6 @@ export function CourseSellingPageWizardModal({
                 </div>
 
                 {paymentPlans.length === 0 ? (
-                  /* Exact empty state matching signal-2026-10-01-23-37-06-043_005.png */
                   <div className="py-24 text-center space-y-2">
                     <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto text-gray-400">
                       <DollarSign className="w-6 h-6" />
@@ -1081,7 +1171,6 @@ export function CourseSellingPageWizardModal({
                   <p className="text-xs text-gray-400 mb-3">Choose whether scheduling is managed by you or by the learner</p>
 
                   <div className="space-y-3">
-                    {/* Admin Schedules */}
                     <div
                       onClick={() => setSchedulerRole('admin')}
                       className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${
@@ -1101,7 +1190,6 @@ export function CourseSellingPageWizardModal({
                       </div>
                     </div>
 
-                    {/* Learners Schedule */}
                     <div
                       onClick={() => setSchedulerRole('learner')}
                       className={`p-4 rounded-xl border cursor-pointer flex items-start justify-between transition ${
@@ -1297,7 +1385,7 @@ export function CourseSellingPageWizardModal({
                       Turn this on to ask extra questions when anyone purchases this course from your Store. Name and email are always collected.
                     </p>
                   </div>
-                  {/* Toggle Switch */}
+                  {/* Working Toggle Switch */}
                   <button
                     type="button"
                     onClick={() => setRegistrationEnabled(!registrationEnabled)}
@@ -1313,7 +1401,7 @@ export function CourseSellingPageWizardModal({
                   </button>
                 </div>
 
-                {/* Pre-filled & custom questions list matching signal-2026-10-01-23-37-06-043_017.png */}
+                {/* Pre-filled & custom questions list matching screenshot */}
                 <div className="space-y-2.5">
                   {questions.map((q) => (
                     <div
@@ -1333,14 +1421,7 @@ export function CourseSellingPageWizardModal({
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => {
-                            const newName = prompt('Edit question label:', q.label);
-                            if (newName) {
-                              setQuestions((prev) =>
-                                prev.map((item) => (item.id === q.id ? { ...item, label: newName } : item))
-                              );
-                            }
-                          }}
+                          onClick={() => setEditingQuestion(q)}
                           className="p-1 text-gray-400 hover:text-gray-600"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -1364,7 +1445,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Number Input', type: 'number', required: false },
+                        { id: `q-${Date.now()}`, label: 'Age / Grade Number', type: 'number', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1378,7 +1459,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Alternate Email', type: 'email', required: false },
+                        { id: `q-${Date.now()}`, label: 'Parent Email', type: 'email', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1392,7 +1473,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Target Date', type: 'date', required: false },
+                        { id: `q-${Date.now()}`, label: 'Target Exam Date', type: 'date', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1406,7 +1487,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Phone Number', type: 'phone', required: false },
+                        { id: `q-${Date.now()}`, label: 'Parent Phone Number', type: 'phone', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1420,7 +1501,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Short Text Field', type: 'text', required: false },
+                        { id: `q-${Date.now()}`, label: 'School Name', type: 'text', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1434,7 +1515,13 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Dropdown Selection', type: 'dropdown', required: false },
+                        {
+                          id: `q-${Date.now()}`,
+                          label: 'Proficiency Level',
+                          type: 'dropdown',
+                          required: false,
+                          options: ['Beginner', 'Intermediate', 'Advanced'],
+                        },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1448,7 +1535,13 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Multi Select', type: 'multiselect', required: false },
+                        {
+                          id: `q-${Date.now()}`,
+                          label: 'Subjects of Focus',
+                          type: 'multiselect',
+                          required: false,
+                          options: ['Physics', 'Chemistry', 'Mathematics'],
+                        },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1462,7 +1555,7 @@ export function CourseSellingPageWizardModal({
                     onClick={() => {
                       setQuestions((prev) => [
                         ...prev,
-                        { id: `q-${Date.now()}`, label: 'Upload Documents', type: 'file', required: false },
+                        { id: `q-${Date.now()}`, label: 'Upload Syllabus / Past Card', type: 'file', required: false },
                       ]);
                     }}
                     className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2 shadow-sm"
@@ -1474,7 +1567,7 @@ export function CourseSellingPageWizardModal({
               </div>
             )}
 
-            {/* ── STEP 9: COURSE CONTENT (Exact replica & video uploader) ─────── */}
+            {/* ── STEP 9: COURSE CONTENT ───────────────────────────────────────── */}
             {currentStep === 9 && (
               <div className="max-w-2xl space-y-6 animate-fadeIn">
                 <div className="flex items-center justify-between">
@@ -1507,346 +1600,336 @@ export function CourseSellingPageWizardModal({
                   </div>
                 </div>
 
-                {/* Section rows matching signal-2026-10-01-23-37-06-043_019.png */}
+                {/* Section Cards */}
                 <div className="space-y-4">
-                  {sections.map((sec) => (
-                    <div
-                      key={sec.id}
-                      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden shadow-sm"
-                    >
-                      {/* Section Card Header */}
-                      <div className="p-3.5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                        <div className="flex items-center gap-3">
-                          <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
-                          <div>
-                            <input
-                              type="text"
-                              value={sec.title}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setSections((prev) =>
-                                  prev.map((s) => (s.id === sec.id ? { ...s, title: val } : s))
-                                );
-                              }}
-                              className="text-xs font-bold text-gray-900 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
-                            />
-                            <p className="text-[11px] text-gray-400 mt-0.5">{sec.resources.length} Resources</p>
+                  {sections
+                    .filter((s) => !contentSearch || s.title.toLowerCase().includes(contentSearch.toLowerCase()))
+                    .map((sec) => (
+                      <div
+                        key={sec.id}
+                        className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden shadow-sm"
+                      >
+                        {/* Section Card Header */}
+                        <div className="p-3.5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
+                          <div className="flex items-center gap-3">
+                            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+                            <div>
+                              <input
+                                type="text"
+                                value={sec.title}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setSections((prev) =>
+                                    prev.map((s) => (s.id === sec.id ? { ...s, title: val } : s))
+                                  );
+                                }}
+                                className="text-xs font-bold text-gray-900 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
+                              />
+                              <p className="text-[11px] text-gray-400 mt-0.5">{sec.resources.length} Resources</p>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2 relative">
-                          {/* Plus Add Resource Button with exact popup menu from screenshot 018 */}
-                          <div className="relative">
+                          <div className="flex items-center gap-2 relative">
+                            {/* Plus Add Resource Button with exact popup menu from screenshot 018 */}
+                            <div className="relative">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setActiveMenuSectionId(activeMenuSectionId === sec.id ? null : sec.id)
+                                }
+                                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-sm"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+
+                              {/* Exact Content Popup Menu from signal-2026-10-01-23-37-06-043_018.png */}
+                              {activeMenuSectionId === sec.id && (
+                                <div className="absolute right-0 top-9 w-52 bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-1.5 z-50 animate-fadeIn space-y-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setSections((prev) =>
+                                        prev.map((s) =>
+                                          s.id === sec.id
+                                            ? {
+                                                ...s,
+                                                resources: [
+                                                  ...s.resources,
+                                                  { id: `res-${Date.now()}`, title: 'New Folder', type: 'folder' },
+                                                ],
+                                              }
+                                            : s
+                                        )
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <Folder className="w-4 h-4 text-gray-500" />
+                                    <span>Folder</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setVideoModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 text-xs font-bold text-blue-600 dark:text-blue-400"
+                                  >
+                                    <VideoIcon className="w-4 h-4 text-blue-600" />
+                                    <span>Video (Upload / URL)</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setFileModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <FileText className="w-4 h-4 text-gray-500" />
+                                    <span>Files</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setSections((prev) =>
+                                        prev.map((s) =>
+                                          s.id === sec.id
+                                            ? {
+                                                ...s,
+                                                resources: [
+                                                  ...s.resources,
+                                                  { id: `res-${Date.now()}`, title: 'Chit Chat Discussion Room', type: 'chit_chat' },
+                                                ],
+                                              }
+                                            : s
+                                        )
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <MessageSquare className="w-4 h-4 text-gray-500" />
+                                    <span>Chit chat</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setTestModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <CheckSquare className="w-4 h-4 text-gray-500" />
+                                    <span>Test</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setSections((prev) =>
+                                        prev.map((s) =>
+                                          s.id === sec.id
+                                            ? {
+                                                ...s,
+                                                resources: [
+                                                  ...s.resources,
+                                                  { id: `res-${Date.now()}`, title: 'Class Poll', type: 'poll' },
+                                                ],
+                                              }
+                                            : s
+                                        )
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <BarChart2 className="w-4 h-4 text-gray-500" />
+                                    <span>Polls</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setSections((prev) =>
+                                        prev.map((s) =>
+                                          s.id === sec.id
+                                            ? {
+                                                ...s,
+                                                resources: [
+                                                  ...s.resources,
+                                                  { id: `res-${Date.now()}`, title: 'Graded Assessment Assignment', type: 'assessment' },
+                                                ],
+                                              }
+                                            : s
+                                        )
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <FileCheck className="w-4 h-4 text-gray-500" />
+                                    <span>Assessment</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setYoutubeModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <YoutubeIcon className="w-4 h-4 text-red-600" />
+                                    <span>Youtube</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setLinkModalSectionId(sec.id);
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <Link2 className="w-4 h-4 text-gray-500" />
+                                    <span>Link</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuSectionId(null);
+                                      setSections((prev) =>
+                                        prev.map((s) =>
+                                          s.id === sec.id
+                                            ? {
+                                                ...s,
+                                                resources: [
+                                                  ...s.resources,
+                                                  { id: `res-${Date.now()}`, title: 'Embedded Widget', type: 'embed' },
+                                                ],
+                                              }
+                                            : s
+                                        )
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
+                                  >
+                                    <Code className="w-4 h-4 text-gray-500" />
+                                    <span>Embed Link</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
                             <button
                               type="button"
                               onClick={() =>
-                                setActiveMenuSectionId(activeMenuSectionId === sec.id ? null : sec.id)
+                                setSections((prev) =>
+                                  prev.map((s) =>
+                                    s.id === sec.id ? { ...s, isExpanded: !s.isExpanded } : s
+                                  )
+                                )
                               }
-                              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-sm"
+                              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"
                             >
-                              <Plus className="w-4 h-4" />
+                              {sec.isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </button>
 
-                            {/* Exact Content Popup Menu from signal-2026-10-01-23-37-06-043_018.png */}
-                            {activeMenuSectionId === sec.id && (
-                              <div className="absolute right-0 top-9 w-52 bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-1.5 z-50 animate-fadeIn space-y-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'New Folder', type: 'folder' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <Folder className="w-4 h-4 text-gray-500" />
-                                  <span>Folder</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setVideoModalSectionId(sec.id);
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 text-xs font-bold text-blue-600 dark:text-blue-400"
-                                >
-                                  <VideoIcon className="w-4 h-4 text-blue-600" />
-                                  <span>Video (Upload / URL)</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setFileModalSectionId(sec.id);
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <FileText className="w-4 h-4 text-gray-500" />
-                                  <span>Files</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'Chit Chat Discussion Room', type: 'chit_chat' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <MessageSquare className="w-4 h-4 text-gray-500" />
-                                  <span>Chit chat</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'Diagnostic Test Quiz', type: 'test' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <CheckSquare className="w-4 h-4 text-gray-500" />
-                                  <span>Test</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'Class Poll', type: 'poll' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <BarChart2 className="w-4 h-4 text-gray-500" />
-                                  <span>Polls</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'Graded Assessment', type: 'assessment' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <FileCheck className="w-4 h-4 text-gray-500" />
-                                  <span>Assessment</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setYoutubeModalSectionId(sec.id);
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <YoutubeIcon className="w-4 h-4 text-red-600" />
-                                  <span>Youtube</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setLinkModalSectionId(sec.id);
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <Link2 className="w-4 h-4 text-gray-500" />
-                                  <span>Link</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? {
-                                              ...s,
-                                              resources: [
-                                                ...s.resources,
-                                                { id: `res-${Date.now()}`, title: 'Embedded IFrame', type: 'embed' },
-                                              ],
-                                            }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <Code className="w-4 h-4 text-gray-500" />
-                                  <span>Embed Link</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveMenuSectionId(null);
-                                    alert('Resource copied to clipboard');
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60 text-xs text-gray-800 dark:text-gray-200"
-                                >
-                                  <Copy className="w-4 h-4 text-gray-500" />
-                                  <span>Copy Resource</span>
-                                </button>
-                              </div>
-                            )}
+                            <button
+                              type="button"
+                              onClick={() => setSections((prev) => prev.filter((s) => s.id !== sec.id))}
+                              className="p-1.5 text-gray-400 hover:text-rose-500 transition"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSections((prev) =>
-                                prev.map((s) =>
-                                  s.id === sec.id ? { ...s, isExpanded: !s.isExpanded } : s
-                                )
-                              )
-                            }
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"
-                          >
-                            {sec.isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setSections((prev) => prev.filter((s) => s.id !== sec.id))}
-                            className="p-1.5 text-gray-400 hover:text-rose-500 transition"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
                         </div>
-                      </div>
 
-                      {/* Section Content Items (Accordion) */}
-                      {sec.isExpanded && (
-                        <div className="p-3 divide-y divide-gray-100 dark:divide-gray-800">
-                          {sec.resources.length === 0 ? (
-                            <p className="text-xs text-gray-400 py-3 text-center">
-                              No resources yet. Click + above to upload video, attach notes, or add quizzes.
-                            </p>
-                          ) : (
-                            sec.resources.map((res) => (
-                              <div
-                                key={res.id}
-                                className="py-2.5 px-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg group transition"
-                              >
-                                <div className="flex items-center gap-3">
-                                  {res.type === 'video' && <VideoIcon className="w-4 h-4 text-blue-500" />}
-                                  {res.type === 'file' && <FileText className="w-4 h-4 text-emerald-500" />}
-                                  {res.type === 'youtube' && <YoutubeIcon className="w-4 h-4 text-red-600" />}
-                                  {res.type === 'test' && <CheckSquare className="w-4 h-4 text-indigo-500" />}
-                                  {res.type === 'assessment' && <FileCheck className="w-4 h-4 text-rose-500" />}
-                                  {res.type === 'folder' && <Folder className="w-4 h-4 text-amber-500" />}
-                                  {res.type === 'link' && <Link2 className="w-4 h-4 text-teal-500" />}
-                                  {res.type === 'chit_chat' && <MessageSquare className="w-4 h-4 text-purple-500" />}
+                        {/* Section Content Items (Accordion) */}
+                        {sec.isExpanded && (
+                          <div className="p-3 divide-y divide-gray-100 dark:divide-gray-800">
+                            {sec.resources.length === 0 ? (
+                              <p className="text-xs text-gray-400 py-3 text-center">
+                                No resources yet. Click + above to upload video, attach notes, or add quizzes.
+                              </p>
+                            ) : (
+                              sec.resources.map((res) => (
+                                <div
+                                  key={res.id}
+                                  className="py-2.5 px-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg group transition"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {res.type === 'video' && <VideoIcon className="w-4 h-4 text-blue-500" />}
+                                    {res.type === 'file' && <FileText className="w-4 h-4 text-emerald-500" />}
+                                    {res.type === 'youtube' && <YoutubeIcon className="w-4 h-4 text-red-600" />}
+                                    {res.type === 'test' && <CheckSquare className="w-4 h-4 text-indigo-500" />}
+                                    {res.type === 'assessment' && <FileCheck className="w-4 h-4 text-rose-500" />}
+                                    {res.type === 'folder' && <Folder className="w-4 h-4 text-amber-500" />}
+                                    {res.type === 'link' && <Link2 className="w-4 h-4 text-teal-500" />}
+                                    {res.type === 'chit_chat' && <MessageSquare className="w-4 h-4 text-purple-500" />}
 
-                                  <div>
-                                    <p className="text-xs font-semibold text-gray-900 dark:text-white">{res.title}</p>
-                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-0.5">
-                                      <span className="uppercase font-bold">{res.type}</span>
-                                      {res.duration && <span>• {res.duration}</span>}
-                                      {res.fileSize && <span>• {res.fileSize}</span>}
-                                      {res.isFreePreview && (
-                                        <span className="text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 rounded">
-                                          FREE PREVIEW
-                                        </span>
-                                      )}
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-900 dark:text-white">{res.title}</p>
+                                      <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-0.5">
+                                        <span className="uppercase font-bold">{res.type}</span>
+                                        {res.duration && <span>• {res.duration}</span>}
+                                        {res.fileSize && <span>• {res.fileSize}</span>}
+                                        {res.isFreePreview && (
+                                          <span className="text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 rounded">
+                                            FREE PREVIEW
+                                          </span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSections((prev) =>
-                                      prev.map((s) =>
-                                        s.id === sec.id
-                                          ? { ...s, resources: s.resources.filter((r) => r.id !== res.id) }
-                                          : s
-                                      )
-                                    );
-                                  }}
-                                  className="text-gray-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                                  <div className="flex items-center gap-1.5">
+                                    {res.externalUrl && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setPreviewingResource(res)}
+                                        className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                                        title="Preview content"
+                                      >
+                                        <PlayCircle className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSections((prev) =>
+                                          prev.map((s) =>
+                                            s.id === sec.id
+                                              ? { ...s, resources: s.resources.filter((r) => r.id !== res.id) }
+                                              : s
+                                          )
+                                        );
+                                      }}
+                                      className="text-gray-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                 </div>
 
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => alert('Template selection ready')}
+                    onClick={() => alert('Ready to use course templates.')}
                     className="text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 flex items-center gap-1"
                   >
                     <span>Choose a template</span>
@@ -1886,7 +1969,7 @@ export function CourseSellingPageWizardModal({
               type="button"
               onClick={() => handleSaveAll(false)}
               disabled={saving}
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-md shadow-emerald-600/20"
+              className="px-6 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold transition shadow-sm"
             >
               Finish & Save Course
             </button>
@@ -1895,7 +1978,7 @@ export function CourseSellingPageWizardModal({
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: EDIT PAYOUT FOR COURSE (Exact replica signal-2026-10-01-23-37-06-043_002.png)
+          SUB-MODAL: EDIT PAYOUT FOR COURSE
       ═══════════════════════════════════════════════════════════════════════ */}
       {payoutModalEdu && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -1980,7 +2063,7 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: ADD PAYMENT PLAN (Exact replica signal-2026-10-01-23-37-06-043_006.png)
+          SUB-MODAL: ADD PAYMENT PLAN
       ═══════════════════════════════════════════════════════════════════════ */}
       {isPlanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -2024,7 +2107,7 @@ export function CourseSellingPageWizardModal({
               </button>
             </div>
 
-            {/* Plan Type Dropdown / Switcher if Change clicked */}
+            {/* Plan Type Selector */}
             {isPlanTypePickerOpen && (
               <div className="grid grid-cols-2 gap-2 p-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 animate-fadeIn">
                 <button
@@ -2107,7 +2190,7 @@ export function CourseSellingPageWizardModal({
               />
             </div>
 
-            {/* Auto Renew Toggle for package */}
+            {/* Auto Renew Toggle */}
             {planModalType === 'session_package' && (
               <div className="flex items-center justify-between py-1">
                 <div>
@@ -2179,7 +2262,7 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: ADD REVIEW (Exact replica signal-2026-10-01-23-37-06-043_014.png)
+          SUB-MODAL: ADD REVIEW
       ═══════════════════════════════════════════════════════════════════════ */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -2271,7 +2354,7 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: ADD COUPON (Exact replica signal-2026-10-01-23-37-06-043_016.png)
+          SUB-MODAL: ADD COUPON
       ═══════════════════════════════════════════════════════════════════════ */}
       {isCouponModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -2283,7 +2366,6 @@ export function CourseSellingPageWizardModal({
               </button>
             </div>
 
-            {/* Info notice */}
             <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 flex items-start gap-2.5">
               <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <div>
@@ -2294,7 +2376,6 @@ export function CourseSellingPageWizardModal({
 
             <div>
               <label className="block text-xs font-bold text-gray-900 dark:text-white mb-0.5">Coupon code</label>
-              <p className="text-[11px] text-gray-400 mb-1.5">The code users will enter to redeem the offer</p>
               <input
                 type="text"
                 value={couponCode}
@@ -2306,7 +2387,6 @@ export function CourseSellingPageWizardModal({
 
             <div>
               <label className="block text-xs font-bold text-gray-900 dark:text-white mb-0.5">Description</label>
-              <p className="text-[11px] text-gray-400 mb-1.5">Displayed when the user applies the coupon code during purchase</p>
               <textarea
                 rows={3}
                 value={couponDescription}
@@ -2403,7 +2483,65 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          DEDICATED MODAL: VIDEO UPLOAD (Direct File / Video URL with real uploader)
+          SUB-MODAL: EDIT QUESTION LABEL / OPTIONS
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {editingQuestion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-base font-bold text-gray-900 dark:text-white">Edit Question</h4>
+              <button onClick={() => setEditingQuestion(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Label</label>
+              <input
+                type="text"
+                value={editingQuestion.label}
+                onChange={(e) => setEditingQuestion({ ...editingQuestion, label: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
+              />
+            </div>
+
+            <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editingQuestion.required}
+                onChange={(e) => setEditingQuestion({ ...editingQuestion, required: e.target.checked })}
+                className="rounded text-blue-600"
+              />
+              <span>Mandatory Field (Required)</span>
+            </label>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingQuestion(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuestions((prev) =>
+                    prev.map((q) => (q.id === editingQuestion.id ? editingQuestion : q))
+                  );
+                  setEditingQuestion(null);
+                }}
+                className="px-5 py-2 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1E293B]"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          DEDICATED MODAL: VIDEO UPLOAD
       ═══════════════════════════════════════════════════════════════════════ */}
       {videoModalSectionId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -2418,7 +2556,6 @@ export function CourseSellingPageWizardModal({
               </button>
             </div>
 
-            {/* Video Input Mode Switcher */}
             <div className="grid grid-cols-2 rounded-xl border border-gray-200 dark:border-gray-700 p-1 bg-gray-50/50 dark:bg-gray-800/40">
               <button
                 type="button"
@@ -2560,7 +2697,7 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SUB-MODAL: FILES UPLOAD
+          SUB-MODAL: FILE UPLOAD
       ═══════════════════════════════════════════════════════════════════════ */}
       {fileModalSectionId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
@@ -2713,6 +2850,84 @@ export function CourseSellingPageWizardModal({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
+          SUB-MODAL: TEST / QUIZ
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {testModalSectionId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#1A202C] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="w-5 h-5 text-indigo-600" />
+                <h4 className="text-base font-bold text-gray-900 dark:text-white">Create Test / Quiz</h4>
+              </div>
+              <button onClick={() => setTestModalSectionId(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Test Title</label>
+              <input
+                type="text"
+                value={testTitle}
+                onChange={(e) => setTestTitle(e.target.value)}
+                placeholder="E.g. Diagnostic Mid-Term Assessment"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Number of Questions</label>
+              <input
+                type="number"
+                value={testQuestionCount}
+                onChange={(e) => setTestQuestionCount(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setTestModalSectionId(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!testTitle.trim() || !testModalSectionId) return;
+                  setSections((prev) =>
+                    prev.map((s) =>
+                      s.id === testModalSectionId
+                        ? {
+                            ...s,
+                            resources: [
+                              ...s.resources,
+                              {
+                                id: `res-${Date.now()}`,
+                                title: `${testTitle.trim()} (${testQuestionCount} Qs)`,
+                                type: 'test',
+                              },
+                            ],
+                          }
+                        : s
+                    )
+                  );
+                  setTestModalSectionId(null);
+                  setTestTitle('');
+                }}
+                className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition"
+              >
+                Add Test
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
           SUB-MODAL: EXTERNAL LINK
       ═══════════════════════════════════════════════════════════════════════ */}
       {linkModalSectionId && (
@@ -2785,6 +3000,60 @@ export function CourseSellingPageWizardModal({
               >
                 Add Link
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          IN-WIZARD RESOURCE PREVIEW / VIDEO PLAYER MODAL
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {previewingResource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#10141D] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <PlayCircle className="w-5 h-5 text-blue-500" />
+                <h4 className="font-bold text-sm text-gray-900 dark:text-white">{previewingResource.title}</h4>
+              </div>
+              <button onClick={() => setPreviewingResource(null)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {previewingResource.type === 'video' ? (
+                <div className="rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+                  <video
+                    src={previewingResource.externalUrl}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : previewingResource.type === 'youtube' ? (
+                <div className="rounded-xl overflow-hidden aspect-video">
+                  <iframe
+                    src={previewingResource.externalUrl?.replace('watch?v=', 'embed/')}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <div className="py-12 text-center space-y-3">
+                  <FileText className="w-12 h-12 text-emerald-500 mx-auto" />
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">{previewingResource.title}</p>
+                  <a
+                    href={previewingResource.externalUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs"
+                  >
+                    <span>Download / Open File</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
