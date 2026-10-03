@@ -363,9 +363,10 @@ export function CourseSellingPageWizardModal({
       if (initialData.educators && Array.isArray(initialData.educators)) {
         setSelectedEducatorIds(initialData.educators.map((e: any) => e.id));
       }
-      if (initialData.curriculum && Array.isArray(initialData.curriculum)) {
+      const loadedCurriculum = initialData.curriculum || initialData.sections;
+      if (loadedCurriculum && Array.isArray(loadedCurriculum)) {
         setSections(
-          initialData.curriculum.map((sec: any) => ({
+          loadedCurriculum.map((sec: any) => ({
             id: sec.id || `sec-${Math.random()}`,
             title: sec.title || 'Section',
             resources: (sec.resources || []).map((r: any) => ({

@@ -71,6 +71,11 @@ export interface CourseQueryFilters {
   status?: string;
   q?: string;
   educatorId?: string; // If filtering by a specific educator
+  learnerId?: string; // If filtering by enrolled learner
+  adminId?: string; // If filtering by creator/admin
+  tagId?: string; // If filtering by course tag
+  creditsOp?: 'lt' | 'eq' | 'gt';
+  creditsVal?: number;
   isTemplate?: boolean;
   page?: number;
   perPage?: number;
@@ -88,6 +93,22 @@ export const courseRepository = {
       filters.q ? ilike(courses.name, `%${filters.q}%`) : undefined,
       filters.educatorId
         ? sql`${courses.id} IN (SELECT course_id FROM course_educators WHERE educator_id = ${filters.educatorId})`
+        : undefined,
+      filters.learnerId
+        ? sql`${courses.id} IN (SELECT course_id FROM course_enrollments WHERE learner_id = ${filters.learnerId})`
+        : undefined,
+      filters.adminId
+        ? eq(courses.createdBy, filters.adminId)
+        : undefined,
+      filters.tagId
+        ? sql`${courses.id} IN (SELECT course_id FROM course_tags WHERE tag_id = ${filters.tagId})`
+        : undefined,
+      filters.creditsVal !== undefined && filters.creditsOp
+        ? (filters.creditsOp === 'lt'
+            ? sql`${courses.id} IN (SELECT course_id FROM credits WHERE (total - consumed) < ${filters.creditsVal})`
+            : filters.creditsOp === 'gt'
+            ? sql`${courses.id} IN (SELECT course_id FROM credits WHERE (total - consumed) > ${filters.creditsVal})`
+            : sql`${courses.id} IN (SELECT course_id FROM credits WHERE (total - consumed) = ${filters.creditsVal})`)
         : undefined,
     ].filter((c): c is NonNullable<typeof c> => c !== undefined);
 

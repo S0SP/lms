@@ -15,11 +15,23 @@ export async function GET(req: NextRequest) {
   const isTemplateParam = searchParams.get('isTemplate');
   const isTemplate = isTemplateParam !== null ? isTemplateParam === 'true' : false;
 
+  const educatorIdParam = role === 'educator' ? userId : (searchParams.get('educatorId') || undefined);
+  const learnerIdParam = searchParams.get('learnerId') || undefined;
+  const adminIdParam = searchParams.get('adminId') || undefined;
+  const tagIdParam = searchParams.get('tagId') || undefined;
+  const creditsOpParam = searchParams.get('creditsOp') as ('lt' | 'eq' | 'gt') | null;
+  const creditsValParam = searchParams.get('creditsVal') ? parseFloat(searchParams.get('creditsVal')!) : undefined;
+
   const result = await courseService.getCourses({
     type: searchParams.get('type') || undefined,
     status: searchParams.get('status') || undefined,
     q: searchParams.get('q') || undefined,
-    educatorId: role === 'educator' ? userId : undefined,
+    educatorId: educatorIdParam,
+    learnerId: learnerIdParam,
+    adminId: adminIdParam,
+    tagId: tagIdParam,
+    creditsOp: creditsOpParam || undefined,
+    creditsVal: !isNaN(creditsValParam as number) ? creditsValParam : undefined,
     isTemplate,
     page: Math.max(1, parseInt(searchParams.get('page') ?? '1')),
     perPage: Math.min(100, parseInt(searchParams.get('perPage') ?? '20'))
