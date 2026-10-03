@@ -2255,16 +2255,21 @@ export function CourseSellingPageWizardModal({
                       placeholder="Enter"
                       className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
                     />
-                    <select
-                      value={planCurrency}
-                      onChange={(e) => setPlanCurrency(e.target.value)}
-                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
-                    >
-                      <option value="INR">INR</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
+                    <div className="border-l border-gray-200 dark:border-gray-700">
+                      <CustomSelect
+                        value={planCurrency}
+                        onChange={(v) => setPlanCurrency(v)}
+                        options={[
+                          { value: 'INR', label: 'INR' },
+                          { value: 'USD', label: 'USD' },
+                          { value: 'EUR', label: 'EUR' },
+                          { value: 'GBP', label: 'GBP' },
+                        ]}
+                        size="sm"
+                        width="w-24"
+                        triggerClassName="!rounded-none !rounded-r-xl !border-0 !ring-0 !shadow-none bg-gray-50 dark:bg-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -2324,16 +2329,21 @@ export function CourseSellingPageWizardModal({
                       placeholder="Enter"
                       className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
                     />
-                    <select
-                      value={planCurrency}
-                      onChange={(e) => setPlanCurrency(e.target.value)}
-                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
-                    >
-                      <option value="INR">INR</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
+                    <div className="border-l border-gray-200 dark:border-gray-700">
+                      <CustomSelect
+                        value={planCurrency}
+                        onChange={(v) => setPlanCurrency(v)}
+                        options={[
+                          { value: 'INR', label: 'INR' },
+                          { value: 'USD', label: 'USD' },
+                          { value: 'EUR', label: 'EUR' },
+                          { value: 'GBP', label: 'GBP' },
+                        ]}
+                        size="sm"
+                        width="w-24"
+                        triggerClassName="!rounded-none !rounded-r-xl !border-0 !ring-0 !shadow-none bg-gray-50 dark:bg-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -2393,16 +2403,21 @@ export function CourseSellingPageWizardModal({
                       placeholder="Enter"
                       className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
                     />
-                    <select
-                      value={planCurrency}
-                      onChange={(e) => setPlanCurrency(e.target.value)}
-                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
-                    >
-                      <option value="INR">INR</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
+                    <div className="border-l border-gray-200 dark:border-gray-700">
+                      <CustomSelect
+                        value={planCurrency}
+                        onChange={(v) => setPlanCurrency(v)}
+                        options={[
+                          { value: 'INR', label: 'INR' },
+                          { value: 'USD', label: 'USD' },
+                          { value: 'EUR', label: 'EUR' },
+                          { value: 'GBP', label: 'GBP' },
+                        ]}
+                        size="sm"
+                        width="w-24"
+                        triggerClassName="!rounded-none !rounded-r-xl !border-0 !ring-0 !shadow-none bg-gray-50 dark:bg-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -2463,16 +2478,21 @@ export function CourseSellingPageWizardModal({
                       placeholder="Enter"
                       className="flex-1 px-3 py-2 text-sm text-gray-900 dark:text-white bg-transparent focus:outline-none"
                     />
-                    <select
-                      value={planCurrency}
-                      onChange={(e) => setPlanCurrency(e.target.value)}
-                      className="px-3 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-300 font-semibold border-l border-gray-200 dark:border-gray-700 focus:outline-none cursor-pointer"
-                    >
-                      <option value="INR">INR</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
+                    <div className="border-l border-gray-200 dark:border-gray-700">
+                      <CustomSelect
+                        value={planCurrency}
+                        onChange={(v) => setPlanCurrency(v)}
+                        options={[
+                          { value: 'INR', label: 'INR' },
+                          { value: 'USD', label: 'USD' },
+                          { value: 'EUR', label: 'EUR' },
+                          { value: 'GBP', label: 'GBP' },
+                        ]}
+                        size="sm"
+                        width="w-24"
+                        triggerClassName="!rounded-none !rounded-r-xl !border-0 !ring-0 !shadow-none bg-gray-50 dark:bg-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Trash2, Edit2, Plus, Loader2, Check } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface EducatorItem {
   id: string;
@@ -282,18 +283,15 @@ export function AddEducatorModal({
                     All educators are already assigned or none exist.
                   </div>
                 ) : (
-                  <select
+                  <CustomSelect
                     value={selectedEducatorId}
-                    onChange={(e) => setSelectedEducatorId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 shadow-2xs font-medium"
-                  >
-                    <option value="" disabled>-- Select an Educator --</option>
-                    {unassigned.map((e) => (
-                      <option key={e.id} value={e.id}>
-                        {e.name} ({e.email})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => setSelectedEducatorId(v)}
+                    placeholder="-- Select an Educator --"
+                    options={unassigned.map((e) => ({
+                      value: e.id,
+                      label: `${e.name} (${e.email})`,
+                    }))}
+                  />
                 )}
               </div>
 

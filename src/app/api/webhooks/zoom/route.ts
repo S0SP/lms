@@ -13,8 +13,39 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('x-zm-signature') ?? '';
   const timestamp = req.headers.get('x-zm-request-timestamp') ?? '';
 
-  // ─── 1. HMAC-SHA256 signature verification ────────────────────────────────
-  const webhookSecret = process.env.ZOOM_WEBHOOK_SECRET;
+  const webhookSecret =
+    process.env.ZOOM_WEBHOOK_SECRET ||
+    process.env.ZOOM_WEBHOOK_SECRET_TOKEN ||
+    '';
+
+  let payload: any;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch (parseErr) {
+    return apiError('Invalid JSON payload', 400);
+  }
+
+  const event = payload?.event as string;
+
+  // ─── 1. URL validation handshake (Zoom CRC challenge) ─────────────────────
+  // Zoom sends this when adding or verifying the endpoint in Zoom Marketplace.
+  // Must return HTTP 200 with encryptedToken within 3 seconds.
+  if (event === 'endpoint.url_validation') {
+    const plainToken = payload?.payload?.plainToken || '';
+    const secret = webhookSecret || 'plain_secret';
+    const hash = crypto
+      .createHmac('sha256', secret)
+      .update(plainToken)
+      .digest('hex');
+
+    console.log('[Zoom Webhook] Successfully validated URL challenge token with Zoom Marketplace');
+    return Response.json({
+      plainToken,
+      encryptedToken: hash,
+    });
+  }
+
+  // ─── 2. HMAC-SHA256 signature verification for events ─────────────────────
   if (webhookSecret) {
     const message = `v0:${timestamp}:${rawBody}`;
     const expected = `v0=${crypto
@@ -23,26 +54,11 @@ export async function POST(req: NextRequest) {
       .digest('hex')}`;
 
     if (expected !== signature) {
+      console.warn('[Zoom Webhook] Signature verification failed. Check ZOOM_WEBHOOK_SECRET / ZOOM_WEBHOOK_SECRET_TOKEN.');
       return apiError('Invalid Zoom webhook signature', 401);
     }
   } else {
     console.warn('[Zoom Webhook] ZOOM_WEBHOOK_SECRET not configured, running in local/test mode');
-  }
-
-  const payload = JSON.parse(rawBody);
-  const event = payload.event as string;
-
-  // ─── 2. URL validation handshake (Zoom sends this once when you configure the webhook)
-  if (event === 'endpoint.url_validation') {
-    const secret = webhookSecret || 'plain_secret';
-    const hash = crypto
-      .createHmac('sha256', secret)
-      .update(payload.payload.plainToken)
-      .digest('hex');
-    return Response.json({
-      plainToken: payload.payload.plainToken,
-      encryptedToken: hash,
-    });
   }
 
   // ─── 3. Participant joined/left events ────────────────────────────────────

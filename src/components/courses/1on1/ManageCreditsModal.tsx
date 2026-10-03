@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Loader2, User } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface ManageCreditsModalProps {
   isOpen: boolean;
@@ -197,17 +198,15 @@ export function ManageCreditsModal({
                   No learners found. Please create or invite a learner first.
                 </div>
               ) : (
-                <select
+                <CustomSelect
                   value={selectedLearnerId}
-                  onChange={(e) => setSelectedLearnerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 transition shadow-2xs"
-                >
-                  {availableLearners.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.name} {l.email ? `(${l.email})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setSelectedLearnerId(v)}
+                  placeholder="Select a learner"
+                  options={availableLearners.map((l) => ({
+                    value: l.id,
+                    label: `${l.name}${l.email ? ` (${l.email})` : ''}`,
+                  }))}
+                />
               )}
             </div>
           )}

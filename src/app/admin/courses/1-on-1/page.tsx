@@ -28,6 +28,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { CourseSellingPageWizardModal } from '@/components/admin/CourseSellingPageWizardModal';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Course {
   id: string;
@@ -1052,18 +1053,18 @@ export default function Courses1on1Page() {
                 <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                   Learner
                 </label>
-                <select
+                <CustomSelect
                   value={filterLearner}
-                  onChange={(e) => setFilterLearner(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
-                >
-                  <option value="">All</option>
-                  {learnersList.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.name} {l.email ? `(${l.email})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setFilterLearner(v)}
+                  placeholder="All Learners"
+                  options={[
+                    { value: '', label: 'All' },
+                    ...learnersList.map((l) => ({
+                      value: l.id,
+                      label: `${l.name}${l.email ? ` (${l.email})` : ''}`,
+                    })),
+                  ]}
+                />
               </div>
 
               {/* Educator */}
@@ -1071,18 +1072,18 @@ export default function Courses1on1Page() {
                 <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                   Educator
                 </label>
-                <select
+                <CustomSelect
                   value={filterEducator}
-                  onChange={(e) => setFilterEducator(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
-                >
-                  <option value="">All</option>
-                  {educatorsList.map((edu) => (
-                    <option key={edu.id} value={edu.id}>
-                      {edu.name} {edu.email ? `(${edu.email})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setFilterEducator(v)}
+                  placeholder="All Educators"
+                  options={[
+                    { value: '', label: 'All' },
+                    ...educatorsList.map((edu) => ({
+                      value: edu.id,
+                      label: `${edu.name}${edu.email ? ` (${edu.email})` : ''}`,
+                    })),
+                  ]}
+                />
               </div>
 
               {/* Admin */}
@@ -1090,18 +1091,18 @@ export default function Courses1on1Page() {
                 <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                   Admin
                 </label>
-                <select
+                <CustomSelect
                   value={filterAdmin}
-                  onChange={(e) => setFilterAdmin(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
-                >
-                  <option value="">All</option>
-                  {adminsList.map((adm) => (
-                    <option key={adm.id} value={adm.id}>
-                      {adm.name} {adm.email ? `(${adm.email})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setFilterAdmin(v)}
+                  placeholder="All Admins"
+                  options={[
+                    { value: '', label: 'All' },
+                    ...adminsList.map((adm) => ({
+                      value: adm.id,
+                      label: `${adm.name}${adm.email ? ` (${adm.email})` : ''}`,
+                    })),
+                  ]}
+                />
               </div>
 
               {/* Tags */}
@@ -1109,18 +1110,18 @@ export default function Courses1on1Page() {
                 <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                   Tags
                 </label>
-                <select
+                <CustomSelect
                   value={filterTag}
-                  onChange={(e) => setFilterTag(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
-                >
-                  <option value="">Select Tags...</option>
-                  {tagsList.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setFilterTag(v)}
+                  placeholder="Select Tags..."
+                  options={[
+                    { value: '', label: 'All Tags' },
+                    ...tagsList.map((t) => ({
+                      value: t.id,
+                      label: t.name,
+                    })),
+                  ]}
+                />
               </div>
 
               {/* Session credits row matching Screenshot 010 */}
@@ -1129,15 +1130,16 @@ export default function Courses1on1Page() {
                   Session credits
                 </label>
                 <div className="flex items-center gap-2">
-                  <select
+                  <CustomSelect
                     value={filterCreditsOp}
-                    onChange={(e) => setFilterCreditsOp(e.target.value as any)}
-                    className="w-36 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 shadow-sm"
-                  >
-                    <option value="lt">Less than</option>
-                    <option value="eq">Equal to</option>
-                    <option value="gt">More than</option>
-                  </select>
+                    onChange={(v) => setFilterCreditsOp(v as any)}
+                    options={[
+                      { value: 'lt', label: 'Less than' },
+                      { value: 'eq', label: 'Equal to' },
+                      { value: 'gt', label: 'More than' },
+                    ]}
+                    width="w-36"
+                  />
 
                   <input
                     type="number"

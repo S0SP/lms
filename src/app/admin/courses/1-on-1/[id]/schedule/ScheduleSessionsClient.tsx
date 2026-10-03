@@ -359,7 +359,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
 
     setCreating(true);
     try {
-      const learnerId = course?.learners?.[0]?.id || selectedLearnerId;
+      const learnerId = selectedLearnerId || course?.learners?.[0]?.id;
       const dur = parseInt(durationMin);
 
       // Auto-assign educator to course if not already assigned
@@ -589,23 +589,29 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
               />
             </div>
 
-            {/* Learner selector (if not enrolled yet or customizable) */}
-            {(!course?.learners || course.learners.length === 0) && allLearners.length > 0 && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-                  Enrolled Learner
-                </label>
-                <CustomSelect
-                  value={selectedLearnerId}
-                  onChange={(val) => setSelectedLearnerId(val as string)}
-                  options={allLearners.map((l) => ({
-                    value: l.id,
-                    label: l.name || 'Learner',
-                    subLabel: l.email,
-                  }))}
-                />
-              </div>
-            )}
+            {/* Learner selector (CustomSelect) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
+                Learner
+              </label>
+              <CustomSelect
+                value={selectedLearnerId}
+                onChange={(val) => setSelectedLearnerId(val as string)}
+                options={
+                  allLearners.length > 0
+                    ? allLearners.map((l) => ({
+                        value: l.id,
+                        label: l.name || 'Learner',
+                        subLabel: l.email,
+                      }))
+                    : (course?.learners || []).map((l: any) => ({
+                        value: l.id,
+                        label: l.name || 'Learner',
+                        subLabel: l.email,
+                      }))
+                }
+              />
+            </div>
 
             {/* Duration selector (CustomSelect) */}
             <div className="space-y-1.5">

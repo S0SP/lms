@@ -186,6 +186,7 @@ export async function createMeeting(input: CreateMeetingInput): Promise<CreateMe
           waiting_room: true,
           mute_upon_entry: true,
           approval_type: 2, // no registration required
+          auto_recording: 'cloud', // automatically record to cloud for video playback, transcript, and AI summary
           meeting_invitees: (input.inviteeEmails ?? []).map((email) => ({ email })),
         },
       }),
