@@ -1,0 +1,210 @@
+LMS PLATFORM
+Technical Requirements Document
+TRD v2.0 — Next.js Full-Stack Edition
+Generated from the supplied source content
+
+1. Executive Summary
+This TRD v2.0 replaces TRD v1.0 entirely. The fundamental product scope (PRD v1.0) is unchanged. What changes is the entire infrastructure and technology layer: the Django REST Framework backend is replaced by Next.js Route Handlers, making the system a true full-stack Next.js application. The database ORM is Drizzle (provider-agnostic), and attendance tracking is fully automated through Zoom's event webhook system.
+1.1 Core Design Principles
+No vendor lock-in on the database: Drizzle ORM uses a standard PostgreSQL connection string (DATABASE_URL). Switching between Neon, Railway, Supabase, Google CloudSQL, Amazon RDS, or any other PostgreSQL host requires changing exactly one environment variable.
+Free tier first: every service selected has a meaningful free tier sufficient for Phase 1 (â¤200 active users). Paid tiers are documented as scale thresholds, not starting costs.
+Single runtime, single deployment: all server logic â API routes, webhook handlers, middleware, cron endpoints â runs inside Next.js. One Vercel project, one codebase, one CI pipeline.
+Automated attendance via Zoom: no manual check-in required. Zoom's participant_joined / participant_left events drive the attendance ledger in real time.
+Real-time via Firestore: chat and live notifications use Firebase Firestore's native real-time listeners. No self-hosted WebSocket server required â compatible with Vercel's stateless serverless model.
+Scheduled jobs via QStash: Upstash QStash replaces Celery + Redis for all background work (report generation triggers, calendar renewal, session reminders). HTTP-based, works with Vercel serverless.
+1.2 Phase 1 Feature Scope
+2. ORM & Database Technology Decision
+This section documents the ORM selection research. The choice of Drizzle ORM is deliberate and non-trivial â it directly enables the 'change one env var to switch PostgreSQL providers' guarantee.
+2.1 ORM Candidates Evaluated
+2.2 Why Drizzle ORM is Selected
+2.2.1 Serverless-First Architecture
+Prisma ships a 40MB Rust query engine binary. On Vercel's free tier this causes slow cold starts and occasionally fails deployment size checks. Drizzle has no binary engine â it compiles to plain JavaScript and connects directly through the PostgreSQL driver you choose.
+2.2.2 True Provider Portability
+Drizzle connects through the driver layer, not through a managed service. The same schema and queries work with:
+Neon (free tier, serverless PostgreSQL, built-in connection pooling)
+Railway (free $5/month credit, standard PostgreSQL)
+Supabase PostgreSQL (connect via direct URL, ignore Supabase-specific features)
+Google CloudSQL for PostgreSQL
+Amazon RDS PostgreSQL
+Self-hosted PostgreSQL on any VPS
+Switching providers: change DATABASE_URL in Vercel environment variables. No code changes.
+2.2.3 Serverless Connection Handling
+PostgreSQL has a hard connection limit. Vercel functions spin up fresh instances for every invocation. Drizzle natively supports the @neondatabase/serverless driver (which uses HTTP instead of persistent TCP), and also supports connection pooling URLs from PgBouncer (which all major PostgreSQL hosts expose). This is configured per-environment with a single env var.
+2.2.4 SQL Transparency
+Drizzle's query syntax is intentionally SQL-like. There is no magic or hidden N+1 query generator. Complex joins, sub-queries, and window functions are all expressible without falling back to raw SQL.
+2.3 PostgreSQL Provider Selection
+Recommended for Phase 1: Neon free tier. The @neondatabase/serverless driver resolves Vercel's connection exhaustion problem with zero configuration. When you grow beyond the free tier or want to switch, export your data with pg_dump and point DATABASE_URL at any other PostgreSQL host. Drizzle migrations are plain SQL files â they run on any PostgreSQL.
+3. System Architecture
+3.1 High-Level Architecture Overview
+3.2 Request Flow Architecture
+3.3 Why Next.js API Routes (Not a Separate Backend)
+Single deployment unit: one Vercel project, one CI/CD pipeline, shared TypeScript types between frontend and backend with no serialisation layer.
+No CORS complexity: frontend and API share the same origin.
+Type safety end-to-end: Drizzle schema types flow directly into Route Handlers and React components. No OpenAPI code generation needed.
+Vercel free tier includes 100,000 serverless function invocations per day â sufficient for Phase 1 at well under 1% of that limit.
+Vercel Edge Middleware handles auth-cookie validation before route execution â sub-millisecond JWT checks at the CDN edge.
+4. Authentication & Authorisation
+4.1 Auth.js v5 (NextAuth) Setup
+Auth.js v5 is the official authentication library for Next.js App Router. It handles sessions via encrypted httpOnly cookies (no JWTs in localStorage), supports multiple providers, and integrates natively with Next.js Middleware for route protection.
+4.2 Session & Token Model
+4.3 Role-Based Access Control (RBAC)
+Four roles from PRD Â§2. RBAC is enforced at two layers: Next.js Middleware (route group protection) and Route Handler permission checks (query-level scoping).
+RBAC Implementation: A checkPermission(session, requiredRole, resourceId?) helper is called at the top of every Route Handler. Educator-scoped queries always include AND course_educators.educator_id = session.user.id in the Drizzle WHERE clause â not just a UI filter.
+4.4 Confidentiality Boundaries (Critical â Must Not Leak)
+5. Database Design (Drizzle ORM + PostgreSQL)
+Schema defined in /src/db/schema/* as Drizzle TypeScript schema files. Migrations generated with drizzle-kit generate and applied with drizzle-kit migrate â plain SQL files committed to the repo. Run on any PostgreSQL provider without modification.
+5.1 Drizzle Schema File Layout
+/src/db/
+schema/users.ts â users, educator_profiles, learner_profiles, parent_profiles
+schema/courses.ts â courses, course_enrollments, course_educators, credits
+schema/sessions.ts â sessions, session_feedback, session_reports, confidential_feedback_educator, confidential_feedback_learner
+schema/availability.ts â availability_profiles, leaves, session_conflicts
+schema/attendance.ts â zoom_attendance (NEW â auto-populated by Zoom webhooks)
+schema/payouts.ts â payouts
+schema/reports.ts â monthly_reports
+schema/store.ts â store_settings, course_selling_pages, coupons
+schema/consultations.ts â consultations
+schema/calendar.ts â google_calendar_tokens, google_calendar_channels, google_calendar_sync
+schema/notifications.ts â notification_log (metadata only; real-time delivery via Firestore)
+schema/tags.ts â tags
+schema/index.ts â re-exports all schemas
+client.ts â creates the Drizzle client with the appropriate driver
+migrations/ â auto-generated SQL migration files (committed to git)
+5.2 Core Tables
+5.3 Critical Database Indexes
+5.4 Connection Pooling Strategy
+Vercel serverless functions create a new database connection on every cold start. Without connection pooling this exhausts PostgreSQL's connection limit instantly.
+6. Zoom Integration â Automated Attendance
+This is a new addition to TRD v2.0. Zoom replaces manual attendance marking. All attendance data is populated automatically through Zoom's Server-to-Server OAuth webhook system. No additional cost â included with any Zoom account.
+6.1 Zoom App Setup
+6.2 Zoom Events Subscribed
+6.3 Webhook Handler â /api/webhooks/zoom
+6.3.1 Signature Verification
+Every Zoom webhook POST includes an x-zm-request-timestamp header and an x-zm-signature header. Before processing any payload the handler verifies:
+Construct message: v0:{timestamp}:{raw_body_string}
+Compute HMAC-SHA256 of message using ZOOM_WEBHOOK_SECRET
+Compare with x-zm-signature header value (constant-time comparison)
+Reject requests where timestamp is more than 5 minutes old (replay attack protection)
+Respond 200 OK within 3 seconds â Zoom expects immediate acknowledgment. Heavy DB work runs after responding.
+6.3.2 User Matching Logic
+Zoom sends participant email (if the user is logged into Zoom with a known email) or display name. The matching strategy:
+Primary: match zoom_participant.email to users.email in PostgreSQL
+Fallback: match zoom_participant.display_name to users name (fuzzy, log unmatched for admin review)
+Unmatched participant: logged in zoom_attendance with user_id = null, flagged for admin review
+Meeting host (educator): always identified by zoom_meeting_host_id matched to educator zoom_user_id field
+6.3.3 Session Creation with Zoom
+When an educator schedules a session in the LMS, the Route Handler automatically creates a Zoom meeting:
+POST to Zoom API: /v2/users/{educator_zoom_user_id}/meetings with topic, start_time, duration
+Store zoom_meeting_id and zoom_meeting_url in sessions table
+The zoom_meeting_url is shown to educator and learner as the session join link
+Educator's Zoom account: connected via OAuth in Educator Settings (Zoom connection tab â new feature in Educator Portal)
+6.4 Attendance Derived Fields (Read-only Computed Values)
+6.5 Zoom API Cost
+Zoom's webhook API is available on all Zoom plans including the free plan. Creating meetings via API requires a paid Zoom account only if you need more than 40-minute meeting limits. For the LMS use case: educators use their own Zoom Pro/Business accounts. The LMS connects to their account via OAuth. No additional Zoom cost for the LMS operator.
+7. Firebase Firestore â Real-Time Data Layer
+Firestore handles all real-time data: chat messages and notifications. PostgreSQL handles all structured/relational data. This split avoids the need for a self-hosted WebSocket server (which Vercel's stateless model cannot support).
+7.1 Firestore Free Tier
+7.2 Firestore Collection Structure
+7.3 Firestore Security Rules
+Firestore Security Rules enforce that users can only read/write their own data. The rules reference Auth.js session user IDs which are also used as Firebase Auth UIDs (via Firebase Admin SDK custom tokens).
+Chat read access: auth.uid in resource.data.member_ids
+Chat write access: auth.uid in resource.data.member_ids (validated against PostgreSQL-assigned course chat members)
+Notification read: auth.uid == userId (document path segment)
+Admin access: custom claim role == 'admin' bypasses member checks for admin oversight
+Auth Bridge: When a user logs in via Auth.js, the server calls Firebase Admin SDK to create a custom token for that user's UID (= Auth.js session user ID). The client exchanges this for a Firebase ID token via signInWithCustomToken(). This bridges Auth.js sessions with Firestore Security Rules.
+7.4 Chat Scoping (PRD Â§13 & Â§24 Rules)
+8. Scheduled Tasks â Upstash QStash
+Vercel serverless functions cannot run background jobs or maintain cron state. QStash is an HTTP-based message queue / scheduler that sends authenticated HTTP POST requests to your Vercel Route Handler endpoints on a schedule or after a delay.
+8.1 QStash Free Tier
+8.2 Scheduled Jobs
+8.3 QStash Request Security
+All /api/cron/* endpoints validate the QStash signature before executing:
+QStash includes an Upstash-Signature header on every request
+Verify using the @upstash/qstash SDK's verifySignatureAppRouter() middleware
+Reject any request without a valid signature â these endpoints are NOT publicly callable
+All cron endpoints also accept QSTASH_CURRENT_SIGNING_KEY from environment variables
+9. API Architecture â Next.js Route Handlers
+9.1 API Design Principles
+Base path: /api/v1/. Route Handlers in /src/app/api/v1/**
+All authenticated endpoints read session via import { auth } from '@/lib/auth' (Auth.js helper)
+Response format: { data, error, meta } JSON envelope
+Pagination: cursor-based (session lists). Page-based (admin lists with totalCount)
+Timestamps: stored UTC in PostgreSQL. API returns ISO-8601 UTC strings. Client renders in user timezone.
+Versioning: /api/v1/ for Phase 1. Breaking changes get /api/v2/. Non-breaking changes are additive.
+9.2 Route Handler Groups
+9.3 Google Calendar Integration â Next.js Implementation
+Google Calendar 2-way sync is implemented entirely in Next.js Route Handlers, replacing the Django management command approach from TRD v1.0.
+10. Next.js Frontend Architecture
+10.1 Project Structure
+src/
+app/ â Next.js App Router pages and layouts
+(auth)/ â login/, register/, google/callback/ (public, CSR)
+admin/ â All admin portal routes (requires admin session via middleware)
+admin/dashboard/, admin/calendar/, admin/courses/[type]/, admin/users/, admin/reports/, admin/analytics/, admin/store/, admin/consultations/
+educator/ â All educator portal routes (requires educator session)
+educator/courses/, educator/calendar/, educator/availability/, educator/payouts/, educator/conflicts/
+store/ â Public-facing course store (SSG, SEO-optimised)
+api/ â All Route Handlers (backend logic)
+components/ â Shared UI components (shadcn/ui base + custom)
+lib/ â api.ts (fetch wrapper), auth.ts (Auth.js config), firebase.ts (Firestore client), zoom.ts (Zoom API client), drizzle.ts (DB client factory)
+db/ â Drizzle schema + migrations (shared with backend logic in same Next.js app)
+hooks/ â Custom React hooks (useSession, useRealtimeChat, useNotifications, useCalendar)
+middleware.ts â Route protection: checks Auth.js session cookie, redirects unauthenticated users
+10.2 Rendering Strategy
+10.3 Key Dependencies
+11. File Storage â Cloudflare R2
+Cloudflare R2 is S3-compatible with zero egress fees and 10GB free storage. The Next.js Route Handler generates pre-signed PUT URLs; the client uploads directly to R2 â the backend never proxies file bytes.
+11.1 Upload Flow
+Client requests pre-signed URL: POST /api/v1/uploads/presigned { bucket, filename, contentType }
+Route Handler validates auth + file type, generates R2 pre-signed PUT URL using AWS SDK v3 (S3-compatible)
+Client PUTs file directly to R2 â no bandwidth goes through Vercel
+Client POSTs final URL back to relevant resource endpoint (e.g., PATCH /api/v1/educators/{id} with avatar_url)
+11.2 Video â Cloudflare Stream
+Recorded course videos on Cloudflare Stream. $5/1,000 minutes stored/month + $1/1,000 minutes delivered. Upload via Stream direct upload URL. Playback via time-limited signed embed URLs (2h default).
+12. Security Requirements
+13. Vercel Deployment â Free Tier Constraints & Strategy
+Vercel Hobby (free) prohibits commercial use. Plan to upgrade to Vercel Pro ($20/month) before the platform goes live with paying customers. All architectural decisions below apply to both Hobby (development) and Pro (production).
+13.1 Vercel Hobby Limits
+13.2 AI Report Generation â Timeout Mitigation
+AI report generation (30 seconds) may exceed Vercel Hobby's 10-second function timeout. Mitigation strategies:
+Use Vercel Pro ($20/mo) which raises the timeout to 300 seconds â sufficient for Claude streaming.
+Alternative (free): Use QStash to offload the AI call. Admin triggers POST /api/v1/reports/generate â Route Handler publishes a QStash message â QStash delivers to POST /api/cron/run-ai-report â that endpoint calls Claude (no timeout risk as QStash delivery has no timeout). Report saved to DB. Admin polls for completion.
+Recommended: Start with QStash approach (works on free Hobby). Switch to direct streaming on Pro when upgrading.
+13.3 Database Connection â Vercel Serverless Constraint
+Each Vercel function invocation potentially creates a new PostgreSQL connection. Without a connection pooler, this hits the database connection limit quickly at scale.
+Phase 1 solution: Use Neon's built-in connection pooler (@neondatabase/serverless driver with HTTP transport). Zero connection pool exhaustion.
+Any other provider: use the provider's PgBouncer URL in DATABASE_URL. Drizzle works identically with both direct and pooled URLs.
+Do NOT use the direct database URL in production Vercel deployments â always use the pooled endpoint.
+13.4 Environment Variables â Vercel Configuration
+14. Cost Analysis â Free Tier Optimised
+14.1 Phase 1 Monthly Costs (0â200 Active Users)
+Phase 1 can run entirely on free tiers (except Vercel Pro $20/mo for commercial use and Cloudflare Stream for videos). Total production cost for Phase 1: $20â33/month â roughly 65% cheaper than the TRD v1.0 AWS approach ($46/month baseline) and 80% cheaper than the Azure approach.
+14.2 Scale Thresholds â When to Upgrade
+15. Non-Functional Requirements â Technical Implementation
+16. CI/CD & Project Structure
+16.1 Monorepo Structure
+Single repository: both frontend (pages, components) and backend (Route Handlers, Drizzle schema) live in one Next.js project.
+Shared TypeScript types: Drizzle schema types used directly in Route Handlers and React components.
+Vercel Git Integration: push to main â auto-deploy. Preview URLs on every PR.
+16.2 Deployment Pipeline
+16.3 Directory Layout
+lms/  (Next.js monorepo root)
+src/app/ â Pages, layouts, Route Handlers (all Next.js App Router)
+src/components/ â Shared React components, shadcn/ui wrappers
+src/db/ â Drizzle schema (*.ts), client.ts, migrations/
+src/lib/ â auth.ts, firebase.ts, zoom.ts, r2.ts, resend.ts, anthropic.ts, qstash.ts
+src/hooks/ â useSession, useRealtimeChat, useNotifications, useAvailability
+src/types/ â Shared TypeScript types (inferred from Drizzle schema + Zod schemas)
+src/middleware.ts â Auth.js route protection middleware
+public/ â Static assets (favicon, og images)
+.env.example â Template for all required environment variables
+drizzle.config.ts â drizzle-kit configuration
+vercel.json â Vercel deployment config (function memory, regions)
+17. Open Items & Risk Register
+17.1 Open Items (Inherited from PRD v1.0 + New)
+17.2 Technical Risks
+18. Recommended Phase 1 Stack â Summary
+Database portability guarantee: To migrate from Neon to any other PostgreSQL provider (Railway, Supabase, AWS RDS, etc.), run pg_dump on Neon, restore to the new provider, update DATABASE_URL in Vercel environment variables. No code changes. Drizzle migrations are plain SQL files that apply to any PostgreSQL instance.
+18.1 Document History
+
+Structured Tables — Source Definitions

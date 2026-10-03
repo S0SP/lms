@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UnboundYou - Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#dbe2fb",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#dbe2fb",
+                    "surface": "#faf8ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#d2d9f3",
+                    "on-secondary-fixed-variant": "#005234",
+                    "primary-fixed-dim": "#adc6ff",
+                    "primary": "#0058bc",
+                    "inverse-surface": "#283043",
+                    "surface-tint": "#005bc1",
+                    "on-secondary-fixed": "#002112",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#edf0ff",
+                    "surface-container": "#e9edff",
+                    "primary-fixed": "#d8e2ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "outline": "#727785",
+                    "primary-container": "#0e70e9",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#fefcff",
+                    "surface-container-high": "#e1e8ff",
+                    "on-primary-fixed-variant": "#004494",
+                    "secondary-container": "#67f9b4",
+                    "background": "#faf8ff",
+                    "surface-bright": "#faf8ff",
+                    "secondary-fixed": "#6afcb7",
+                    "on-background": "#131b2d",
+                    "on-primary-fixed": "#001a41",
+                    "tertiary-container": "#a36700",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f2f3ff",
+                    "secondary-fixed-dim": "#49df9d",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#006c46",
+                    "on-tertiary-container": "#fffbff",
+                    "on-surface-variant": "#414754",
+                    "inverse-primary": "#adc6ff",
+                    "tertiary": "#825100",
+                    "on-surface": "#131b2d",
+                    "outline-variant": "#c1c6d6",
+                    "on-secondary-container": "#007149",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#ffddb8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack_md": "16px",
+                    "stack_lg": "32px",
+                    "container_max": "1440px",
+                    "gutter": "24px",
+                    "sidebar_width": "248px",
+                    "stack_sm": "8px"
+            },
+            "fontFamily": {
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "page-title": ["Plus Jakarta Sans"],
+                    "page-title-mobile": ["Plus Jakarta Sans"],
+                    "body-main": ["Plus Jakarta Sans"],
+                    "section-title": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "page-title": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "page-title-mobile": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-main": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "section-title": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        .shadow-ambient {
+            box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08);
+        }
+        .shadow-overlay {
+            box-shadow: 0px 8px 24px rgba(15, 23, 41, 0.12);
+        }
+        
+        /* Level 1 structural border */
+        .border-structural {
+            border-color: #E5E9F0;
+        }
+        
+        /* Active nav styling as per strict rules */
+        .nav-active {
+            border-left: 4px solid #2F80F9;
+            background-color: rgba(47, 128, 249, 0.08);
+            color: #2F80F9;
+            font-weight: 700;
+        }
+        .nav-active .material-symbols-outlined {
+            color: #2F80F9;
+            font-variation-settings: 'wght' 700;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-main min-h-screen">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-stack_lg bg-surface-container-lowest border-r border-structural fixed left-0 top-0 h-screen w-sidebar_width z-20">
+<div class="px-gutter mb-stack_lg">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center font-page-title text-xl shadow-sm">
+                    E
+                </div>
+<div>
+<h1 class="font-page-title text-page-title text-primary tracking-tight" style="font-size: 1.25rem; line-height: 1.5rem;">EduCore LMS</h1>
+<p class="font-body-main text-on-surface-variant text-xs mt-1">Student Portal</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-lg transition-colors group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-bold text-label-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">school</span>
+<span>My Courses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">event_upcoming</span>
+<span>Sessions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">analytics</span>
+<span>Progress Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">payments</span>
+<span>Fees</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">chat</span>
+<span>Chats</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto pt-stack_lg">
+<button class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg border border-structural text-primary font-label-bold text-label-bold hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">help_outline</span>
+                Get Support
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="hidden md:flex justify-between items-center px-gutter h-16 bg-surface-container-lowest border-b border-structural shadow-sm fixed top-0 right-0 w-[calc(100%-248px)] z-10">
+<div class="flex-1 max-w-md relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface rounded-lg border border-structural focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body-main text-body-main text-on-surface placeholder:text-outline-variant" placeholder="Search courses, tutors..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface-container-lowest"></span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-6 w-px bg-structural mx-2"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container-low p-1 pr-3 rounded-full transition-all border border-transparent hover:border-structural">
+<img class="w-8 h-8 rounded-full object-cover border border-structural" data-alt="A high-quality, professional headshot of a young male student in a bright, modern educational setting. The lighting is soft and flattering, creating a positive and engaging mood. The background is slightly blurred but suggests a contemporary study space with warm, natural light. The aesthetic is clean, polished, and suitable for a high-end educational platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd1-tvuHntPByWzvglrrKkFRfvVy6wbxGcQ6QbKkklVrbVtJ-8v2B1ktkYurYBi-QMRiUbphdHccqBiNyj2tW_dJiZl6XzzhJbEue21Rkh7JiNuSQD2rUDDvONVUrGNxNd4p_sFACB9M0293i6zLkJ_IwiknVry4RMqnlEnhkXQmG_6EwsK7P_1AFH1duJWnUGAc0zJq-96xbiDT9efq5d0nASa0zlD7uINRtpkqqcUVCVshIbOPkC"/>
+<span class="font-label-bold text-label-bold text-on-surface">Aarav M.</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="md:ml-[248px] pt-16 min-h-screen">
+<div class="max-w-[1080px] mx-auto p-gutter lg:p-8 space-y-stack_lg">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-page-title text-page-title text-on-surface">Hey Aarav 👋</h2>
+<p class="font-body-main text-on-surface-variant mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">calendar_today</span>
+                        Monday, 24 October 2023
+                    </p>
+</div>
+<button class="self-start md:self-auto bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                    Book Session
+                </button>
+</div>
+<!-- Hero Bento -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Next Session Hero Card -->
+<div class="lg:col-span-2 rounded-xl relative overflow-hidden shadow-ambient" style="background: linear-gradient(135deg, #2F80F9 0%, #004494 100%);">
+<!-- Decorative background shapes -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-primary-fixed/20 rounded-full blur-2xl translate-y-1/4 -translate-x-1/4 pointer-events-none"></div>
+<div class="relative z-10 p-6 md:p-8 flex flex-col h-full justify-between min-h-[220px]">
+<div class="flex justify-between items-start mb-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-label-bold text-[11px] uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></span>
+                                Next session in 2 hours
+                            </span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="flex gap-4 items-center">
+<div class="relative">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" data-alt="A professional headshot of an experienced female tutor, Dr. Sarah Jenkins, smiling warmly. She is in a bright, modern classroom setting. The lighting is high-key and flattering, emphasizing a trustworthy and academic aesthetic. The background is a soft, blurred library or study area." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgt45IhDP6PrB7PgV7fI0KmGO-8nQkaHCCJnGv8XUg5gT9ldABfxQ_KnxRjq2IrtWSACrjLAdr8Ycz68toTKcsBZzW5ZXvJXjEeNlZ1Z5IhE7_Qpr2hWNxQo7MAyPz0d6bFouu_QgQrQi3cOJ2BqejMxwjTet4vXBXfbF0Ct7waRMbsrjpbs7vv-R07f9h3k3epOrZLRStp5jtjhUKrbCcU0JjqhWFlqd_felF5KXW4jz12Xs504O_"/>
+<div class="absolute -bottom-1 -right-1 bg-surface rounded-full p-1 border border-structural shadow-sm">
+<span class="material-symbols-outlined text-primary" style="font-size: 14px;">verified</span>
+</div>
+</div>
+<div>
+<h3 class="font-section-title text-section-title text-white">IGCSE Grade 9 Maths</h3>
+<p class="font-body-main text-primary-fixed-dim mt-0.5">with Dr. Sarah Jenkins</p>
+<p class="font-body-main text-white mt-2 flex items-center gap-1.5 bg-black/20 inline-flex px-2.5 py-1 rounded-md backdrop-blur-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                        14:00 - 15:00
+                                    </p>
+</div>
+</div>
+<button class="bg-white text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-surface-container-low transition-colors shadow-sm w-full md:w-auto text-center">
+                                Join Session
+                            </button>
+</div>
+</div>
+</div>
+<!-- Stats Stack -->
+<div class="grid grid-rows-3 gap-4 h-full">
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-structural shadow-ambient flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">stars</span>
+</div>
+<div>
+<p class="font-body-main text-on-surface-variant text-xs">Credits Remaining</p>
+<p class="font-section-title text-section-title text-on-surface">12</p>
+</div>
+</div>
+<button class="text-primary hover:bg-surface-container-low p-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-structural shadow-ambient flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">fact_check</span>
+</div>
+<div>
+<p class="font-body-main text-on-surface-variant text-xs">Sessions Attended</p>
+<p class="font-section-title text-section-title text-on-surface">48</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-structural shadow-ambient flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">local_library</span>
+</div>
+<div>
+<p class="font-body-main text-on-surface-variant text-xs">Active Courses</p>
+<p class="font-section-title text-section-title text-on-surface">3</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- My Courses Section -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-section-title text-section-title text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">book</span>
+                        My Courses
+                    </h3>
+<a class="font-label-bold text-label-bold text-primary hover:underline flex items-center gap-1" href="#">
+                        View all
+                        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Course Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl border border-structural shadow-ambient overflow-hidden hover:shadow-overlay transition-shadow duration-300">
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="inline-block px-2.5 py-1 bg-surface-container text-primary font-label-bold text-[10px] uppercase tracking-wider rounded-md mb-2">Science</span>
+<h4 class="font-section-title text-section-title text-on-surface mb-1">IGCSE Physics</h4>
+<p class="font-body-main text-on-surface-variant text-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined" style="font-size: 16px;">person</span>
+                                        Prof. Michael Chang
+                                    </p>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded border border-structural">
+<span class="material-symbols-outlined filled text-[#F59E0B]" style="font-size: 14px;">star</span>
+<span class="font-label-bold text-xs text-on-surface">4.8</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-body-main text-on-surface-variant">Course Progress</span>
+<span class="font-label-bold text-on-surface">65%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full rounded-full transition-all duration-1000" style="width: 65%; background-color: #08BD7E;"></div>
+</div>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface border-t border-structural flex justify-between items-center">
+<p class="font-body-main text-xs text-on-surface-variant">Next topic: Quantum Mechanics</p>
+<button class="text-primary font-label-bold text-sm hover:underline">Continue</button>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl border border-structural shadow-ambient overflow-hidden hover:shadow-overlay transition-shadow duration-300">
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="inline-block px-2.5 py-1 bg-surface-container text-primary font-label-bold text-[10px] uppercase tracking-wider rounded-md mb-2">Mathematics</span>
+<h4 class="font-section-title text-section-title text-on-surface mb-1">IGCSE Grade 9 Maths</h4>
+<p class="font-body-main text-on-surface-variant text-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined" style="font-size: 16px;">person</span>
+                                        Dr. Sarah Jenkins
+                                    </p>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded border border-structural">
+<span class="material-symbols-outlined filled text-[#F59E0B]" style="font-size: 14px;">star</span>
+<span class="font-label-bold text-xs text-on-surface">4.9</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-body-main text-on-surface-variant">Course Progress</span>
+<span class="font-label-bold text-on-surface">42%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full rounded-full transition-all duration-1000" style="width: 42%; background-color: #08BD7E;"></div>
+</div>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface border-t border-structural flex justify-between items-center">
+<p class="font-body-main text-xs text-on-surface-variant">Next topic: Algebra II</p>
+<button class="text-primary font-label-bold text-sm hover:underline">Continue</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

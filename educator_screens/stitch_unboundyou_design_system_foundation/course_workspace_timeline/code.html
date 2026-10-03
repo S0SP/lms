@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UnboundYou - Timeline</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from Style Guidance -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dbe2fb",
+                      "secondary-fixed": "#6afcb7",
+                      "tertiary-container": "#a36700",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#fffbff",
+                      "on-primary-fixed": "#001a41",
+                      "outline-variant": "#c1c6d6",
+                      "inverse-primary": "#adc6ff",
+                      "background": "#faf8ff",
+                      "secondary-container": "#67f9b4",
+                      "outline": "#727785",
+                      "inverse-surface": "#283043",
+                      "on-secondary-container": "#007149",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface-container": "#e9edff",
+                      "primary": "#0058bc",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-surface": "#131b2d",
+                      "secondary-fixed-dim": "#49df9d",
+                      "surface-dim": "#d2d9f3",
+                      "primary-fixed": "#d8e2ff",
+                      "tertiary": "#825100",
+                      "surface-container-highest": "#dbe2fb",
+                      "on-surface-variant": "#414754",
+                      "on-secondary-fixed": "#002112",
+                      "surface": "#faf8ff",
+                      "on-background": "#131b2d",
+                      "primary-fixed-dim": "#adc6ff",
+                      "on-primary-container": "#fefcff",
+                      "on-secondary-fixed-variant": "#005234",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#e1e8ff",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#faf8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#edf0ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary": "#006c46",
+                      "primary-container": "#0e70e9",
+                      "on-primary-fixed-variant": "#004494",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#005bc1",
+                      "surface-container-low": "#f2f3ff",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack_md": "16px",
+                      "stack_sm": "8px",
+                      "sidebar_width": "248px",
+                      "stack_lg": "32px",
+                      "container_max": "1440px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "page-title-mobile": ["Plus Jakarta Sans"],
+                      "section-title": ["Plus Jakarta Sans"],
+                      "page-title": ["Plus Jakarta Sans"],
+                      "label-bold": ["Plus Jakarta Sans"],
+                      "body-main": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "page-title-mobile": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "section-title": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "page-title": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                      "body-main": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-main text-body-main antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="w-sidebar_width h-screen fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-stack_md transition-all duration-200 ease-in-out z-40 hidden md:flex">
+<!-- Header -->
+<div class="px-gutter mb-stack_lg">
+<div class="flex items-center gap-stack_sm mb-stack_md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, professional portrait of a smiling educator set against a bright, modern corporate background with subtle light blue and white tones. The lighting is high-key and flattering, emphasizing approachability and academic excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIOHS6o7WuKti16oH_lJiC-R7D0J9KmYUR40fyl2sdrwoI0mKDLivj1QGh4Q91CJAyM88XtJKgov5jOvu2YUd9WBvh4irM2ZUpma5Iwid1o-1Yc_AGlYJKglFeTLQ2mJ24zHtRwFfZZfPsXvUqFaZr03EsMTUV9gWqIEl9BwvQeHdFG56XRPR45P6MbMfR8olS67z0UzVaAXonv3_xZv5ORHIXoBtOWESkVpyUjwxRwI6oZbdHzsyS"/>
+<div>
+<h1 class="font-page-title text-section-title text-primary">UnboundYou</h1>
+<p class="text-on-surface-variant text-label-bold font-label-bold">Educator Portal</p>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-bold text-label-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                Create New Course
+            </button>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col flex-1 px-4 gap-1">
+<!-- Active: Courses (Based on prompt Context) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-primary bg-primary/10 text-primary font-label-bold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+                    Courses
+                </a>
+</li>
+<!-- Inactive -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+                    Calendar
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+                    Availability
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                    Payouts
+                </a>
+</li>
+</ul>
+<!-- Bottom Link -->
+<div class="px-4 mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area Wrapper -->
+<div class="flex-1 flex flex-col md:ml-sidebar_width w-full md:w-[calc(100%-248px)] h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-16 px-gutter bg-surface z-30 sticky top-0 border-b border-outline-variant hidden md:flex">
+<!-- Navigation Links (Centered context in standard layouts, but left aligned per standard if no search) -->
+<nav class="flex items-center gap-6">
+<a class="text-on-surface-variant font-body-main hover:text-primary transition-all cursor-pointer" href="#">Home</a>
+<a class="border-b-2 border-primary text-primary font-bold pb-1 transition-all cursor-pointer" href="#">Timeline</a>
+<a class="text-on-surface-variant font-body-main hover:text-primary transition-all cursor-pointer" href="#">Content</a>
+</nav>
+<div class="flex items-center gap-4">
+<!-- Actions -->
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Main Canvas -->
+<main class="flex-1 overflow-y-auto p-4 md:p-gutter bg-background">
+<div class="max-w-4xl mx-auto flex flex-col gap-stack_lg">
+<!-- Page Header (Course Info) -->
+<section class="flex flex-col gap-2 pt-4">
+<div class="inline-flex px-2 py-1 bg-surface-container-high rounded-full w-fit items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-primary font-label-bold text-label-bold uppercase tracking-wider">AR-MTH-9 · 1:1</span>
+</div>
+<h2 class="font-page-title text-page-title md:text-[32px] md:leading-[40px] text-on-background font-bold tracking-tight">
+                        Aarav — IGCSE Grade 9 Maths
+                    </h2>
+</section>
+<!-- Composer Box -->
+<section class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_4px_12px_rgba(15,23,41,0.08)]">
+<div class="flex items-start gap-4">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A tiny profile picture of an educator with a bright, welcoming smile, wearing professional attire in a modern, well-lit classroom setting. High contrast, clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAjKCm1xmlGo5UHieMFnmTCaToIWSvf126R1TEKFSdVmJcq0kXbqeS_OudDGOIztDEf8aOnXPpcwb6bkQ-gQAEy7yofYV54bas_Ek0wae_0X8LGdyviBqu4Q4hNUrojhRivXwXJ9UiLn95TyE3aNQIKsMPWOspScqkRKNW2efcbC1Bs8Sks3s50RuIoh_uyiF-SZLpylPzxMk0A0pnsPfJnjdDAdZXZhBM2pDBpfeY3MyE5v8LvsPO"/>
+<div class="w-full flex flex-col gap-3">
+<textarea class="w-full bg-transparent border-none text-on-surface placeholder:text-on-surface-variant font-body-main resize-none focus:ring-0 p-0 h-12" placeholder="Share something with Aarav..." style="box-shadow: none;"></textarea>
+<div class="flex items-center justify-between pt-3 border-t border-outline-variant/50">
+<div class="flex items-center gap-1">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-sm font-label-bold">
+<span class="material-symbols-outlined text-[18px]">attach_file</span>
+                                        Attach files
+                                    </button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-sm font-label-bold">
+<span class="material-symbols-outlined text-[18px]">poll</span>
+                                        Share a poll
+                                    </button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors text-sm font-label-bold">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+                                        Chit chat
+                                    </button>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-label-bold py-1.5 px-4 rounded-lg transition-colors">
+                                    Post
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Feed -->
+<div class="flex flex-col gap-stack_md">
+<!-- 1. Text Announcement -->
+<article class="bg-surface rounded-xl border border-outline-variant p-5 shadow-[0px_4px_12px_rgba(15,23,41,0.08)]">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Profile picture of the educator looking approachable in a minimalist educational environment. Soft natural light, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnONxkcSOJ1kK9vQIEq0D_3J662oV6KBks5ilSgoVEEI93-IPyhdJi7wSQXocKmIp_59mKxUkK-amurxuQDe2oYbohw8bsiZTWWcXCWp12J9qItH66W_xv8fhxq6hYYU-d83iDvmUBGj4rXtc43FWYaxTRmkk6TNQqY4vI9F6QIr3_4BzF0J3w7GoxmR1D3Me4fNXC13-9FGAxWr2nyhMoz8pas9xRpTatpUvxKkiSbHfy0VGBIojL"/>
+<div>
+<p class="font-label-bold text-on-surface">You <span class="text-on-surface-variant font-body-main">(Educator)</span></p>
+<p class="text-xs text-on-surface-variant font-body-main">Just now</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">more_horiz</span></button>
+</div>
+<p class="text-on-surface font-body-main whitespace-pre-wrap">Hi Aarav, please make sure to review the algebraic fractions worksheet before our next session on Thursday. We will be diving into complex equations!</p>
+</article>
+<!-- 2. Poll Card -->
+<article class="bg-surface rounded-xl border border-outline-variant p-5 shadow-[0px_4px_12px_rgba(15,23,41,0.08)]">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Profile picture of the educator in a modern office setup. Professional and bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnpAFieu_WFkJNm0wPjXuWXnU3V8rf3FjbWt53BEVMhvPXdvdn8UrL1u6-8L9ZZ3msoMBwysn6c9IeJbj-bEYn5j5V5WABQfeSetUL2w3lcV9Oouggaa4WA7B5WHivpB3cDHG3Bd17IpRUyPF0yGDQkGBoYArJgPSxuAu9HBliKxoBcCWgPRBbr3p9lG78y1DU8IIgZFIBcHnSmAwd5psR-PKXEhD-u1E51p7fEXEtINcfY_pHBNGQ"/>
+<div>
+<p class="font-label-bold text-on-surface">You <span class="text-on-surface-variant font-body-main">(Educator)</span></p>
+<p class="text-xs text-on-surface-variant font-body-main">2 hours ago</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-surface-container-high text-primary text-xs font-label-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">poll</span> Poll</span>
+</div>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-4">Which topic do you feel needs more review before the mock exam?</h3>
+<div class="flex flex-col gap-3">
+<!-- Option 1 -->
+<div class="relative w-full h-10 bg-surface border border-outline-variant rounded-lg overflow-hidden flex items-center px-4 z-10 cursor-pointer hover:border-primary transition-colors">
+<div class="absolute top-0 left-0 h-full bg-primary/10 -z-10" style="width: 65%;"></div>
+<div class="flex justify-between w-full font-body-main text-on-surface">
+<span>Algebraic Fractions</span>
+<span class="font-label-bold">65%</span>
+</div>
+</div>
+<!-- Option 2 -->
+<div class="relative w-full h-10 bg-surface border border-outline-variant rounded-lg overflow-hidden flex items-center px-4 z-10 cursor-pointer hover:border-primary transition-colors">
+<div class="absolute top-0 left-0 h-full bg-primary/10 -z-10" style="width: 25%;"></div>
+<div class="flex justify-between w-full font-body-main text-on-surface">
+<span>Trigonometry</span>
+<span class="font-label-bold text-on-surface-variant">25%</span>
+</div>
+</div>
+<!-- Option 3 -->
+<div class="relative w-full h-10 bg-surface border border-outline-variant rounded-lg overflow-hidden flex items-center px-4 z-10 cursor-pointer hover:border-primary transition-colors">
+<div class="absolute top-0 left-0 h-full bg-primary/10 -z-10" style="width: 10%;"></div>
+<div class="flex justify-between w-full font-body-main text-on-surface">
+<span>Statistics</span>
+<span class="font-label-bold text-on-surface-variant">10%</span>
+</div>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant mt-3">1 vote total</p>
+</article>
+<!-- 3. Chit Chat (Audio) -->
+<article class="bg-surface rounded-xl border border-outline-variant p-5 shadow-[0px_4px_12px_rgba(15,23,41,0.08)]">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Student profile avatar representing Aarav, young student looking studious in a modern digital learning environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0bBW1khV43wZY4Il414vYTTMdgRarW8JFMmPScbZ0OxsprLCJcv83X2-Ww-ZiINCFpy0z-7WDuXvbNEB7lRhyxQIV-wcpOUiYQy6Lv7Fexgp1ptyhAFB-GACZm1cnnFmPV_jOIWa1TpA9Bj4CcwOHGuOSSos30jE2-Z6jnNl6kKBIWRlgv2B44WZH1ZUO6lAO8t9oR1sChZmJVO0Vgv_zTWCLebqs007GaCPXp1mJX5Behx1WhB82"/>
+<div>
+<p class="font-label-bold text-on-surface">Aarav <span class="text-on-surface-variant font-body-main">(Student)</span></p>
+<p class="text-xs text-on-surface-variant font-body-main">Yesterday</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-surface-container-high text-primary text-xs font-label-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">forum</span> Chit Chat</span>
+</div>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-2">Question about Q4</h3>
+<p class="text-on-surface-variant font-body-main mb-4">I got stuck on the second part of the geometry proof, could you explain the reasoning?</p>
+<!-- Audio Player UI -->
+<div class="flex items-center gap-4 bg-background border border-outline-variant rounded-lg p-3 mb-4">
+<button class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined icon-fill">play_arrow</span>
+</button>
+<!-- Fake Waveform -->
+<div class="flex-1 flex items-center gap-[2px] h-8 opacity-60">
+<div class="w-1 h-3 bg-primary rounded-full"></div>
+<div class="w-1 h-5 bg-primary rounded-full"></div>
+<div class="w-1 h-8 bg-primary rounded-full"></div>
+<div class="w-1 h-4 bg-primary rounded-full"></div>
+<div class="w-1 h-6 bg-primary rounded-full"></div>
+<div class="w-1 h-3 bg-primary rounded-full"></div>
+<div class="w-1 h-7 bg-primary rounded-full"></div>
+<div class="w-1 h-2 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-5 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-4 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-6 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-3 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-8 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-5 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-4 bg-on-surface-variant rounded-full"></div>
+<div class="w-1 h-2 bg-on-surface-variant rounded-full"></div>
+</div>
+<span class="text-xs text-on-surface-variant font-label-bold shrink-0">0:45</span>
+</div>
+<div class="flex items-center gap-4 border-t border-outline-variant pt-3">
+<button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-label-bold">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+                                2 Comments
+                            </button>
+</div>
+</article>
+</div>
+</div>
+<!-- Bottom padding for scroll -->
+<div class="h-stack_lg"></div>
+</main>
+</div>
+</body></html>

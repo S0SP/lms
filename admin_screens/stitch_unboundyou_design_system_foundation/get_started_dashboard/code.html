@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Get Started - UnboundYou</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#005bc1",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface": "#faf8ff",
+                        "surface-dim": "#d2d9f3",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-surface": "#131b2d",
+                        "secondary": "#006c46",
+                        "inverse-on-surface": "#edf0ff",
+                        "inverse-primary": "#adc6ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary-container": "#67f9b4",
+                        "on-primary": "#ffffff",
+                        "primary": "#0058bc",
+                        "secondary-fixed-dim": "#49df9d",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-secondary-fixed-variant": "#005234",
+                        "secondary-fixed": "#6afcb7",
+                        "on-primary-container": "#fefcff",
+                        "background": "#faf8ff",
+                        "outline-variant": "#c1c6d6",
+                        "outline": "#727785",
+                        "primary-container": "#0e70e9",
+                        "inverse-surface": "#283043",
+                        "surface-bright": "#faf8ff",
+                        "surface-container": "#e9edff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#131b2d",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-fixed": "#001a41",
+                        "surface-container-highest": "#dbe2fb",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dbe2fb",
+                        "on-primary-fixed-variant": "#004494",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e1e8ff",
+                        "tertiary": "#825100",
+                        "tertiary-container": "#a36700",
+                        "on-surface-variant": "#414754",
+                        "on-secondary-container": "#007149",
+                        "on-secondary-fixed": "#002112",
+                        "on-tertiary-container": "#fffbff",
+                        "brand-gray-50": "#F9FAFB",
+                        "brand-gray-200": "#E5E9F0",
+                        "brand-blue": "#2F80F9",
+                        "brand-blue-bg": "rgba(47, 128, 249, 0.08)"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "sidebar_width": "248px",
+                        "stack_lg": "32px",
+                        "stack_md": "16px",
+                        "container_max": "1440px",
+                        "stack_sm": "8px"
+                    },
+                    "fontFamily": {
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    },
+                    boxShadow: {
+                        'soft': '0px 4px 12px rgba(15, 23, 41, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-main text-body-main antialiased flex h-screen overflow-hidden">
+<!-- NavigationDrawer -->
+<aside class="w-sidebar_width h-full fixed left-0 top-0 bg-brand-gray-50 border-r border-brand-gray-200 flat no shadows flex flex-col py-stack_lg z-20">
+<div class="px-gutter mb-8">
+<span class="font-page-title text-page-title text-brand-blue tracking-tight">UnboundYou</span>
+</div>
+<nav class="flex-1 overflow-y-auto px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-4 border-brand-blue bg-brand-blue-bg text-brand-blue font-bold cursor-pointer active:scale-95 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-xl">rocket_launch</span>
+<span>Get Started</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">calendar_month</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">event_available</span>
+<span>Availability</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">forum</span>
+<span>Consultations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">person</span>
+<span>1-on-1 Courses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">groups</span>
+<span>Group Courses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+<span>Recorded Courses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">assignment</span>
+<span>Progress Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">storefront</span>
+<span>Store</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-brand-blue hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">bar_chart</span>
+<span>Analytics</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-brand-blue text-white py-2.5 rounded-lg font-label-bold text-label-bold hover:bg-blue-700 transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+                Add User
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-sidebar_width flex flex-col h-full bg-surface">
+<!-- TopAppBar -->
+<header class="w-full h-16 bg-surface border-b border-outline-variant flat no shadows flex items-center justify-between px-gutter z-10 transition-all duration-200">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+<input class="w-64 pl-9 pr-12 py-1.5 bg-brand-gray-50 border border-brand-gray-200 rounded-lg text-body-main font-body-main focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue-bg transition-shadow placeholder-outline" placeholder="Search..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-outline-variant bg-surface text-[10px] text-outline font-medium">Ctrl K</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-brand-blue transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-brand-blue transition-colors">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="flex items-center gap-3 border-l border-brand-gray-200 pl-6">
+<div class="flex flex-col items-end">
+<span class="font-label-bold text-label-bold text-on-surface">Eleanor Vance</span>
+<span class="text-[10px] font-semibold text-secondary bg-secondary-container/30 px-1.5 rounded uppercase tracking-wider mt-0.5">Owner</span>
+</div>
+<img alt="Avatar" class="w-9 h-9 rounded-full object-cover border border-outline-variant" data-alt="A small, circular profile picture of a professional woman in a modern corporate setting, soft lighting, 50-100 words" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_-HLdL6_XT27LRwH-3NiMYQ5hjkcx_5VryqcDk_6zp4XM3MIBBmLTdqsrJfHtXJfB5-vZCKN4uTdYajnN2-aeZ-iA2ns1WoMwAEDrtAzm7pCOOjRwZXeVGi5brIalCiVQPkmDmNIwG7HiKjmYaviQlp7vzxu-Cu733QsgweeCLYLQZayLc_ZUSam_DWo3JO6t9_OkcXYOhJ810L7ghPziCy4ZgioxIIGqhZ5LDKyBh6VjV8PzPaiq"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-8">
+<div class="max-w-5xl mx-auto space-y-12">
+<!-- Header -->
+<div>
+<h1 class="font-page-title text-page-title text-on-surface">Let's get your academy running</h1>
+<p class="text-on-surface-variant mt-2 font-body-main text-body-main max-w-2xl">Follow these steps to set up your educational platform, invite users, and connect essential integrations.</p>
+</div>
+<!-- Section 1: Create a Course -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-blue">school</span>
+                        Create a Course
+                    </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white p-5 rounded-xl border border-brand-gray-200 shadow-soft flex flex-col hover:border-brand-blue transition-colors group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">person</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">1-on-1 Personalised</h3>
+<p class="text-on-surface-variant text-sm flex-1 mb-6">Tailored sessions for individual learners with flexible scheduling and direct mentoring.</p>
+<a class="text-brand-blue font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all" href="#">
+                                Create course <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="bg-white p-5 rounded-xl border border-brand-gray-200 shadow-soft flex flex-col hover:border-brand-blue transition-colors group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Group Cohort</h3>
+<p class="text-on-surface-variant text-sm flex-1 mb-6">Live sessions for multiple students, fostering community learning and shared discussions.</p>
+<a class="text-brand-blue font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all" href="#">
+                                Create course <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="bg-white p-5 rounded-xl border border-brand-gray-200 shadow-soft flex flex-col hover:border-brand-blue transition-colors group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">play_circle</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Recorded</h3>
+<p class="text-on-surface-variant text-sm flex-1 mb-6">Self-paced video courses with quizzes and assignments that students can access anytime.</p>
+<a class="text-brand-blue font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all" href="#">
+                                Create course <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Section 2: Add Users -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-blue">group_add</span>
+                        Add Users
+                    </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white p-5 rounded-xl border border-brand-gray-200 shadow-soft flex items-center gap-4 hover:border-brand-blue transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">face</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-on-surface">Add Learner</h3>
+<p class="text-on-surface-variant text-sm">Invite students to join your academy.</p>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="bg-white p-5 rounded-xl border border-brand-gray-200 shadow-soft flex items-center gap-4 hover:border-brand-blue transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">workspace_premium</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-on-surface">Add Educator</h3>
+<p class="text-on-surface-variant text-sm">Onboard teachers and grant administrative access.</p>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Explore Other Features -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-blue">explore</span>
+                        Explore Other Features
+                    </h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-brand-gray-50 p-4 rounded-xl border border-brand-gray-200 hover:bg-white hover:shadow-soft transition-all cursor-pointer flex flex-col gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">save_as</span>
+<span class="font-semibold text-sm text-on-surface">Connect Google Calendar</span>
+</div>
+<div class="bg-brand-gray-50 p-4 rounded-xl border border-brand-gray-200 hover:bg-white hover:shadow-soft transition-all cursor-pointer flex flex-col gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">payments</span>
+<span class="font-semibold text-sm text-on-surface">Connect Payment Gateway</span>
+</div>
+<div class="bg-brand-gray-50 p-4 rounded-xl border border-brand-gray-200 hover:bg-white hover:shadow-soft transition-all cursor-pointer flex flex-col gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">smartphone</span>
+<span class="font-semibold text-sm text-on-surface">Explore Mobile Apps</span>
+</div>
+<div class="bg-brand-gray-50 p-4 rounded-xl border border-brand-gray-200 hover:bg-white hover:shadow-soft transition-all cursor-pointer flex flex-col gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">api</span>
+<span class="font-semibold text-sm text-on-surface">APIs &amp; Webhooks</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

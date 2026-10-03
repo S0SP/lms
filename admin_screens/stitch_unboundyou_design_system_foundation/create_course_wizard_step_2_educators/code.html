@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Course - Educators</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-tertiary-container": "#fffbff",
+                "on-error-container": "#93000a",
+                "on-primary": "#ffffff",
+                "surface-bright": "#faf8ff",
+                "tertiary-fixed-dim": "#ffb95f",
+                "inverse-on-surface": "#edf0ff",
+                "error": "#ba1a1a",
+                "outline": "#727785",
+                "tertiary": "#825100",
+                "inverse-primary": "#adc6ff",
+                "tertiary-fixed": "#ffddb8",
+                "surface": "#faf8ff",
+                "primary": "#0058bc",
+                "primary-container": "#0e70e9",
+                "outline-variant": "#c1c6d6",
+                "surface-container-highest": "#dbe2fb",
+                "on-primary-fixed-variant": "#004494",
+                "on-secondary": "#ffffff",
+                "on-primary-container": "#fefcff",
+                "on-surface": "#131b2d",
+                "surface-container-lowest": "#ffffff",
+                "surface-tint": "#005bc1",
+                "surface-container-high": "#e1e8ff",
+                "background": "#faf8ff",
+                "secondary-fixed-dim": "#49df9d",
+                "on-secondary-fixed": "#002112",
+                "surface-variant": "#dbe2fb",
+                "error-container": "#ffdad6",
+                "on-error": "#ffffff",
+                "on-background": "#131b2d",
+                "on-primary-fixed": "#001a41",
+                "on-secondary-container": "#007149",
+                "on-secondary-fixed-variant": "#005234",
+                "surface-container-low": "#f2f3ff",
+                "secondary": "#006c46",
+                "secondary-container": "#67f9b4",
+                "on-surface-variant": "#414754",
+                "surface-dim": "#d2d9f3",
+                "primary-fixed-dim": "#adc6ff",
+                "on-tertiary-fixed": "#2a1700",
+                "on-tertiary-fixed-variant": "#653e00",
+                "secondary-fixed": "#6afcb7",
+                "on-tertiary": "#ffffff",
+                "inverse-surface": "#283043",
+                "surface-container": "#e9edff",
+                "tertiary-container": "#a36700",
+                "primary-fixed": "#d8e2ff",
+                "success-green": "#08BD7E"
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "card": "12px",
+                "btn": "8px",
+                "full": "9999px"
+              },
+              spacing: {
+                "stack_lg": "32px",
+                "container_max": "1440px",
+                "stack_md": "16px",
+                "sidebar_width": "248px",
+                "stack_sm": "8px",
+                "gutter": "24px"
+              },
+              fontFamily: {
+                "page-title": ["Plus Jakarta Sans"],
+                "label-bold": ["Plus Jakarta Sans"],
+                "body-main": ["Plus Jakarta Sans"],
+                "section-title": ["Plus Jakarta Sans"],
+                "page-title-mobile": ["Plus Jakarta Sans"]
+              },
+              fontSize: {
+                "page-title": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                "label-bold": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+                "body-main": ["14px", { lineHeight: "20px", letterSpacing: "0", fontWeight: "400" }],
+                "section-title": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                "page-title-mobile": ["22px", { lineHeight: "28px", letterSpacing: "-0.02em", fontWeight: "700" }]
+              },
+              boxShadow: {
+                'level-2': '0px 4px 12px rgba(15, 23, 41, 0.08)',
+                'level-3': '0px 8px 24px rgba(15, 23, 41, 0.12)',
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-surface-container-low font-body-main text-on-background min-h-screen flex items-center justify-center p-4">
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-on-background/40 backdrop-blur-sm z-40"></div>
+<!-- Modal Shell -->
+<div class="relative z-50 w-full max-w-[1000px] bg-surface rounded-card shadow-level-3 overflow-hidden flex flex-col md:flex-row h-[819px] min-h-[600px] border border-outline-variant">
+<!-- Header (Mobile Only) / Top Bar -->
+<div class="md:hidden absolute top-0 left-0 w-full bg-surface border-b border-outline-variant p-4 flex justify-between items-center z-10">
+<h1 class="font-section-title text-section-title">Create Course</h1>
+<button class="text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Left Rail (Step Navigation) -->
+<aside class="hidden md:flex flex-col w-[280px] bg-surface-bright border-r border-outline-variant shrink-0 overflow-y-auto">
+<div class="p-6 pb-2">
+<h1 class="font-section-title text-section-title text-on-surface mb-stack_lg">Create Course</h1>
+<nav class="space-y-6">
+<!-- Step 1: Complete -->
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-success-green/10 flex items-center justify-center shrink-0 border border-success-green/20">
+<span class="material-symbols-outlined text-success-green text-[18px]" data-icon="check">check</span>
+</div>
+<span class="text-on-surface font-label-bold text-label-bold">Course Details</span>
+</div>
+<!-- Step 2: Active -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="text-on-primary font-label-bold text-label-bold">2</span>
+</div>
+<span class="text-primary font-label-bold text-label-bold">Educators</span>
+</div>
+<!-- Step 3: Inactive -->
+<div class="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="text-on-surface-variant font-label-bold text-label-bold">3</span>
+</div>
+<span class="text-on-surface-variant font-body-main text-body-main">Payment Plans</span>
+</div>
+<!-- Step 4: Inactive -->
+<div class="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="text-on-surface-variant font-label-bold text-label-bold">4</span>
+</div>
+<span class="text-on-surface-variant font-body-main text-body-main">Scheduling</span>
+</div>
+<!-- Step 5: Inactive -->
+<div class="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="text-on-surface-variant font-label-bold text-label-bold">5</span>
+</div>
+<span class="text-on-surface-variant font-body-main text-body-main">Course Highlights</span>
+</div>
+<!-- Step 6: Inactive -->
+<div class="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="text-on-surface-variant font-label-bold text-label-bold">6</span>
+</div>
+<span class="text-on-surface-variant font-body-main text-body-main">Reviews</span>
+</div>
+<!-- Step 7: Inactive -->
+<div class="flex items-center gap-3 group cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="text-on-surface-variant font-label-bold text-label-bold">7</span>
+</div>
+<span class="text-on-surface-variant font-body-main text-body-main">Coupons</span>
+</div>
+</nav>
+</div>
+</aside>
+<!-- Right Panel (Content) -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- Close Button (Desktop) -->
+<div class="hidden md:flex justify-end p-4 pb-0 absolute top-0 right-0">
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 md:p-10 pt-16 md:pt-10">
+<!-- Content Header -->
+<div class="mb-stack_lg">
+<h2 class="font-page-title text-page-title text-on-surface mb-2">Assign Educators</h2>
+<p class="text-on-surface-variant font-body-main text-body-main">Select the educators who will be teaching this course and configure their payout details.</p>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant mb-stack_lg">
+<button class="px-4 py-3 border-b-2 border-primary text-primary font-label-bold text-label-bold">
+                        Select Existing
+                    </button>
+<button class="px-4 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-main text-body-main transition-colors">
+                        + New Educator
+                    </button>
+</div>
+<!-- Educator Cards List -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="border border-outline-variant rounded-card p-4 bg-surface hover:shadow-level-2 transition-shadow">
+<div class="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-surface-variant border border-outline-variant">
+<img alt="Dr. Aris" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional male educator in his late 30s with short dark hair, wearing a casual light blue button-down shirt. The background is a bright, soft-focused modern office setting. The lighting is high-key and professional, fitting a high-end corporate or academic platform aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvyWHcoSX7Thr0xobG4jvAhvToUSeQ2JoJodulm8P7zEBaCOJHuFxkGqGThblTaFuYS2_k8Vibqjhb4XAjg6YOUxSFS00jbkMmrf99VIFH77bW_4rn-OCX1izhWL442cdprnIO2ysiTvbUBiHfvKgXqMVEfPTtcOilUwIhi1gBD11nWG3epMTGPvS4qKTMZ_hfo78cSg_vu0vZVTIyxC6PNxt5KUWYYVYYpnDPuEuN20_GGdzckGg-"/>
+</div>
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface">Dr. Aris</h3>
+<p class="text-on-surface-variant text-[13px]">dr.aris@unboundyou.edu</p>
+<div class="flex gap-2 mt-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded-btn bg-surface-container-high text-on-surface text-[11px] font-medium border border-outline-variant/50">Maths</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-btn bg-surface-container-high text-on-surface text-[11px] font-medium border border-outline-variant/50">Physics</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto">
+<button class="w-full md:w-auto px-4 py-2 rounded-btn bg-surface border border-outline-variant text-on-surface font-label-bold text-label-bold hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                                    Add Payout
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 2 (Expanded Payout) -->
+<div class="border border-outline-variant rounded-card p-4 bg-surface shadow-level-2 border-primary/20">
+<div class="flex items-start md:items-center justify-between flex-col md:flex-row gap-4 mb-4 pb-4 border-b border-outline-variant/50">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-surface-variant border border-outline-variant">
+<img alt="Elena Smith" class="w-full h-full object-cover" data-alt="A headshot of a confident female educator in her 40s with shoulder-length brown hair, wearing a professional dark blazer over a white blouse. The background features subtle, out-of-focus bookshelves in a bright, modern learning environment. The lighting is soft and flattering, emphasizing a trustworthy and capable persona." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApQlagREUWCXgZ53g-FVuxCsfcFJksNOPcQxBXLE06MW9Lr2COq66OtpqUfkvNoxqcoTVjzwPbeT_xV_apND-qe74WVd-RO3sIbnmEX6LDM8bzl4E0DNpBZ5FXLS8KDmHZJ0BjejPhllngQXbeiUPz6TvFnSFaSU0fxCKXspwrO0MopZxXmN6S_ULNmF5YB93MtqSNTdd-r_GIixj013wJZemOmc8qp6KTWKCZNMRTmS6UU6_HEcBo"/>
+</div>
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface">Elena Smith</h3>
+<p class="text-on-surface-variant text-[13px]">elena.s@unboundyou.edu</p>
+<div class="flex gap-2 mt-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded-btn bg-surface-container-high text-on-surface text-[11px] font-medium border border-outline-variant/50">English</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-btn bg-surface-container-high text-on-surface text-[11px] font-medium border border-outline-variant/50">History</span>
+</div>
+</div>
+</div>
+<div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-full hover:bg-error-container/50">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Inline Payout Row -->
+<div class="bg-surface-bright p-3 rounded-lg flex items-center justify-between flex-wrap gap-4 border border-outline-variant/30">
+<span class="font-body-main text-body-main text-on-surface-variant">Payout per session credit</span>
+<div class="relative w-40">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-on-surface-variant font-body-main">₹</span>
+</div>
+<input class="w-full pl-8 pr-3 py-2 bg-surface border border-outline-variant rounded-btn text-on-surface font-body-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-shadow" placeholder="0.00" type="number" value="1500"/>
+</div>
+</div>
+</div>
+<!-- Assign Another Button -->
+<button class="w-full py-4 border-2 border-dashed border-outline-variant rounded-card text-on-surface-variant font-label-bold text-label-bold hover:border-primary hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="person_add">person_add</span>
+                        Assign another educator
+                    </button>
+</div>
+</div>
+<!-- Footer Bar -->
+<div class="border-t border-outline-variant bg-surface p-4 px-6 flex items-center justify-between shrink-0">
+<a class="hidden sm:flex items-center gap-1 text-primary hover:text-on-primary-fixed-variant font-body-main text-body-main transition-colors" href="#">
+                    Preview Public Page
+                    <span class="material-symbols-outlined text-[16px]" data-icon="open_in_new">open_in_new</span>
+</a>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+<button class="px-6 py-2.5 rounded-btn border border-outline-variant text-on-surface font-label-bold text-label-bold hover:bg-surface-variant transition-colors bg-surface">
+                        Back
+                    </button>
+<button class="px-6 py-2.5 rounded-btn bg-primary text-on-primary font-label-bold text-label-bold hover:bg-primary-container hover:text-on-primary-container shadow-sm transition-colors flex items-center gap-2">
+                        Next Step
+                        <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

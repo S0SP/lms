@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UnboundYou - Store</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from system prompt -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#002112",
+                    "primary-fixed-dim": "#adc6ff",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#dbe2fb",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#001a41",
+                    "on-primary-fixed-variant": "#004494",
+                    "secondary-container": "#67f9b4",
+                    "surface-container": "#e9edff",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#faf8ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "inverse-surface": "#283043",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed-dim": "#49df9d",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#fefcff",
+                    "on-surface": "#131b2d",
+                    "surface": "#faf8ff",
+                    "primary": "#0058bc",
+                    "tertiary": "#825100",
+                    "outline-variant": "#c1c6d6",
+                    "secondary-fixed": "#6afcb7",
+                    "surface-variant": "#dbe2fb",
+                    "on-surface-variant": "#414754",
+                    "surface-tint": "#005bc1",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-low": "#f2f3ff",
+                    "on-background": "#131b2d",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#0e70e9",
+                    "on-secondary-fixed-variant": "#005234",
+                    "surface-bright": "#faf8ff",
+                    "tertiary-container": "#a36700",
+                    "outline": "#727785",
+                    "secondary": "#006c46",
+                    "inverse-on-surface": "#edf0ff",
+                    "surface-container-high": "#e1e8ff",
+                    "on-secondary-container": "#007149",
+                    "surface-dim": "#d2d9f3",
+                    "inverse-primary": "#adc6ff",
+                    "primary-fixed": "#d8e2ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px",
+                    "card": "12px",
+                    "btn": "8px"
+            },
+            "spacing": {
+                    "stack_sm": "8px",
+                    "stack_md": "16px",
+                    "sidebar_width": "248px",
+                    "container_max": "1440px",
+                    "stack_lg": "32px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "section-title": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-main": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title-mobile": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-bold": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "section-title": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-main": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "page-title-mobile": [
+                            "22px",
+                            {
+                                    "lineHeight": "28px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "page-title": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-bold": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom overrides to match the exact specs provided in prompt */
+        .primary-blue { color: #2F80F9; }
+        .bg-primary-blue { background-color: #2F80F9; }
+        .border-primary-blue { border-color: #2F80F9; }
+        .bg-primary-blue-tint { background-color: rgba(47, 128, 249, 0.08); }
+        
+        .shadow-ambient {
+            box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08);
+        }
+        .border-subtle {
+            border-color: #E5E9F0;
+        }
+        
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2F80F9;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2F80F9;
+        }
+        
+        /* Material symbols thin stroke override */
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 300, /* closer to 1.75px stroke */
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-main antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex flex-col gap-stack_sm py-stack_lg w-sidebar_width h-screen fixed left-0 top-0 border-r border-subtle bg-surface-container-low dark:bg-surface-container-low z-50">
+<!-- Header / Logo Area -->
+<div class="px-gutter mb-stack_lg">
+<h1 class="font-page-title text-page-title font-bold text-primary dark:text-primary-fixed-dim tracking-tight">UnboundYou</h1>
+<p class="text-on-surface-variant font-label-bold text-label-bold mt-1 uppercase tracking-wider">Admin Portal</p>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto w-full">
+<ul class="flex flex-col w-full">
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-bold text-label-bold">Dashboard</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-label-bold text-label-bold">Programs</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-bold text-label-bold">Learners</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-bold text-label-bold">Analytics</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="record_voice_over">record_voice_over</span>
+<span class="font-label-bold text-label-bold">Instructors</span>
+</a>
+</li>
+<!-- Active Item -->
+<li class="w-full">
+<a class="flex items-center gap-3 px-gutter py-3 border-l-4 border-primary-blue bg-primary-blue-tint primary-blue font-bold cursor-pointer active:scale-95 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined primary-blue" data-icon="shopping_cart" style="font-variation-settings: 'wght' 600;">shopping_cart</span>
+<span class="font-label-bold text-label-bold">Store</span>
+</a>
+</li>
+<li class="w-full mt-auto">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant hover:text-primary dark:text-on-surface-variant hover:bg-primary/5 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-bold text-label-bold">Settings</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-sidebar_width h-screen overflow-y-auto bg-background">
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center px-gutter w-full z-40 h-16 sticky top-0 bg-surface dark:bg-surface border-b border-subtle">
+<!-- Mobile Menu Button -->
+<button class="md:hidden p-2 text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Navigation Links (Hidden on mobile) -->
+<nav class="hidden md:flex gap-6 items-end h-full pt-4">
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-bold text-label-bold pb-4" href="#">Overview</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-bold text-label-bold pb-4" href="#">Recent Activity</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-bold text-label-bold pb-4" href="#">Reports</a>
+</nav>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-subtle">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator in a light, modern office setting. The person is smiling softly, dressed in smart-casual business attire. Soft, natural daylight illuminates the scene, creating a clean, trustworthy, and high-end aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKCTiKElV4LQvat-FHGsTQRSlmkm_400htcjcUTQV2ELFlMJJkJWB4AMbEjvVwYpMylQAUpbuG0Qi1nMUg12C39vIJ5ogViQTF0QlysZXugU0IjHB0UcniYdOQN8cOUqyVmTiOSzBJ60MtSf01nHGfrbS58sv8JDc9hsOw5OXL7-MlMssUGHx8aknv8pCMSMKXJKkYL7SeW4w45qJykp10l10lc7wpq3ZW2QVlZI3uRQQkwXscWxDR"/>
+</div>
+</div>
+</header>
+<!-- Canvas Container -->
+<div class="max-w-[container_max] mx-auto px-gutter py-stack_lg">
+<!-- Page Header & Tabs -->
+<div class="mb-stack_lg border-b border-subtle">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-page-title text-page-title md:font-page-title text-on-surface">Store Management</h2>
+<button class="bg-primary-blue text-white font-label-bold text-label-bold px-4 py-2 rounded-btn hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        New Course
+                    </button>
+</div>
+<!-- Underline Tabs -->
+<div class="flex gap-8">
+<button class="pb-3 border-b-2 border-primary-blue primary-blue font-label-bold text-label-bold px-1">
+                        Courses
+                    </button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-bold text-label-bold px-1 transition-colors">
+                        Store Settings
+                    </button>
+</div>
+</div>
+<!-- Content Area (Level 1 structural spacing) -->
+<div class="flex flex-col gap-stack_lg">
+<!-- Hero Preview Section -->
+<section class="bg-surface-container-lowest rounded-card border border-subtle shadow-ambient overflow-hidden">
+<div class="p-4 border-b border-subtle flex justify-between items-center bg-surface-container-low">
+<h3 class="font-section-title text-section-title text-on-surface">Storefront Preview</h3>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-error/80"></span>
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim/80"></span>
+<span class="w-3 h-3 rounded-full bg-secondary-fixed/80"></span>
+</div>
+</div>
+<div class="p-6">
+<!-- Simulated Banner -->
+<div class="w-full h-48 md:h-64 rounded-card bg-[#001A41] flex flex-col justify-center items-center text-center p-8 relative overflow-hidden group">
+<!-- Subtle abstract decoration -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-blue/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-secondary-fixed/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
+<h2 class="text-3xl md:text-5xl font-bold text-white mb-4 relative z-10 tracking-tight">Empower Your Future</h2>
+<p class="text-primary-fixed-dim text-lg md:text-xl max-w-2xl relative z-10">Discover premium courses designed by industry experts to accelerate your professional growth.</p>
+<!-- Hover edit overlay -->
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+<button class="bg-white text-on-surface px-4 py-2 rounded-btn font-label-bold flex items-center gap-2 hover:bg-gray-50">
+<span class="material-symbols-outlined">edit</span>
+                                    Edit Banner
+                                </button>
+</div>
+</div>
+<!-- Banner Theme Controls -->
+<div class="mt-6 flex flex-wrap items-center gap-6 border-t border-subtle pt-6">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Banner Theme</span>
+<div class="flex items-center gap-3">
+<label class="text-sm text-on-surface">Background</label>
+<div class="w-8 h-8 rounded-full bg-[#001A41] border border-subtle cursor-pointer ring-2 ring-offset-2 ring-transparent hover:ring-primary-blue transition-all" title="Select Background Color"></div>
+</div>
+<div class="flex items-center gap-3">
+<label class="text-sm text-on-surface">Text</label>
+<div class="w-8 h-8 rounded-full bg-white border border-subtle cursor-pointer ring-2 ring-offset-2 ring-transparent hover:ring-primary-blue transition-all" title="Select Text Color"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Course Grid Section -->
+<section>
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-section-title text-section-title text-on-surface">Active Courses (4)</h3>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 rounded-btn border border-subtle focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 outline-none text-sm bg-surface-container-lowest w-64 transition-all" placeholder="Search courses..." type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Course Card 1 -->
+<div class="bg-surface-container-lowest rounded-card border border-subtle shadow-ambient overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col group">
+<div class="aspect-video relative bg-surface-variant overflow-hidden">
+<img alt="Course Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A modern, abstract digital illustration representing Advanced Mathematics. High-end corporate aesthetic using deep blues and stark whites. Geometric shapes, equations, and glowing lines intertwine in a clean, sophisticated composition. The lighting is soft and analytical, conveying trust and academic excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlcs-obtASFB1EHE16N41H7TkaGIgIKUESm7ALfmq2WF99wLj6pfcG7co1Z-BqNnl1tIq0BXQpFGKQhrQdxWFSelB-lYzUczRPVQ6qz8GSgY2LFUtwybfALZwMvzrFEQGEB1qO1ELyLqFHlAGYADB_vmvTXTxxihcf66omBiMMSO22Tab5g9L04tHJ8wRTfM5ElZcQsS0KDwrOcaYWxPDSk4LHRTmk_d8hV2D8ZtzPxaJ76wNbqWBD"/>
+<div class="absolute top-2 right-2 bg-white/90 backdrop-blur text-on-surface font-label-bold text-[10px] px-2 py-1 rounded-sm uppercase tracking-wide">
+                                    Published
+                                </div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h4 class="font-section-title text-sm text-on-surface line-clamp-2 mb-1">Advanced Mathematics &amp; Logic</h4>
+<p class="text-on-surface-variant text-xs mb-4">12 Modules • 48 Hours</p>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-4">
+<span class="font-bold text-lg text-on-surface">₹1,500</span>
+<button class="text-on-surface-variant hover:primary-blue transition-colors p-1" title="Copy Link">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<div class="border-t border-subtle pt-3 flex justify-between items-center">
+<span class="text-xs font-semibold text-on-surface-variant">Visibility</span>
+<!-- Custom Toggle -->
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="block bg-surface-variant w-10 h-6 rounded-full border border-subtle transition-colors toggle-label bg-primary-blue border-primary-blue"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform translate-x-4"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface-container-lowest rounded-card border border-subtle shadow-ambient overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col group">
+<div class="aspect-video relative bg-surface-variant overflow-hidden">
+<img alt="Course Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, minimalist workspace scene representing Data Science Fundamentals. A sleek laptop sits on a bright white desk alongside a notebook and a plant. A subtle overlay of glowing data charts and nodes floats above the screen. Corporate, light-mode aesthetic, professional and inviting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdCV7zhkOBKNllJA6Z_nrtP9nCW1ItTjQKhy5lirqsJNG60iwrWWb6VP9f1vxtT8Yvd0awtrUS0e9y9we_66i85-OW5UhFnN6e-Sk5n4-XwHQTgzOqEUb19dcyz3xMvHDm6Gg0nl-KEwThooy21JqvH5WpQeSm_twTia1k6e3wyi0kssvvh3sjT9FpArfkNYP8NV3hucGB47_oiXZ3pfq8NEl32N_IxoyNNXlNw64OkkECfloAKFmI"/>
+<div class="absolute top-2 right-2 bg-white/90 backdrop-blur text-on-surface font-label-bold text-[10px] px-2 py-1 rounded-sm uppercase tracking-wide">
+                                    Published
+                                </div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h4 class="font-section-title text-sm text-on-surface line-clamp-2 mb-1">Data Science Fundamentals</h4>
+<p class="text-on-surface-variant text-xs mb-4">8 Modules • 32 Hours</p>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-4">
+<span class="font-bold text-lg text-on-surface">₹2,200</span>
+<button class="text-on-surface-variant hover:primary-blue transition-colors p-1" title="Copy Link">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<div class="border-t border-subtle pt-3 flex justify-between items-center">
+<span class="text-xs font-semibold text-on-surface-variant">Visibility</span>
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="block bg-surface-variant w-10 h-6 rounded-full border border-subtle transition-colors toggle-label bg-primary-blue border-primary-blue"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform translate-x-4"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Course Card 3 (Hidden state) -->
+<div class="bg-surface-container-lowest rounded-card border border-subtle shadow-ambient overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col group opacity-75">
+<div class="aspect-video relative bg-surface-variant overflow-hidden grayscale-[50%]">
+<img alt="Course Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sophisticated corporate leadership training setting. Soft, natural light spilling across a modern boardroom table with blurred, stylized figures in the background discussing strategy. High-end, pristine white and subtle blue tones. The image conveys authority, calm, and strategic thinking." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwO4QYkd8G1diCA1vfFMOyxuX54gkLG_2qgdJ8vn84QGSMUnH865ondlj05Yp8SqCLDfDrwbvsmMvpBnEVqvDQTYDmXF-rkmdjExjQzejDJIi4TuRf7sl_mJ0ONXZEN0kGILnB1FGmqI2tVxqzfJ5ObrOu6EF2s_q_-m7QrvJqp8dNyElZ7ANrWuxXOPvGp3c9SzrA_4sIfwJKmANC4l63V9U8SrUv4Cn12HK6V2Qqe5MA8SEE504C"/>
+<div class="absolute top-2 right-2 bg-surface-variant/90 backdrop-blur text-on-surface-variant font-label-bold text-[10px] px-2 py-1 rounded-sm uppercase tracking-wide">
+                                    Draft
+                                </div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<h4 class="font-section-title text-sm text-on-surface line-clamp-2 mb-1">Executive Leadership Practicum</h4>
+<p class="text-on-surface-variant text-xs mb-4">5 Modules • 20 Hours</p>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-4">
+<span class="font-bold text-lg text-on-surface">₹4,500</span>
+<button class="text-on-surface-variant hover:primary-blue transition-colors p-1" title="Copy Link">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<div class="border-t border-subtle pt-3 flex justify-between items-center">
+<span class="text-xs font-semibold text-on-surface-variant">Visibility</span>
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="block bg-surface-variant w-10 h-6 rounded-full border border-subtle transition-colors toggle-label"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform border border-subtle shadow-sm"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<script>
+        // Simple script to handle toggle visual state for the non-checked input
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const dot = this.parentElement.querySelector('.dot');
+                const label = this.parentElement.querySelector('.toggle-label');
+                
+                if(this.checked) {
+                    dot.classList.add('translate-x-4');
+                    dot.classList.remove('border', 'border-subtle', 'shadow-sm');
+                    label.classList.add('bg-primary-blue', 'border-primary-blue');
+                    label.classList.remove('bg-surface-variant');
+                } else {
+                    dot.classList.remove('translate-x-4');
+                    dot.classList.add('border', 'border-subtle', 'shadow-sm');
+                    label.classList.remove('bg-primary-blue', 'border-primary-blue');
+                    label.classList.add('bg-surface-variant');
+                }
+            });
+        });
+    </script>
+</body></html>

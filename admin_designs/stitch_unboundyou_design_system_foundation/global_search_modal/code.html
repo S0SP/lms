@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Global Search - UnboundYou Admin</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#005bc1",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface": "#faf8ff",
+                      "surface-dim": "#d2d9f3",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-surface": "#131b2d",
+                      "secondary": "#006c46",
+                      "inverse-on-surface": "#edf0ff",
+                      "inverse-primary": "#adc6ff",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f2f3ff",
+                      "secondary-container": "#67f9b4",
+                      "on-primary": "#ffffff",
+                      "primary": "#0058bc",
+                      "secondary-fixed-dim": "#49df9d",
+                      "primary-fixed-dim": "#adc6ff",
+                      "on-secondary-fixed-variant": "#005234",
+                      "secondary-fixed": "#6afcb7",
+                      "on-primary-container": "#fefcff",
+                      "background": "#faf8ff",
+                      "outline-variant": "#c1c6d6",
+                      "outline": "#727785",
+                      "primary-container": "#0e70e9",
+                      "inverse-surface": "#283043",
+                      "surface-bright": "#faf8ff",
+                      "surface-container": "#e9edff",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#131b2d",
+                      "primary-fixed": "#d8e2ff",
+                      "on-primary-fixed": "#001a41",
+                      "surface-container-highest": "#dbe2fb",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#dbe2fb",
+                      "on-primary-fixed-variant": "#004494",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#e1e8ff",
+                      "tertiary": "#825100",
+                      "tertiary-container": "#a36700",
+                      "on-surface-variant": "#414754",
+                      "on-secondary-container": "#007149",
+                      "on-secondary-fixed": "#002112",
+                      "on-tertiary-container": "#fffbff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "sidebar_width": "248px",
+                      "stack_lg": "32px",
+                      "stack_md": "16px",
+                      "container_max": "1440px",
+                      "stack_sm": "8px"
+              },
+              "fontFamily": {
+                      "page-title-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-main": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "section-title": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-bold": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "page-title": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "page-title-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-main": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "section-title": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "page-title": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Base styles */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Ambient Shadows */
+        .shadow-ambient-overlay {
+            box-shadow: 0px 8px 24px rgba(15, 23, 41, 0.12);
+        }
+
+        /* Form Reset for Search Input */
+        .search-input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        /* Custom Scrollbar for results */
+        .results-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .results-scroll::-webkit-scrollbar-thumb {
+            background-color: #E5E9F0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-main text-on-surface h-screen w-screen flex items-center justify-center relative overflow-hidden">
+<!-- Dimmed Background Overlay -->
+<div class="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm z-10 transition-opacity duration-300"></div>
+<!-- Command Palette Modal -->
+<div class="relative z-20 w-full max-w-2xl bg-surface-container-lowest rounded-[12px] shadow-ambient-overlay border border-outline-variant flex flex-col max-h-[870px] overflow-hidden transform transition-all duration-300 scale-100 opacity-100 mt-[-10vh]">
+<!-- Search Header -->
+<div class="flex items-center px-6 py-4 border-b border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant mr-3" style="font-variation-settings: 'wght' 300; font-size: 24px;">search</span>
+<input autofocus="" class="search-input w-full bg-transparent border-none p-0 font-body-main text-body-main text-on-surface placeholder-on-surface-variant focus:ring-0" placeholder="Search learners, courses, or educators..." type="text"/>
+<div class="flex items-center ml-3">
+<kbd class="px-2 py-1 bg-surface-container-low border border-outline-variant rounded text-label-bold font-label-bold text-on-surface-variant whitespace-nowrap">ESC</kbd>
+</div>
+</div>
+<!-- Search Results Scrollable Area -->
+<div class="results-scroll flex-1 overflow-y-auto px-2 py-4 space-y-6">
+<!-- Section: Learners -->
+<section class="px-4">
+<div class="border-b border-outline-variant mb-2">
+<h3 class="font-section-title text-[16px] leading-[24px] tracking-[-0.01em] font-bold text-on-surface pb-1 border-b-2 border-transparent w-max">Learners</h3>
+</div>
+<div class="space-y-1">
+<!-- Learner Result Item - Active -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-primary/10 cursor-pointer group">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A clean, professional portrait of a young male student in a bright, modern learning environment. Soft, high-key lighting, corporate edtech aesthetic. Shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDemZmom3SMlUIOpq1qJ8hlsUEJ7mMFKuMtStY_FBTXq5kDsf9qJ0f1wuv448hcI41M98CPupE7azQMP43MdEWnvkWATVJ8dhVTKNkOceGvZWgmPxtgrLLh44jVxTPE4o-eJfBR0oR4C_vDUMvIjF62Or73bjrek-RneHBXpupXhuYE8mIYBL9SCNC19Ba2qaEOyA1ZhqcEvGP18ld1w4fVin92Oso1tmLQJBj_NA3gISwDuHFQ79S_"/>
+<div class="flex flex-col">
+<span class="font-body-main text-body-main font-semibold text-primary">Alex Chen</span>
+<span class="text-[12px] leading-[16px] text-on-surface-variant">alex.chen@student.unboundyou.edu</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary opacity-100 group-hover:opacity-100 transition-opacity" style="font-variation-settings: 'wght' 300;">keyboard_return</span>
+</div>
+<!-- Learner Result Item -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low cursor-pointer group transition-colors">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A clean, professional portrait of a young female student smiling subtly in a modern office or campus setting. Natural light, corporate edtech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxma7pwOS2IgPl18d5Qcqv_tp2YTX4zHhrByKHvJsjrf1O9kOMkbcOW_V1YXnIqCSXZXLYY4h0z0T3FR2wMEk71EXGjUzsk0faojrZJA4LTCH9v75zGYQMDtbje5tPcJ1Fm6ru0l9MkH3o0xZGpJ6f6tfzOixZA51OBU42rqxb_GQ3TKcEd26DLY6OZLErnIdseGuzEYXgan5qmSMZZeBOdqNeXf6zo67it1HcAuE-6lJRJZYGBe38"/>
+<div class="flex flex-col">
+<span class="font-body-main text-body-main font-medium text-on-surface group-hover:text-primary transition-colors">Sarah Jenkins</span>
+<span class="text-[12px] leading-[16px] text-on-surface-variant">s.jenkins@student.unboundyou.edu</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Courses -->
+<section class="px-4">
+<div class="border-b border-outline-variant mb-2">
+<h3 class="font-section-title text-[16px] leading-[24px] tracking-[-0.01em] font-bold text-on-surface pb-1 border-b-2 border-transparent w-max">Courses</h3>
+</div>
+<div class="space-y-1">
+<!-- Course Result Item -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low cursor-pointer group transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low border border-outline-variant flex items-center justify-center text-on-surface-variant group-hover:bg-primary/5 group-hover:border-primary/20 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300; font-size: 20px;">code</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-main text-body-main font-medium text-on-surface group-hover:text-primary transition-colors">Introduction to Data Structures</span>
+<span class="text-[12px] leading-[16px] text-on-surface-variant">CS-101</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-surface-container-low rounded text-label-bold font-label-bold text-on-surface-variant">Computer Science</span>
+</div>
+<!-- Course Result Item -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low cursor-pointer group transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low border border-outline-variant flex items-center justify-center text-on-surface-variant group-hover:bg-primary/5 group-hover:border-primary/20 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300; font-size: 20px;">calculate</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-main text-body-main font-medium text-on-surface group-hover:text-primary transition-colors">Advanced Linear Algebra</span>
+<span class="text-[12px] leading-[16px] text-on-surface-variant">MATH-302</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-surface-container-low rounded text-label-bold font-label-bold text-on-surface-variant">Mathematics</span>
+</div>
+</div>
+</section>
+<!-- Section: Educators -->
+<section class="px-4">
+<div class="border-b border-outline-variant mb-2">
+<h3 class="font-section-title text-[16px] leading-[24px] tracking-[-0.01em] font-bold text-on-surface pb-1 border-b-2 border-transparent w-max">Educators</h3>
+</div>
+<div class="space-y-1">
+<!-- Educator Result Item -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low cursor-pointer group transition-colors">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a middle-aged male professor wearing glasses in a modern academic setting. Clean, corporate edtech lighting style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0EQ1Y04seWovVKotLvEd5aN60J6VAF6ougvuKcd5DMbmho3ZcbxQarfXa49wddpHtik7ftj3QhEGod3sT-QLQ5pO0X0IVZ3k1bjs0oz3nJGMVxS-Dhgglls1xSt2ywth1uTjEqJwwgOXz4ofsLzeJPfRorfFl3uBUWy306I3esq2lhqq_2FFk3rXEOOG8qrPNwCL9_X8sBkVksIeSmmHYTF1kf-YIASmXGIyBgW9vM4oZOdLTJK9-"/>
+<div class="flex flex-col">
+<span class="font-body-main text-body-main font-medium text-on-surface group-hover:text-primary transition-colors">Dr. Robert Vance</span>
+<span class="text-[12px] leading-[16px] text-on-surface-variant">Department Head</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-surface-container-low rounded text-label-bold font-label-bold text-on-surface-variant">Physics</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Footer -->
+<div class="px-6 py-3 border-t border-outline-variant bg-surface-container-low/50 flex items-center justify-end text-[12px] text-on-surface-variant">
+<span class="flex items-center gap-4">
+<span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-surface-container-low border border-outline-variant rounded font-sans">↑↓</kbd> to navigate</span>
+<span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-surface-container-low border border-outline-variant rounded font-sans">↵</kbd> to select</span>
+</span>
+</div>
+</div>
+</body></html>

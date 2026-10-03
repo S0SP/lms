@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chats - UnboundYou</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#dbe2fb",
+                        "background": "#faf8ff",
+                        "on-surface-variant": "#414754",
+                        "tertiary": "#825100",
+                        "tertiary-container": "#a36700",
+                        "primary-fixed": "#d8e2ff",
+                        "primary": "#0058bc",
+                        "on-secondary-fixed-variant": "#005234",
+                        "on-background": "#131b2d",
+                        "on-tertiary-container": "#fffbff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#007149",
+                        "secondary-fixed-dim": "#49df9d",
+                        "inverse-on-surface": "#edf0ff",
+                        "secondary": "#006c46",
+                        "secondary-fixed": "#6afcb7",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d2d9f3",
+                        "surface-container": "#e9edff",
+                        "tertiary-fixed": "#ffddb8",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-high": "#e1e8ff",
+                        "surface-container-low": "#f2f3ff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error": "#ffffff",
+                        "surface": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#131b2d",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#001a41",
+                        "outline": "#727785",
+                        "surface-tint": "#005bc1",
+                        "surface-variant": "#dbe2fb",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary-fixed": "#002112",
+                        "on-primary-container": "#fefcff",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#283043",
+                        "on-primary-fixed-variant": "#004494",
+                        "primary-fixed-dim": "#adc6ff",
+                        "secondary-container": "#67f9b4",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c1c6d6",
+                        "primary-container": "#0e70e9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack_sm": "8px",
+                        "stack_lg": "32px",
+                        "stack_md": "16px",
+                        "sidebar_width": "248px",
+                        "container_max": "1440px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "section-title": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #c1c6d6; border-radius: 20px; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-main h-screen overflow-hidden flex">
+<!-- SideNavBar (Shared Component logic applied manually based on guidance) -->
+<nav class="bg-surface-container-low border-r border-outline-variant fixed left-0 top-0 h-screen w-[248px] flex flex-col py-stack_md transition-all duration-200 ease-in-out z-20 md:flex hidden">
+<div class="px-gutter mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold">U</div>
+<div>
+<h1 class="font-page-title text-[16px] leading-tight text-primary">UnboundYou</h1>
+<p class="text-[12px] text-on-surface-variant">Admin Portal</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1 flex-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+<span class="font-body-main">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">school</span>
+<span class="font-body-main">Programs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">group</span>
+<span class="font-body-main">Learners</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">analytics</span>
+<span class="font-body-main">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">co_present</span>
+<span class="font-body-main">Instructors</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">storefront</span>
+<span class="font-body-main">Store</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-4 border-[#2F80F9] bg-[#2F80F9]/8 text-[#2F80F9] font-label-bold transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">chat</span>
+<span>Chats</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+<span class="font-body-main">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Container -->
+<main class="flex-1 ml-[248px] h-screen flex flex-col relative bg-surface-container-lowest">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface docked full-width top-0 border-b border-outline-variant flex justify-between items-center h-16 px-gutter z-10 sticky">
+<div class="flex-1 flex items-center gap-4">
+<!-- Hamburger for mobile, hidden on md -->
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-section-title text-section-title text-on-surface md:hidden">UnboundYou</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A close up professional headshot of an educational administrator smiling gently. The lighting is soft and corporate, set against a blurred, light modern office background. High quality, crisp details, natural coloring." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2W5rKCzctG4tbqBlJKOxPBlrAAk6v6WXsqC7GCOGdwhzeXw1T7EPGbSuPqPGLtiGPAHTXS_owuC9Ua9yTp-ctxzEeXtGd7ay_xYp6Du81rLC4N0GC2V4_kCXYUt6jXhcogBuNM2ghBDd5xm5eDZBtbMKA1lQTcQ3SikOiJyJ4fg7R3iLiNDEk_PpKBJT30NK7s9alyehH2QysypaU0KCg6CvfpO9VuJnaJWJyuGYrBUY2vZB1cq0L"/>
+</div>
+</div>
+</header>
+<!-- Content Area: Split Panels -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Panel: Chat List -->
+<div class="w-[320px] flex-shrink-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full">
+<!-- Tabs -->
+<div class="flex px-4 pt-4 border-b border-outline-variant">
+<button class="px-4 py-3 font-label-bold text-[#2F80F9] border-b-2 border-[#2F80F9]">My Chats</button>
+<button class="px-4 py-3 font-body-main text-on-surface-variant hover:text-on-surface transition-colors">All Chats</button>
+</div>
+<!-- Search -->
+<div class="p-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style="font-size: 20px;">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:border-[#2F80F9] focus:ring-2 focus:ring-[#2F80F9]/20 transition-all font-body-main text-sm" placeholder="Search messages..." type="text"/>
+</div>
+</div>
+<!-- List -->
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Active Row -->
+<div class="p-4 bg-[#2F80F9]/5 border-l-4 border-[#2F80F9] cursor-pointer hover:bg-[#2F80F9]/10 transition-colors">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-[#2F80F9]/10 text-[#2F80F9] flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-label-bold text-on-surface truncate pr-2">Advanced Math Cohort B</h3>
+<span class="text-[11px] text-[#2F80F9] font-medium flex-shrink-0">10:45 AM</span>
+</div>
+<div class="flex justify-between items-center">
+<p class="text-sm text-on-surface-variant truncate pr-2">Sarah: I've uploaded the notes...</p>
+<span class="bg-[#2F80F9] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">4</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Inactive Row 1 -->
+<div class="p-4 border-l-4 border-transparent cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male student in his early 20s looking relaxed. Wearing casual clothes. Soft, natural daylight illuminating his face. Clean, light gray studio background. Professional photography, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQRksRDw4TAKHtixeBHwURKDsFg4qa17pjjEJECZbOrpMbnC_0wZHShsyWOGXdUohIghKo3eWqgRXqj6wlFPtttL0biGp7LcJFbfDQHG7ZNeqM1SEaNwKgZeogRqhCpLlT-Jn5pgiF6254YB00A2I952IAkevH9Oh7MotL9tUtAVJ-W-mg-cQnSRIzSJNrxHK9rPNLonRibbYVF9x4rCHPIlE3pFl-_hNw3m7Gsb1eWqCimssy-IE5"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-label-bold text-on-surface truncate pr-2">Alex Johnson</h3>
+<span class="text-[11px] text-on-surface-variant flex-shrink-0">Yesterday</span>
+</div>
+<p class="text-sm text-on-surface-variant truncate">You: See you in the session.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Chat Thread -->
+<div class="flex-1 flex flex-col bg-background h-full">
+<!-- Header -->
+<div class="h-[72px] px-6 border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-[#2F80F9]/10 text-[#2F80F9] flex items-center justify-center">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div>
+<h2 class="font-section-title text-section-title text-on-surface">Advanced Math Cohort B</h2>
+<p class="text-sm text-on-surface-variant">12 Members</p>
+</div>
+</div>
+<div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-surface-container-low/30">
+<!-- Incoming Message -->
+<div class="flex items-start gap-3 max-w-[80%]">
+<div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-outline-variant mt-1">
+<img class="w-full h-full object-cover" data-alt="A portrait of a female student with glasses looking thoughtful. Bright and friendly expression. Soft, warm indoor lighting. Professional corporate style photography, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdC57Dp9LmEcthtj6gL5z9jIIcLyEVm2h7MIP2phqNrB7aCB826VHrdraSjmSFa8jR7QOO4quttedaXlZt0iOTCPdrCg0yQcz8LIr6wiLavhBWsJ_ENwswHx_3MlYT2ZoEU0S0XTthaCoceKxVj7uuOos9H6NWOnHRyGz48FmLxPaWsaqUdQ02NZywp-8JNDJr_ZKaUlmuQWYhbprWJBPNDxs3US-ibmuWuiVttYotWVabBn8er16d"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant ml-1 font-medium">Sarah Williams <span class="text-[10px] font-normal ml-1">10:42 AM</span></span>
+<div class="bg-surface-container-highest text-on-surface px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm border border-outline-variant/30 text-sm">
+                                Can someone check the latest assignment PDF?
+                            </div>
+</div>
+</div>
+<!-- File Message (Incoming) -->
+<div class="flex items-start gap-3 max-w-[80%]">
+<div class="w-8 h-8 rounded-full flex-shrink-0 mt-1 opacity-0"></div> <!-- Spacer for alignment -->
+<div class="flex flex-col gap-1">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-[12px] p-3 flex items-center gap-4 shadow-sm w-[240px] cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded bg-[#ffdad6] text-[#ba1a1a] flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-bold text-on-surface truncate text-sm">Assignment_Notes.pdf</p>
+<p class="text-xs text-on-surface-variant">1.2 MB</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">download</span>
+</div>
+</div>
+</div>
+<!-- Outgoing Message -->
+<div class="flex items-start gap-3 justify-end w-full">
+<div class="flex flex-col gap-1 items-end max-w-[80%]">
+<span class="text-xs text-on-surface-variant mr-1">10:44 AM</span>
+<div class="bg-[#2F80F9] text-white px-4 py-3 rounded-2xl rounded-tr-sm shadow-sm text-sm">
+                                On it right now!
+                            </div>
+</div>
+</div>
+</div>
+<!-- Input Footer -->
+<div class="p-4 bg-surface-container-lowest border-t border-outline-variant flex-shrink-0">
+<div class="flex items-end gap-3 bg-surface-container-low rounded-[12px] border border-outline-variant p-2 focus-within:border-[#2F80F9] focus-within:ring-1 focus-within:ring-[#2F80F9] transition-all">
+<button class="p-2 text-outline hover:text-on-surface-variant transition-colors rounded-full mb-1">
+<span class="material-symbols-outlined" style="font-size: 20px;">attach_file</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none resize-none focus:ring-0 text-sm py-3 max-h-[120px] custom-scrollbar" placeholder="Type a message..." rows="1"></textarea>
+<button class="p-2 text-outline hover:text-on-surface-variant transition-colors rounded-full mb-1">
+<span class="material-symbols-outlined" style="font-size: 20px;">mic</span>
+</button>
+<button class="bg-[#2F80F9] text-white p-2.5 rounded-[8px] hover:bg-[#005bc1] transition-colors flex items-center justify-center shadow-sm mb-0.5">
+<span class="material-symbols-outlined" style="font-size: 20px;">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

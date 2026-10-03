@@ -1,0 +1,439 @@
+
+
+
+PRODUCT REQUIREMENTS DOCUMENT
+LMS Platform
+Admin & Educator Portals
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Version: 1.0
+Date: August 2026
+Portals Covered: Admin Dashboard · Educator Portal
+Status: Draft — Pending Review
+Out of Scope: Student portal (separate PRD). Testing platform (separate system).
+
+
+
+
+
+
+
+    PART ONE — ADMIN PORTAL
+
+This section documents every module, workflow, and configuration available to Owner and Admin roles within the LMS administration dashboard.
+
+1. Platform Overview
+A full-stack LMS built for tutoring organisations, coaching centres, and ed-tech businesses. Three course formats, three portals:
+• Admin Portal — owners and admins manage the entire operation (this document, Part 1).
+• Educator Portal — tutors manage schedule, sessions, and learner communication (this document, Part 2).
+• Learner / Parent Portal — students and guardians access courses, sessions, and reports (separate PRD).
+
+ⓘ  The testing platform (mock tests, e-books, flashcards) is explicitly out of scope for this document.
+
+1.1  Business Context
+
+1.2  Admin Portal Module Summary
+Top-level admin modules:
+• Dashboard / Get Started
+• Calendar
+• Availability Management
+• Consultations
+• 1-On-1 Personalised Courses
+• Group Courses
+• Recorded Courses
+• Users (Learners & Educators)
+• Progress Reports (AI-Generated)
+• Store & Course Selling Pages
+• Analytics
+• Chats / Messaging
+
+2. Roles & Permissions
+Four-level role hierarchy. Admin Portal is accessible by Owner and Admin roles only.
+
+
+ⓘ  Payouts, session credit totals, and per-course payout rates are Admin-controlled and Educator-read-only everywhere they appear across both portals.
+
+3. Admin Dashboard — Get Started
+Default landing page after admin login. Provides contextual quick-launch shortcuts for common setup actions. Real-time KPIs live in Analytics.
+3.1  Quick-Action Tiles
+Create a Course
+
+Add Users
+
+Explore Other Features
+3.2  Left Navigation Rail
+
+4. Calendar (Admin View)
+Unified scheduling calendar displaying all sessions across all courses and educators. Distinct from the educator-facing calendar (Part 2, §19).
+4.1  View Modes & Navigation
+4.2  Session Tile Display
+Each session tile shows: scheduled time, learner first name, course short-code, status icon (✓ completed / ✗ cancelled/no-show), and a colour-coded background (each course/educator mapped to a distinct colour).
+4.3  Overflow & Density Rules
+• Days exceeding visible tile space show an overflow indicator (e.g., "+3 more") — clicking expands the full day list.
+• Minimum supported density: 10 sessions per day in month view without visual degradation.
+• Sessions booked outside an educator's configured availability (admin override) are visually flagged with a warning indicator.
+4.4  Google Calendar Sync
+• Sessions created or modified in the LMS reflect in connected educator Google Calendars (2-way).
+• Events created or modified in Google Calendar update corresponding session records in the LMS.
+• Educator calendar connection status visible in Users → Educators (green filled = connected, grey hollow = not connected).
+
+5. Availability (Admin View)
+Allows filtering and reviewing educator availability by subject tag. Educators configure their own detailed availability from the Educator Portal (Part 2, §20).
+5.1  Educator Tag Filter
+Multi-select tag filter to narrow the availability view to educators with specific subject specialisations. Tags are defined and assigned when adding or editing an educator profile. Categories include:
+• Core academic: Maths, Science, Physics, Chemistry, Biology
+• Languages: English, French, Telugu (and other languages configured by admin)
+• Curriculum-specific: IB, IGCSE, CBSE, ICT
+Each tag is colour-coded. Tags are fully configurable by admin.
+5.2  Availability Display
+• After filtering by tag(s), the view shows free/busy blocks per matching educator per day.
+• Admins cross-reference with the Calendar to schedule sessions in available slots.
+• Educators with Google Calendar connected show real-time availability automatically.
+• Educators without Google Calendar connected rely on manually configured availability profiles (set in Educator Portal).
+
+6. 1-On-1 Personalised Courses
+The primary course type. Each course links a single learner to one or more educators. Admin manages the full lifecycle: creation, educator assignment, session scheduling, credit tracking, and public selling page.
+6.1  Course List — Columns
+6.2  Credits System
+• Credits are the billing unit for sessions. One session typically consumes one credit.
+• Format: Used/Total (e.g., 3/24 = 3 of 24 purchased credits consumed).
+• Fractional credits supported (e.g., 0.5, 1.5) for partial or split-credit sessions.
+• Negative balances trigger an admin alert — not silently accepted.
+• Credit deduction triggered automatically when session is marked complete by the educator.
+• Admins can manually adjust credit totals for a course.
+6.3  Tabs
+6.4  Templates Tab
+• Name — descriptive course blueprint name.
+• Educators — "+ Educator" button to assign an educator before activating.
+• Created on — template creation date.
+• ⋮ menu — edit, delete, or activate (converts to an active course).
+• + Add new template — creates a blank template.
+6.5  Course Selling Page Wizard (7 Steps)
+Triggered by "+ Add" or by editing a course. "Preview Public Page" button available at any step.
+Step 1 — Course Details
+• Course name, description, subject tags, thumbnail. URL slug (auto-generated, editable). Curriculum board and grade level.
+Step 2 — Educators
+• "Select Existing" — search and select from the educator roster.
+• "New Educator" — add a new educator inline without leaving the wizard.
+• Each educator has a "+ Add Payout" button to configure their pay rate for this specific course.
+• Multiple educators can be assigned to a single course.
+Step 3 — Payment Plans
+• Billing model: per-session, credit bundle, subscription, or free. Credit pack size and pricing. Currency selection.
+Step 4 — Scheduling
+• Default session duration. Recurring schedule or open for on-demand booking. Admin-booked vs. learner-self-booked toggle.
+Step 5 — Course Highlights
+• Key outcome bullets displayed on the public-facing selling page. Rich text editor.
+Step 6 — Reviews
+• Select reviews to display on the public course page. Tied to the Rating column in the course list.
+Step 7 — Coupons
+• Discount codes (percentage or flat-amount). Set validity window and usage limits per coupon.
+
+7. Group Courses
+Multiple learners enrolled in the same cohort, sharing sessions with one or more educators.
+7.1  Course List — Columns
+7.2  Tabs
+7.3  Group Course Creation
+• "+ Add course" opens the group course creation wizard.
+• Cohort size configuration (max learners per group).
+• Shared group session scheduling for all enrolled learners.
+• Content library (slides, recordings, PDFs) shared across all learners in the cohort.
+
+8. Recorded Courses
+Pre-recorded video content that learners access asynchronously at their own pace. No live sessions — content-first, learner-paced.
+8.1  Course Structure
+• Course title, description, thumbnail image.
+• Content modules: video files, PDFs, quizzes — uploaded and organised by admin/educator.
+• Learner access control: free vs. paid, drip release schedule.
+• Progress tracking per learner (percentage completion).
+8.2  Admin Actions
+
+9. Users Module
+Central user management hub. Two sub-tabs: Learners and Educators.
+9.1  Learners Tab
+9.1.1  Learner List — Columns
+9.1.2  Add Learner / Parent Modal
+Required fields: Learner Name, Learner Email. Optional: phone, tags.
+Learner-Facing Details (expandable):
+• Registration details — pre-fill form fields (age, date of birth). Can be skipped to let learner fill after enrolment.
+• Parent details — parent/guardian name, email, phone.
+Admin Only (expandable):
+• Private Note — internal notes visible to admin only, never shown to learner or parent.
+9.1.3  Learner Profile Modal — 4 Tabs
+Profile header: name, join date, internal learner ID, phone, email.
+Expandable sections: Private Note (admin-only), Additional Files, Learner Billing Details, Parent Details, Registration Details (age, date of birth).
+9.2  Educators Tab
+9.2.1  Educator List — Columns
+9.2.2  Add Educator Modal
+Fields: Name (required), Email (required), Phone (optional), Subject tags, Payout Amount per Session Credit (numeric; currency selector, INR default).
+ⓘ  An invite is sent over email or WhatsApp to the educator on submission.
+ⓘ  Payout amount set here is the default rate. It can be overridden per course in the Course Selling Page Wizard → Step 2.
+9.3  Add New User — Role Selection Modal
+9.4  Bulk Learner Import
+
+10. Progress Reports (AI-Generated)
+    ⚡ Feature Status: AI Reports — Preview Mode (Limited Access)
+
+AI-powered monthly learner progress reports. A "Request full access" CTA is shown for platforms not yet on full access. All reports show a "Generated by AI" badge.
+10.1  Report List Panel
+Each list item: report month label, learner name + avatar, course short-code + subject.
+10.2  Report Actions
+10.3  Report Structure — Standard Sections
+10.4  Generation Rules
+• Reports auto-generated at month-end or triggered on demand.
+• AI model uses session data, session titles, and educator notes as primary inputs.
+• Admin and educators can edit any section before sending.
+• "Sent" reports cannot be unsent; a revised report can be sent as a follow-up.
+• One report generated per learner per course per month.
+ⓘ  Open item: exact AI trigger mechanism (scheduled job vs. manual admin trigger) must be confirmed before build.
+
+11. Store
+Public-facing course marketplace where learners and parents can discover and purchase courses directly.
+11.1  Tabs
+11.2  Store Settings — Hero Section
+11.3  Store Actions
+
+12. Analytics
+Platform-wide operational insights. All data filterable by time period and entity.
+12.1  Overview Tab
+12.2  Sessions Tab
+12.3  Courses Tab
+• Per-course: sessions conducted, sessions remaining, credit utilisation rate, educator performance, learner ratings.
+12.4  Educators Tab
+• Per-educator: total sessions conducted, payout calculation, learner count, calendar utilisation (booked vs. available hours).
+12.5  Learners Tab
+• Per-learner: sessions attended vs. missed, credit consumption rate, course progress.
+12.6  Logs Tab
+• Admin audit log: user additions/modifications/deletions, course changes, session modifications, credit adjustments, report sends.
+
+13. Chats (Admin View)
+Integrated real-time messaging connecting admins, educators, and learners. Accessible via the chat icon in the top navigation bar.
+13.1  Chat List Panel
+Each chat list item: group icon or avatar initial, chat name, member count badge, last message preview + timestamp.
+13.2  Chat Thread Panel
+• Chat name and member count in header. ⋮ menu for settings, mute, leave.
+• Chronological message feed with sender avatar, name, timestamp.
+• File attachments supported (PDF, images, documents).
+• "Join chat to send a message" prompt — admin must explicitly join before sending.
+13.3  Chat Scoping Rules
+• Group chats are automatically created per course (course group chat: educator + all enrolled learners + admin).
+• Admins can initiate direct chats with any educator or learner on the platform.
+• Educators can only chat with learners assigned to their courses (enforced in Educator Portal — see Part 2, §24).
+
+14. Consultations
+Manages discovery calls and trial sessions for prospective learners before they commit to a full course.
+14.1  Purpose
+• Configure a public consultation/trial-session booking page for inbound prospects.
+• Prospective learners book a free or paid 1-time consultation slot.
+• Admin reviews bookings and converts successful consultations into full course enrolments.
+14.2  Key Flows
+
+15. Integrations
+15.1  Google Calendar
+• 2-way sync via OAuth per educator.
+• Sessions created/modified in LMS appear in educator's Google Calendar.
+• Events created/modified in Google Calendar update session records in LMS.
+15.2  Payment Gateway
+• Configurable by Owner via Get Started → Connect Payment Gateway.
+• Enables learners to purchase credit packs or subscriptions via the public store.
+• Currency: INR (default, admin-configurable).
+ⓘ  Open item: confirm payment gateway provider (Razorpay, Stripe, or configurable) and whether international payments are required.
+15.3  Mobile Apps
+• Learner and educator mobile apps on iOS App Store and Google Play.
+• Access via org-specific code set by the platform owner.
+• Supports: session notifications, chats, schedule viewing, session join links.
+15.4  APIs & Webhooks
+• REST API for CRM integration — sync learner and session data to external systems.
+• Webhooks for event-driven automation: session completed, payment received, new enrolment, report sent.
+15.5  WhatsApp
+• Educator onboarding invites sent via WhatsApp (in addition to email).
+• Requires WhatsApp Business API integration.
+
+16. Global Search & Admin Notifications
+16.1  Global Search
+Accessible via the search bar in the top navigation (Ctrl+K). Searches across Learners (name, email, phone), Courses (name, short-code, subject), and Educators (name, email, tag). Results shown as a typeahead dropdown with categorised sections.
+16.2  Admin Notifications
+Bell icon in the top navigation bar. Admin notification types:
+• New learner enrolment
+• Session upcoming reminder
+• Session completed confirmation
+• Session cancellation alert
+• Credit balance low or negative
+• New chat message
+• Progress report ready for review
+• Educator calendar connected or disconnected
+• Payment received (if payment gateway connected)
+
+17. Non-Functional Requirements — Admin Portal
+17.1  Performance
+• Calendar: 100+ session tiles per month view in under 1 second.
+• Global search results: within 300 ms of keystroke.
+• Session list pagination (100+ sessions): each page loads in under 500 ms.
+• AI report generation: completes within 30 seconds per report.
+17.2  Scalability
+• Must support 500+ learners, 50+ educators, and 1,000+ courses without architecture changes.
+• Calendar must gracefully handle 30+ events per day in month view with overflow indicator.
+17.3  Security
+• RBAC enforced at API level — not just UI-level hiding.
+• Private Notes on learner profiles: admin-only, never surfaced in learner-facing outputs.
+• Confidential feedback (educator-about-learner, learner-about-educator): row-level security at data layer — not just UI hiding.
+• API keys and webhook secrets encrypted at rest. OAuth tokens auto-refreshed.
+• Payment gateway credentials must meet PCI-DSS requirements.
+17.4  Usability
+• Ctrl+K keyboard shortcut for global search. All modals support keyboard navigation and Escape to close.
+• Session status indicators use both colour and icon — not colour alone (accessibility).
+17.5  Data Integrity
+• Negative credit balances trigger admin alerts — not silently accepted.
+• Duplicate learner detection (same email/phone) enforced at "Add Learner".
+• Session credit deduction is atomic — no partial deductions on system failure.
+• CSV bulk import: validate all rows before committing any; fail-fast with per-row error reporting.
+
+    PART TWO — EDUCATOR PORTAL
+
+This section documents every module, workflow, and permission available to Educators within their dedicated portal.
+
+18. Educator Portal — Overview
+18.1  Purpose
+Define every feature the Educator role needs: the actions an educator can take within each module, the system's response, and the business rules governing visibility and permissions. This is the feature contract for the Educator portal build — anything not in this section is out of scope for the Educator build.
+18.2  Primary User
+The Educator: a paid tutor delivering sessions to students. Responsible for: running their own schedule, conducting sessions, producing/reviewing session reports, managing course content, communicating with assigned students, and tracking earnings.
+18.3  Educator Left Navigation
+18.4  Key Constraints
+• All data visible to an educator is scoped to their assigned courses and learners only.
+• Payouts, session credit totals, and per-course payout rates are Admin-controlled and Educator-read-only.
+• Educators cannot view confidential learner-about-educator feedback (see §27).
+• Educators cannot initiate chats with learners they are not assigned to.
+
+19. Educator Module: Calendar
+Single view of all sessions scheduled across the educator's assigned courses. Read-mostly — session creation happens from the Course Workspace (§26).
+19.1  Actions
+19.2  Rules
+• Scheduling happens from the Course Workspace ("Schedule Sessions"), not by clicking on the calendar grid.
+• A horizontal current-time indicator line appears on the current day column.
+• Sessions booked outside the educator's configured availability (admin override) still display but are visually flagged as scheduling exceptions.
+
+20. Educator Module: Availability
+Three tabs: Availability, Leaves, Calendar Settings.
+20.1  Tab: Availability — Recurring Schedule
+
+Rules:
+• Overrides are scoped to the next 60 days in the UI — repeat action month by month for further-out dates.
+• If no override exists for a date, the weekly recurring schedule applies by default.
+• Only the default profile is used by the booking engine.
+20.2  Tab: Leaves
+ⓘ  For single-day leaves, enter the same date in both Start date and End date fields.
+20.3  Tab: Calendar Settings
+ⓘ  Conflict-checking (read) and event-writing (write) are two independent settings — connecting one does not configure the other.
+
+21. Educator Module: Payouts
+Three tabs: Overview, Course, Payouts. All figures are read-only from the educator's side.
+21.1  Tab: Overview (Read-only dashboard)
+21.2  Tab: Course
+21.3  Tab: Payouts (Ledger)
+Itemised payout ledger. Each row shows at minimum: payout cycle/period, amount (INR), status (Paid / In Review / Rejected), associated sessions, payout date (for Paid records).
+ⓘ  Exact field set to be confirmed with reference implementation before build.
+
+22. Educator Module: Session Conflicts
+Surfaces any session that overlaps another commitment on connected calendar(s) or falls inside a declared Leave.
+22.1  Actions
+22.2  Rules
+• A conflict does not automatically cancel anything — it is a surfaced warning requiring manual resolution.
+• Conflicts are generated by: (a) admin-override session falling within a Leave, (b) Google Calendar event overlapping an LMS session, (c) two LMS sessions at the same time.
+
+23. Educator Module: Progress Reports
+Educator-facing view of learner progress, rolled up from individual session reports (see §27 for the post-session report flow).
+23.1  Minimum Feature Set
+• Filter by learner and/or course.
+• View progress trend over time: credits consumed, topics covered, assessment scores.
+• Drill into any single session's report.
+• Review and edit AI-generated monthly report drafts before they are sent by admin.
+ⓘ  This module's exact layout was not fully specified in the reference build — validate the above minimum feature set before implementation.
+
+24. Educator Module: Chats
+Direct messaging between educator and assigned learners or their parents.
+24.1  Actions
+24.2  Rules
+• Chat is scoped to contacts in the educator's assigned courses — no access to other learners.
+• Admin has full visibility of all chats via the "All Chats" view in the Admin Portal.
+
+25. Educator Module: Notifications
+Real-time alerts surfaced via the bell icon in the top navigation bar.
+25.1  Notification Events
+25.2  Rules
+• Notifications list newest-first with a relative timestamp (e.g., "3 days ago").
+• Clicking a notification deep-links to the relevant session or course.
+• The "session not started" notification is also sent to Admin — part of the escalation design for session monitoring.
+
+26. Educator Module: Course Workspace
+Opened by selecting a course from the Courses list. Three tabs: Home, Timeline, Content. The bulk of day-to-day educator work happens here.
+26.1  Tab: Home
+Session list, credit balance, and course roster for this specific course.
+26.1.1  Session Feedback Form
+Sub-flow triggered by "+ Add feedback". This is the operational "what happened in this session" record — distinct from the confidential feedback in §27.
+26.2  Tab: Timeline
+Class-level activity feed for announcements, polls, and lightweight interaction — separate from structured Content.
+26.2.1  Add Poll/Quiz Modal
+Viewing a live poll: each option shows live response %. "End Poll" closes it to further responses. Response-count and Comments tabs below.
+Rule: everything posted to Timeline is visible to all enrolled learners (subject to per-post "disable comments" toggle).
+26.3  Tab: Content
+Structured, persistent course material — as opposed to Timeline's activity feed.
+26.3.1  Sub-flow: Test Builder
+26.3.2  Sub-flow: Assessment Builder
+Rubric-graded submission (essays, projects, spoken assessments) — not auto-graded.
+26.3.3  Certificate Templates
+ⓘ  Certificate creation flow (define rewards for learner achievements) is in scope but not fully specified. Requires a dedicated spec before build.
+
+27. Post-Session Reports & Confidential Feedback
+The loop that runs after every completed session — connecting the operational session feedback (§26.1.1) to a durable learner-visible report and to confidential 360-style feedback.
+27.1  Report & Feedback Flow
+
+ⓘ  Critical Permission Boundary — Must Not Leak: Steps 5 and 6 are strictly one-directional, Admin-only channels. Educator must never see learner's feedback about them (Step 6). Learner must never see educator's feedback about them (Step 5). This MUST be enforced at the data layer (row-level security / query-level filtering) — a hidden-but-fetchable field is a real security risk.
+ⓘ  Open item: exact UI surface for Steps 4–6 (form attached to the report? separate Feedback tab?) needs a decision before this module can be fully built.
+
+28. Educator Module: Settings (Account)
+Three tabs: Profile Settings, Login PIN, Preferences. Accessed via the avatar menu → Settings.
+28.1  Profile Settings
+28.2  Login PIN
+ⓘ  Open item: confirm the purpose of the Login PIN (quick app login on a shared device? session-start identity check?) before fully specifying this module.
+28.3  Preferences
+ⓘ  All four booking-constraint preferences are enforced by the booking engine at the API level — not just stored as display preferences.
+
+29. Cross-Cutting Rules (Both Portals)
+29.1  Read-Only vs. Editable Boundary
+• Payouts, session credit totals, and per-course payout rates are Admin-controlled and Educator-read-only everywhere across both portals.
+• Educator profile phone and email are read-only (OTP-verified at signup).
+29.2  Confidentiality Boundary
+• Steps 5–6 of the post-session feedback loop (educator-about-learner, learner-about-educator) are the only strictly one-directional, Admin-only-visible data across both portals.
+• All other educator-created content (Timeline posts, Chit Chats, session feedback in §26.1.1, published session reports) is visible to assigned learners by design.
+• Admin Private Notes on learner profiles are never visible to the learner or parent.
+29.3  Booking-Constraint Enforcement
+• Availability (§20) + Preferences (§28.3) together fully define when an educator can be booked.
+• Session Conflicts (§22) is the safety net for when something gets booked outside those rules.
+• All booking constraints are enforced by the booking engine at API level — not just UI validation.
+29.4  Chat Scoping
+• Educators can only chat with learners tied to their assigned courses.
+• Admins can initiate chats with any educator or learner on the platform.
+• All chats are visible to Admins via the "All Chats" view.
+
+30. Core Data Model
+Key entities and relationships across both portals:
+
+
+31. Open Items Requiring Decision Before Build
+
+32. Explicitly Out of Scope
+• Testing platform (mock tests, practice materials, e-books, flashcards) — separate system, separate PRD.
+• Student / Parent Portal — referenced only where an admin or educator action produces student-visible output. Covered in a separate PRD.
+• Super Admin screens — referenced only where they affect Admin or Educator-visible behaviour.
+• Infrastructure, cloud architecture, and cost — covered in companion technical documents.
+• Third-party LMS integrations (e.g., Moodle, Canvas, Google Classroom) — not in scope.
+
+33. Appendix
+33.1  Session Status Values
+33.2  Course Naming Convention
+Recommended convention (admin-configurable at org level): [LearnerName]-[CurriculumBoard]-[Grade]-[Subject(s)]
+This convention auto-generates the course short-code and improves searchability across the platform.
+33.3  Subject Tag Categories
+33.4  Document History
+
+
+LMS Platform — Admin & Educator Combined PRD v1.0
+Confidential & Proprietary — August 2026

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Course - Wizard Modal</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0e70e9",
+                        "primary": "#0058bc",
+                        "on-secondary-container": "#007149",
+                        "tertiary": "#825100",
+                        "surface-variant": "#dbe2fb",
+                        "outline": "#727785",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-fixed-variant": "#004494",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-primary-container": "#fefcff",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-dim": "#d2d9f3",
+                        "secondary-fixed": "#6afcb7",
+                        "inverse-surface": "#283043",
+                        "secondary-fixed-dim": "#49df9d",
+                        "surface-container-highest": "#dbe2fb",
+                        "surface-container-low": "#f2f3ff",
+                        "outline-variant": "#c1c6d6",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface": "#faf8ff",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-fixed": "#002112",
+                        "tertiary-container": "#a36700",
+                        "surface-container": "#e9edff",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#006c46",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#67f9b4",
+                        "on-background": "#131b2d",
+                        "on-secondary-fixed-variant": "#005234",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#fffbff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-surface-variant": "#414754",
+                        "background": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#005bc1",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e1e8ff",
+                        "surface-bright": "#faf8ff",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#adc6ff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-surface": "#131b2d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sidebar_width": "248px",
+                        "stack_lg": "32px",
+                        "stack_md": "16px",
+                        "stack_sm": "8px",
+                        "container_max": "1440px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for refined look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #c1c6d6;
+            border-radius: 20px;
+        }
+        
+        /* Ensure thin icons */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-main text-body-main h-screen w-screen overflow-hidden flex antialiased">
+<!-- JSON Component: NavigationDrawer -->
+<aside class="bg-surface dark:bg-surface-container-low w-sidebar_width h-full fixed left-0 top-0 border-r border-outline-variant dark:border-on-surface-variant flex flex-col py-stack_lg z-10">
+<!-- Brand Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">U</div>
+<h1 class="font-page-title text-page-title text-primary dark:text-primary-fixed-dim">UnboundYou</h1>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-3 space-y-1">
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-bold text-label-bold">Dashboard</span>
+</a>
+<!-- Active (Courses) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-r-lg border-l-4 border-primary bg-primary/10 text-primary font-bold dark:bg-primary-container/20 dark:text-primary-fixed-dim cursor-pointer active:scale-95 transition-all duration-200" href="#" style="margin-left: -12px; padding-left: 20px;">
+<span class="material-symbols-outlined icon-fill">school</span>
+<span class="font-label-bold text-label-bold">Courses</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-bold text-label-bold">Assignments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-bold text-label-bold">Students</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-label-bold text-label-bold">Analytics</span>
+</a>
+</nav>
+<!-- Bottom Actions -->
+<div class="px-3 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-bold text-label-bold">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col min-w-0 ml-sidebar_width">
+<!-- JSON Component: TopAppBar -->
+<header class="bg-surface dark:bg-surface-container-low w-full h-16 border-b border-outline-variant dark:border-on-surface-variant flex items-center justify-between px-gutter transition-all duration-200 z-10">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 p-2 rounded-full transition-all duration-200 md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-page-title text-page-title text-primary dark:text-primary-fixed-dim">Dashboard</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold border border-primary/30 cursor-pointer">
+                    A
+                </div>
+</div>
+</header>
+<!-- Underlying Page Canvas (Blurred/Dimmed by Modal) -->
+<main class="flex-1 p-gutter bg-surface-container-low overflow-y-auto">
+<!-- Simulated background content to give depth -->
+<div class="flex justify-between items-center mb-stack_lg">
+<h3 class="font-page-title text-page-title text-on-surface">Your Courses</h3>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-bold text-label-bold shadow-sm opacity-50">Create New</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 pointer-events-none">
+<!-- Dummy Card -->
+<div class="bg-surface border border-outline-variant rounded-xl p-4 shadow-[0_4px_12px_rgba(15,23,41,0.08)]">
+<div class="w-full h-32 bg-surface-container-highest rounded-lg mb-4"></div>
+<div class="h-4 bg-outline-variant rounded w-3/4 mb-2"></div>
+<div class="h-3 bg-surface-container-highest rounded w-1/2"></div>
+</div>
+<div class="bg-surface border border-outline-variant rounded-xl p-4 shadow-[0_4px_12px_rgba(15,23,41,0.08)]">
+<div class="w-full h-32 bg-surface-container-highest rounded-lg mb-4"></div>
+<div class="h-4 bg-outline-variant rounded w-3/4 mb-2"></div>
+<div class="h-3 bg-surface-container-highest rounded w-1/2"></div>
+</div>
+</div>
+</main>
+</div>
+<!-- WIZARD MODAL OVERLAY (Level 3 Depth) -->
+<div class="fixed inset-0 bg-on-background/40 backdrop-blur-sm z-50 flex items-center justify-center p-stack_md sm:p-stack_lg animate-in fade-in duration-200">
+<!-- Modal Container -->
+<div class="bg-surface w-full max-w-6xl h-[921px] md:h-[819px] min-h-[600px] rounded-xl shadow-[0_8px_24px_rgba(15,23,41,0.12)] flex flex-col overflow-hidden relative border border-outline-variant">
+<!-- Modal Header -->
+<div class="px-stack_lg py-5 border-b border-outline-variant flex items-center justify-between bg-surface-bright">
+<div>
+<h2 class="font-page-title text-page-title-mobile text-on-surface">Create Course</h2>
+<p class="font-body-main text-body-main text-on-surface-variant mt-1">Configure the fundamental details of your new program.</p>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body (Split Layout) -->
+<div class="flex flex-1 overflow-hidden bg-surface">
+<!-- Left Rail: Step Navigation -->
+<div class="hidden md:block w-72 border-r border-outline-variant bg-surface-bright p-stack_lg overflow-y-auto">
+<nav class="relative">
+<!-- Connecting Line -->
+<div class="absolute left-4 top-4 bottom-4 w-[2px] bg-surface-container-highest -z-0"></div>
+<ul class="flex flex-col gap-8 relative z-10">
+<!-- Step 1: Active -->
+<li class="flex items-start gap-4 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined icon-fill" style="font-size: 18px;">check</span>
+</div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-primary">Course Details</p>
+<p class="text-[12px] text-on-surface-variant mt-0.5 leading-snug">Title, slug, and core taxonomy</p>
+</div>
+</li>
+<!-- Step 2: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    2
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Educators</p>
+</div>
+</li>
+<!-- Step 3: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    3
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Payment Plans</p>
+</div>
+</li>
+<!-- Step 4: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    4
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Scheduling</p>
+</div>
+</li>
+<!-- Step 5: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    5
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Course Highlights</p>
+</div>
+</li>
+<!-- Step 6: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    6
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Reviews</p>
+</div>
+</li>
+<!-- Step 7: Inactive -->
+<li class="flex items-start gap-4 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant text-outline flex items-center justify-center shadow-[0_0_0_4px_theme(colors.surface-bright)] shrink-0 font-label-bold text-label-bold">
+                                    7
+                                </div>
+<div class="pt-1">
+<p class="font-label-bold text-label-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Coupons</p>
+</div>
+</li>
+</ul>
+</nav>
+</div>
+<!-- Right Panel: Form Area -->
+<div class="flex-1 p-stack_md md:p-stack_lg overflow-y-auto relative">
+<div class="max-w-2xl mx-auto md:mx-0 lg:ml-8 xl:ml-12 pb-12">
+<h3 class="font-section-title text-section-title text-on-surface mb-6">1. Course Details</h3>
+<form class="flex flex-col gap-stack_lg">
+<!-- Course Name -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface" for="courseName">Course Name <span class="text-error">*</span></label>
+<input class="h-11 px-3 bg-surface border border-outline-variant rounded-lg font-body-main text-body-main text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all w-full" id="courseName" placeholder="e.g. Introduction to Advanced Mathematics" type="text"/>
+</div>
+<!-- URL Slug -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface flex items-center justify-between" for="courseSlug">
+<span>URL Slug <span class="text-error">*</span></span>
+<span class="material-symbols-outlined text-outline text-[16px] cursor-help" title="This will be the web address for your course page.">info</span>
+</label>
+<div class="flex shadow-sm rounded-lg">
+<span class="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-outline-variant bg-surface-container-highest text-on-surface-variant font-body-main text-body-main select-none">
+                                        yourorg.com/c/
+                                    </span>
+<input class="flex-1 h-11 px-3 bg-surface border border-outline-variant rounded-r-lg font-body-main text-body-main text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all w-full" id="courseSlug" placeholder="course-name-here" type="text"/>
+</div>
+</div>
+<!-- 2-Column Row: Curriculum & Grade -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-stack_md">
+<!-- Curriculum Board -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface" for="curriculumBoard">Curriculum Board</label>
+<div class="relative">
+<select class="w-full h-11 pl-3 pr-10 appearance-none bg-surface border border-outline-variant rounded-lg font-body-main text-body-main text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" id="curriculumBoard">
+<option disabled="" selected="" value="">Select board</option>
+<option value="igcse">IGCSE</option>
+<option value="ib">IB (International Baccalaureate)</option>
+<option value="cbse">CBSE</option>
+<option value="alevel">A-Level</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Grade Level -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface" for="gradeLevel">Grade Level</label>
+<div class="relative">
+<select class="w-full h-11 pl-3 pr-10 appearance-none bg-surface border border-outline-variant rounded-lg font-body-main text-body-main text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" id="gradeLevel">
+<option disabled="" selected="" value="">Select grade</option>
+<option value="9">Grade 9</option>
+<option value="10">Grade 10</option>
+<option value="11">Grade 11</option>
+<option value="12">Grade 12</option>
+<option value="higher">Higher Education</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Subject Tags -->
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface">Subject Tags</label>
+<div class="min-h-[44px] p-2 bg-surface border border-outline-variant rounded-lg flex flex-wrap gap-2 items-center focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<!-- Existing Tags (Interactive Chips) -->
+<span class="inline-flex items-center gap-1 pl-3 pr-1.5 py-1.5 bg-primary-container/10 border border-primary/20 text-primary-container rounded-md text-[13px] font-medium group">
+                                        Mathematics
+                                        <button class="text-primary-container/60 hover:text-error hover:bg-error/10 rounded-sm p-0.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</span>
+<span class="inline-flex items-center gap-1 pl-3 pr-1.5 py-1.5 bg-secondary/10 border border-secondary/20 text-secondary rounded-md text-[13px] font-medium group">
+                                        Science
+                                        <button class="text-secondary/60 hover:text-error hover:bg-error/10 rounded-sm p-0.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</span>
+<!-- Input for new tag -->
+<div class="flex-1 min-w-[120px] flex items-center">
+<input class="w-full border-none outline-none bg-transparent font-body-main text-body-main text-on-surface p-1 focus:ring-0 placeholder:text-outline" placeholder="Type and press Enter..." type="text"/>
+</div>
+<!-- Add Button inside input area -->
+<button class="ml-auto inline-flex items-center gap-1 px-3 py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface-variant rounded-md text-[13px] font-medium transition-colors border border-outline-variant" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span> Add
+                                    </button>
+</div>
+<p class="text-[12px] text-on-surface-variant mt-1">Helps students filter and find your course easier.</p>
+</div>
+<!-- Thumbnail Upload -->
+<div class="flex flex-col gap-2 mt-2">
+<label class="font-label-bold text-label-bold text-on-surface flex justify-between">
+                                    Course Thumbnail
+                                    <span class="font-normal text-outline">Optional</span>
+</label>
+<div class="border-2 border-dashed border-primary/30 bg-primary/[0.03] hover:bg-primary/[0.06] hover:border-primary/50 transition-all duration-200 rounded-xl p-stack_lg flex flex-col items-center justify-center text-center cursor-pointer group relative overflow-hidden">
+<!-- Subtle ambient glow in background -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-14 h-14 rounded-full bg-surface shadow-sm border border-outline-variant flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10">
+<span class="material-symbols-outlined text-[28px] icon-fill">cloud_upload</span>
+</div>
+<p class="font-label-bold text-label-bold text-primary relative z-10">Drop image or click to upload</p>
+<p class="text-sm text-on-surface-variant mt-2 max-w-xs mx-auto relative z-10">Recommended size: 1280x720px.<br/>Max file size: 5MB (JPG, PNG, WebP).</p>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<!-- Modal Footer Bar -->
+<div class="px-stack_md md:px-stack_lg py-4 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between z-20">
+<!-- Left: Preview Link -->
+<a class="text-primary hover:text-primary-container hover:underline font-label-bold text-label-bold flex items-center gap-1.5 transition-colors group" href="#">
+                    Preview Public Page 
+                    <span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+</a>
+<!-- Right: Actions -->
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 border border-outline-variant rounded-lg text-outline font-label-bold text-label-bold cursor-not-allowed bg-surface-container-lowest opacity-60" disabled="" type="button">
+                        Back
+                    </button>
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary-container hover:shadow-md transition-all duration-200 font-label-bold text-label-bold flex items-center gap-2 active:scale-95" type="button">
+                        Next Step
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface-container-lowest" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Educator Portal - Payouts</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#005bc1",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed": "#002112",
+                      "on-primary-container": "#fefcff",
+                      "surface-container-high": "#e1e8ff",
+                      "surface": "#faf8ff",
+                      "surface-variant": "#dbe2fb",
+                      "on-tertiary-fixed": "#2a1700",
+                      "secondary": "#006c46",
+                      "on-primary-fixed-variant": "#004494",
+                      "on-primary-fixed": "#001a41",
+                      "error": "#ba1a1a",
+                      "tertiary": "#825100",
+                      "on-secondary-fixed-variant": "#005234",
+                      "secondary-container": "#67f9b4",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#283043",
+                      "outline-variant": "#c1c6d6",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-background": "#131b2d",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container-low": "#f2f3ff",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#d8e2ff",
+                      "outline": "#727785",
+                      "inverse-on-surface": "#edf0ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-container": "#e9edff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#fffbff",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#007149",
+                      "secondary-fixed": "#6afcb7",
+                      "tertiary-container": "#a36700",
+                      "secondary-fixed-dim": "#49df9d",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#0e70e9",
+                      "primary": "#0058bc",
+                      "inverse-primary": "#adc6ff",
+                      "on-surface": "#131b2d",
+                      "surface-dim": "#d2d9f3",
+                      "on-surface-variant": "#414754",
+                      "background": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#dbe2fb",
+                      "primary-fixed-dim": "#adc6ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sidebar_width": "248px",
+                      "stack_lg": "32px",
+                      "stack_sm": "8px",
+                      "gutter": "24px",
+                      "stack_md": "16px",
+                      "container_max": "1440px"
+              },
+              "fontFamily": {
+                      "page-title-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "page-title": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-bold": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "section-title": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-main": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "page-title-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "page-title": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "section-title": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-main": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Custom thin icon mapping to 1.75px stroke equivalent */
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Brand Colors Overrides as per prompt */
+        .brand-primary { color: #2F80F9; }
+        .bg-brand-primary { background-color: #2F80F9; }
+        .border-brand-primary { border-color: #2F80F9; }
+        
+        .brand-success { color: #08BD7E; }
+        .bg-brand-success { background-color: #08BD7E; }
+        
+        .brand-warning { color: #F59E0B; }
+        
+        /* Subtle Depth */
+        .card-shadow { box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08); }
+    </style>
+</head>
+<body class="bg-surface-container-low font-body-main text-on-surface h-full flex overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex bg-surface-container-lowest dark:bg-surface-dim fixed left-0 top-0 h-screen w-sidebar_width border-r border-outline-variant dark:border-outline flex flex-col h-full py-stack_md z-20">
+<div class="px-gutter pb-6">
+<h1 class="font-page-title text-page-title text-primary dark:text-primary-fixed-dim">Educator Portal</h1>
+<p class="text-on-surface-variant font-body-main text-body-main mt-1">Maths, Physics</p>
+</div>
+<nav class="flex-1 overflow-y-auto mt-2">
+<ul class="space-y-1">
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">menu_book</span>
+<span class="font-body-main text-body-main">Courses</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">calendar_today</span>
+<span class="font-body-main text-body-main">Calendar</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">event_available</span>
+<span class="font-body-main text-body-main">Availability</span>
+</a>
+</li>
+<li>
+<!-- Active State Payouts -->
+<a class="border-l-4 border-brand-primary bg-[#2F80F9]/10 brand-primary font-bold flex items-center px-4 py-3 transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+<span class="font-body-main text-body-main font-bold">Payouts</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">event_busy</span>
+<span class="font-body-main text-body-main">Session Conflicts</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">assessment</span>
+<span class="font-body-main text-body-main">Progress Reports</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant flex items-center px-4 py-3 hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-3">chat</span>
+<span class="font-body-main text-body-main">Chats</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="mt-auto px-4 pt-6 border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<img alt="Educator Profile Picture" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a teacher wearing glasses, smiling warmly against a clean, modern white background with soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-ZQcxAYnQVs1Psv_WGj7M7elQGGAGE5XwfT7bguZ6I3F2XFkf8JFbwKKBZjWfZoWOYeZIDWr0RRDXfFHqshOUSuKViYeGn3PGMshTnWYY4TwwPbI_8HXTjjEDlAaw7lhmU1FQebh-67ZwqFM5SHZJ9_KF3-nW5yZyq3Xr00KRP_aRod1y7Idnxr5PkGRip_IvVhdeuAiRiSqhooZyhC4x5wCxBFWwRsmyaHcGflnuQ_OpfRv1gPCA"/>
+<div>
+<p class="font-label-bold text-label-bold text-on-surface">Dr. Sarah Jenkins</p>
+<p class="text-xs text-on-surface-variant">Senior Educator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-sidebar_width flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-dim shadow-sm flex justify-between items-center h-16 px-gutter border-b border-outline-variant dark:border-outline z-10 shrink-0">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-section-title text-section-title text-primary dark:text-primary-fixed-dim">Educator Portal</h1>
+</div>
+<div class="hidden lg:flex items-center">
+<h2 class="font-section-title text-section-title text-on-surface">Payouts Dashboard</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container rounded-full text-sm font-body-main text-on-surface border-none focus:ring-0 w-48 lg:w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-gutter pb-stack_lg">
+<div class="max-w-[1200px] mx-auto space-y-stack_lg">
+<!-- Page Header & Tabs -->
+<div>
+<h1 class="font-page-title text-page-title text-on-surface mb-6">Earnings &amp; Payouts</h1>
+<div class="border-b border-outline-variant flex gap-8">
+<button class="border-b-2 border-brand-primary brand-primary font-section-title text-section-title pb-3 px-1 transition-all">Overview</button>
+<button class="text-on-surface-variant font-body-main text-body-main pb-3 px-1 hover:text-on-surface transition-all">Course</button>
+<button class="text-on-surface-variant font-body-main text-body-main pb-3 px-1 hover:text-on-surface transition-all">Payouts</button>
+</div>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest rounded-[12px] p-6 border border-outline-variant card-shadow flex flex-col justify-between h-32">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-body-main text-body-main">Courses Assigned</span>
+</div>
+<div class="font-page-title text-page-title text-on-surface">
+                            4
+                        </div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest rounded-[12px] p-6 border border-outline-variant card-shadow flex flex-col justify-between h-32">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-body-main text-body-main">All Sessions</span>
+</div>
+<div class="font-page-title text-page-title text-on-surface">
+                            142
+                        </div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest rounded-[12px] p-6 border border-outline-variant card-shadow flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-brand-primary/5 rounded-full translate-x-8 translate-y-8 blur-xl"></div>
+<div class="flex items-center gap-3 text-on-surface-variant z-10">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-body-main text-body-main">This Month INR</span>
+</div>
+<div class="font-page-title text-page-title brand-primary z-10">
+                            ₹45,000
+                        </div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="bg-surface-container-lowest rounded-[12px] p-6 border border-outline-variant card-shadow">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-section-title text-section-title text-on-surface">Sessions per month</h2>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors border border-outline-variant rounded-[8px] px-3 py-1.5 text-sm">
+                            Last 6 Months <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<div class="h-[300px] w-full relative">
+<!-- Chart Canvas Placeholder -->
+<canvas id="sessionsChart"></canvas>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container-lowest rounded-[12px] border border-outline-variant card-shadow overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<h2 class="font-section-title text-section-title text-on-surface">Monthly Earnings</h2>
+<button class="text-brand-primary font-label-bold text-label-bold flex items-center gap-1 hover:bg-[#2F80F9]/10 px-3 py-2 rounded-[8px] transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span> Export CSV
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant tracking-wider uppercase">Month</th>
+<th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant tracking-wider uppercase text-right">Approved (INR)</th>
+<th class="px-6 py-4 font-label-bold text-label-bold text-on-surface-variant tracking-wider uppercase text-right">In Review (INR)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant bg-surface-container-lowest">
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-6 py-4 font-body-main text-body-main text-on-surface font-semibold">October 2023</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-success text-right font-medium">₹45,000</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-warning text-right">₹12,000</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors bg-surface-bright">
+<td class="px-6 py-4 font-body-main text-body-main text-on-surface font-semibold">September 2023</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-success text-right font-medium">₹52,500</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-warning text-right">₹0</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-6 py-4 font-body-main text-body-main text-on-surface font-semibold">August 2023</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-success text-right font-medium">₹48,200</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-warning text-right">₹0</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors bg-surface-bright">
+<td class="px-6 py-4 font-body-main text-body-main text-on-surface font-semibold">July 2023</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-success text-right font-medium">₹41,000</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-warning text-right">₹5,000</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-6 py-4 font-body-main text-body-main text-on-surface font-semibold">June 2023</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-success text-right font-medium">₹55,000</td>
+<td class="px-6 py-4 font-body-main text-body-main brand-warning text-right">₹0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Chart Init Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('sessionsChart').getContext('2d');
+            
+            // Brand Colors
+            const primaryBlue = '#2F80F9';
+            const primaryBlueLight = 'rgba(47, 128, 249, 0.2)';
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    datasets: [{
+                        label: 'Sessions Completed',
+                        data: [22, 28, 18, 25, 27, 21],
+                        backgroundColor: primaryBlueLight,
+                        borderColor: primaryBlue,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: primaryBlue,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#131b2d',
+                            titleFont: { family: 'Plus Jakarta Sans', size: 14 },
+                            bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#E5E9F0',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans' },
+                                color: '#727785'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans' },
+                                color: '#727785'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

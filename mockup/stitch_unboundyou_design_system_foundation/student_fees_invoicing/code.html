@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduStream Pro - Fees</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-weight: 300; /* Thin outline */
+        }
+        
+        /* Thin outline icons constraint */
+        .icon-thin {
+            stroke-width: 1.75px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#006c46",
+                        "primary": "#0058bc",
+                        "secondary-fixed-dim": "#49df9d",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-bright": "#faf8ff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#005234",
+                        "outline-variant": "#c1c6d6",
+                        "on-primary-container": "#fefcff",
+                        "primary-container": "#0e70e9",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface-variant": "#414754",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-container": "#67f9b4",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-variant": "#dbe2fb",
+                        "surface-container-highest": "#dbe2fb",
+                        "outline": "#727785",
+                        "on-background": "#131b2d",
+                        "on-secondary-container": "#007149",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#a36700",
+                        "background": "#faf8ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-tint": "#005bc1",
+                        "on-error": "#ffffff",
+                        "on-surface": "#131b2d",
+                        "surface-container-high": "#e1e8ff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "tertiary": "#825100",
+                        "on-secondary-fixed": "#002112",
+                        "inverse-surface": "#283043",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e9edff",
+                        "surface-container-low": "#f2f3ff",
+                        "surface": "#faf8ff",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#6afcb7",
+                        "surface-dim": "#d2d9f3",
+                        "on-primary-fixed-variant": "#004494"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "12px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack_sm": "8px",
+                        "stack_md": "16px",
+                        "stack_lg": "32px",
+                        "container_max": "1440px",
+                        "sidebar_width": "248px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    },
+                    "boxShadow": {
+                        "card": "0px 4px 12px rgba(15, 23, 41, 0.08)"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-main antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="w-sidebar_width h-screen fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flat no shadows bg-surface-container-low dark:bg-surface-container-low flex flex-col h-full py-stack_lg z-20">
+<div class="px-gutter mb-stack_lg flex items-center gap-3">
+<img alt="Institution Logo" class="w-10 h-10 rounded-lg object-cover bg-surface-container-highest" data-alt="A clean, modern geometric logo design featuring subtle academic elements, utilizing deep primary blue colors on a pristine white background. The logo should feel professional, trustworthy, and high-tech." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5XS0wsSySEpCFOog7n13BlX6AuAlObbbLs4Hqy_Oi-yDNICFztrZxsxHaZjveL0QdGcVXFoE1xmKYMadcV2RoRmx5aFW8HYsHPLAML9nYPJUEfvXDhoAyXDiGowSSkb6zi4DwjA3ez9f2_lTV3dshZT6PPHJ3YXn7ju1LGmRGnVLfY714dTT39n4S0eaH5Y8tRi5K3kiYluJD3s-CHGf2-U_W2wXPzSpYV52loSlfJwg4ZPgeW2ex"/>
+<div>
+<h1 class="font-section-title text-section-title font-bold text-primary dark:text-primary-fixed-dim">EduStream Pro</h1>
+<p class="font-label-bold text-label-bold text-on-surface-variant">Student Portal</p>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+                    My Courses
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+                    Sessions
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+                    Progress Reports
+                </a>
+<!-- Active Item: Fees -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-r-lg border-l-4 border-primary bg-primary/8 text-primary font-bold dark:bg-primary-fixed-dim/8 dark:text-primary-fixed-dim hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                    Fees
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant/50 dark:hover:bg-surface-variant/50 transition-all duration-200 ease-in-out font-body-main text-body-main" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+                    Chats
+                </a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 ml-sidebar_width flex flex-col h-screen relative">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 sticky border-b border-outline-variant dark:border-outline-variant shadow-sm bg-surface dark:bg-surface flex justify-between items-center h-16 px-gutter z-10">
+<div class="flex items-center">
+<h2 class="font-page-title text-page-title font-bold text-primary dark:text-primary-fixed-dim">Fees</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-main text-body-main text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors scale-95 active:scale-90 transition-transform rounded-full hover:bg-surface-variant/50">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors scale-95 active:scale-90 transition-transform rounded-full hover:bg-surface-variant/50 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant ml-2 cursor-pointer scale-95 active:scale-90 transition-transform">
+<img alt="Student Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a student, looking confident and approachable, brightly lit in a modern academic setting with a soft depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5gUeJxC2f-69ckCC9PeKr-OwNQHt14GKY9sNgsuzRQ70UYHqR9301fOIhsPtYnxKm7ejNM3x33tsRXofcWVKTYvfS1BQpYELjiBGySS0DOFzGZjY8mtNaKgRmJKSVlGQCCvPPfny6bXVWwgX7rvAU1mFzlHtCfySiAgly0jlfutP-teBc3RbIAt4AvhZXtk3_VdKhrr5Fr2U7htHO5mhdNRvHE00gCYhISARApEb9gNjayc1Tq_bn"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-gutter pb-24">
+<div class="max-w-container_max mx-auto space-y-stack_lg">
+<!-- Stats Cards Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1: Credits Remaining -->
+<div class="bg-surface-container-lowest rounded-card border border-outline-variant p-stack_md shadow-card flex flex-col justify-between h-full hover:-translate-y-1 transition-transform duration-300">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Credits Remaining</h3>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-page-title text-page-title text-on-surface">12</span>
+</div>
+</div>
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">stars</span>
+</div>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant text-sm mt-auto border-t border-outline-variant pt-3">Valid until end of Fall Semester</p>
+</div>
+<!-- Card 2: Total Paid -->
+<div class="bg-surface-container-lowest rounded-card border border-outline-variant p-stack_md shadow-card flex flex-col justify-between h-full hover:-translate-y-1 transition-transform duration-300">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Total Paid</h3>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-page-title text-page-title text-on-surface">₹1,24,000</span>
+</div>
+</div>
+<div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant text-sm mt-auto border-t border-outline-variant pt-3">Across 3 previous installments</p>
+</div>
+<!-- Card 3: Next Payment Due (Soft Amber Tint) -->
+<div class="bg-tertiary-fixed/30 rounded-card border border-tertiary-fixed-dim/50 p-stack_md shadow-card flex flex-col justify-between h-full hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden">
+<!-- Decorative accent -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-fixed-dim/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div>
+<h3 class="font-label-bold text-label-bold text-tertiary uppercase tracking-wider">Next Payment Due</h3>
+<div class="mt-2 flex flex-col">
+<span class="font-page-title text-page-title text-on-surface">₹15,000</span>
+<span class="font-label-bold text-label-bold text-error flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                                            due on Nov 10
+                                        </span>
+</div>
+</div>
+<div class="p-2 bg-tertiary/10 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">notification_important</span>
+</div>
+</div>
+<button class="mt-4 w-full bg-primary text-on-primary py-2.5 rounded-lg font-label-bold text-label-bold hover:bg-surface-tint transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center gap-2 shadow-sm relative z-10">
+                                Pay Now
+                                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Transaction History Table Card -->
+<div class="bg-surface-container-lowest rounded-card border border-outline-variant shadow-card overflow-hidden">
+<div class="p-stack_md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<h3 class="font-section-title text-section-title text-on-surface">Transaction History</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 font-label-bold text-label-bold px-3 py-1.5 rounded-md hover:bg-surface-variant/30 border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                Filter
+                            </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="py-3 px-stack_md font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Date</th>
+<th class="py-3 px-stack_md font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Description</th>
+<th class="py-3 px-stack_md font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Amount</th>
+<th class="py-3 px-stack_md font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Status</th>
+<th class="py-3 px-stack_md font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant text-right">Invoice</th>
+</tr>
+</thead>
+<tbody class="font-body-main text-body-main text-on-surface divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-variant/10 transition-colors">
+<td class="py-4 px-stack_md text-on-surface-variant whitespace-nowrap">Oct 10, 2023</td>
+<td class="py-4 px-stack_md font-medium text-on-surface">Fall Semester Installment 3</td>
+<td class="py-4 px-stack_md whitespace-nowrap">₹35,000</td>
+<td class="py-4 px-stack_md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/20 text-on-secondary-container font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                Paid
+                                            </span>
+</td>
+<td class="py-4 px-stack_md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded hover:bg-primary/10">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/10 transition-colors">
+<td class="py-4 px-stack_md text-on-surface-variant whitespace-nowrap">Sep 10, 2023</td>
+<td class="py-4 px-stack_md font-medium text-on-surface">Fall Semester Installment 2</td>
+<td class="py-4 px-stack_md whitespace-nowrap">₹45,000</td>
+<td class="py-4 px-stack_md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/20 text-on-secondary-container font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                Paid
+                                            </span>
+</td>
+<td class="py-4 px-stack_md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded hover:bg-primary/10">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/10 transition-colors">
+<td class="py-4 px-stack_md text-on-surface-variant whitespace-nowrap">Aug 05, 2023</td>
+<td class="py-4 px-stack_md font-medium text-on-surface">Registration &amp; Semester 1 Initial</td>
+<td class="py-4 px-stack_md whitespace-nowrap">₹44,000</td>
+<td class="py-4 px-stack_md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/20 text-on-secondary-container font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                Paid
+                                            </span>
+</td>
+<td class="py-4 px-stack_md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded hover:bg-primary/10">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant/50 bg-surface-bright flex justify-center">
+<button class="text-primary font-label-bold text-label-bold hover:underline">View All Transactions</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

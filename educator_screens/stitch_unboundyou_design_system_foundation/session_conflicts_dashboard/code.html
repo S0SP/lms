@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Session Conflicts - UnboundYou</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffddb8",
+                    "secondary-fixed": "#6afcb7",
+                    "on-tertiary-fixed": "#2a1700",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#adc6ff",
+                    "on-secondary-fixed": "#002112",
+                    "on-secondary-container": "#007149",
+                    "on-surface-variant": "#414754",
+                    "tertiary-container": "#a36700",
+                    "on-secondary-fixed-variant": "#005234",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e1e8ff",
+                    "on-primary-fixed-variant": "#004494",
+                    "surface-container-highest": "#dbe2fb",
+                    "on-tertiary-container": "#fffbff",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#825100",
+                    "outline": "#727785",
+                    "surface-bright": "#faf8ff",
+                    "surface-container": "#e9edff",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#005bc1",
+                    "on-error": "#ffffff",
+                    "primary": "#2F80F9", 
+                    "on-error-container": "#93000a",
+                    "background": "#faf8ff",
+                    "primary-container": "#0e70e9",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-surface": "#131b2d",
+                    "surface-variant": "#dbe2fb",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#49df9d",
+                    "secondary-container": "#67f9b4",
+                    "on-primary-fixed": "#001a41",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface": "#ffffff",
+                    "surface-dim": "#d2d9f3",
+                    "secondary": "#08BD7E", 
+                    "outline-variant": "#E5E9F0",
+                    "on-background": "#131b2d",
+                    "primary-fixed": "#d8e2ff",
+                    "on-primary-container": "#fefcff",
+                    "inverse-surface": "#283043",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container-low": "#F9FAFB"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "sidebar_width": "248px",
+                    "stack_lg": "32px",
+                    "stack_md": "16px",
+                    "container_max": "1440px",
+                    "stack_sm": "8px"
+            },
+            "fontFamily": {
+                    "label-bold": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-main": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "section-title": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title-mobile": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "label-bold": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "page-title": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-main": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "section-title": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "page-title-mobile": [
+                            "22px",
+                            {
+                                    "lineHeight": "28px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            },
+            boxShadow: {
+              'level2': '0px 4px 12px rgba(15, 23, 41, 0.08)',
+              'level3': '0px 8px 24px rgba(15, 23, 41, 0.12)',
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface font-body-main text-on-surface antialiased min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center ml-sidebar_width px-gutter h-16 bg-surface docked full-width top-0 sticky z-40 border-b border-outline-variant shadow-sm hidden md:flex">
+<div class="flex items-center gap-4">
+<span class="font-page-title text-page-title text-primary">UnboundYou</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-64 hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-body-main focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-4">
+<div class="text-right hidden sm:block">
+<p class="font-label-bold text-label-bold text-on-surface">Dr. Emily Chen</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Educator</p>
+</div>
+<img alt="Educator Profile Avatar" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of an educator, a woman with a confident and approachable expression. She is wearing a modern blazer. The background is a bright, neutral office setting with soft, diffused lighting. The image embodies a professional, B2B EdTech aesthetic with high visual clarity and high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXdvlEjrPznfAvyWug3_jhH_oCw64A8LChjaP5AKEKqHAQ08zTWjY8I8H7tYh80eAU4CIWGyezqeDzr0oLk7JfPUIRzky0yFep_n9-AbJWV7E7iNyQLlQTeY-_tkOfPiJa8IjdHMzH--Kza8TKVxyRK0O1VfBQNe60OTI-lbCtgMHcMC-sq1JtdUkXWU3lX5yfQzyFLKkdCSsZlbRlbBM-6RNiOD5__qJvCjFRGOJ3sOG_HDhjTZk7"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed h-screen w-sidebar_width left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col h-full py-stack_md hidden md:flex z-50">
+<div class="px-6 pb-6 mb-2 border-b border-outline-variant">
+<h1 class="font-page-title text-page-title text-primary">UnboundYou</h1>
+<p class="text-[11px] font-label-bold text-on-surface-variant uppercase tracking-widest mt-1">Educator Portal</p>
+</div>
+<nav class="flex-1 overflow-y-auto pt-4 flex flex-col gap-1 px-3">
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="school">school</span>
+<span class="font-label-bold text-label-bold">Courses</span>
+</a>
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-bold text-label-bold">Calendar</span>
+</a>
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="event_available">event_available</span>
+<span class="font-label-bold text-label-bold">Availability</span>
+</a>
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="payments">payments</span>
+<span class="font-label-bold text-label-bold">Payouts</span>
+</a>
+<a class="border-l-4 border-primary bg-primary/10 text-primary font-label-bold flex items-center px-4 py-3 rounded-r-lg opacity-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="warning">warning</span>
+<span class="font-label-bold text-label-bold">Session Conflicts</span>
+</a>
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="analytics">analytics</span>
+<span class="font-label-bold text-label-bold">Progress Reports</span>
+</a>
+<a class="text-on-surface-variant flex items-center px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 text-outline group-hover:text-primary" data-icon="forum">forum</span>
+<span class="font-label-bold text-label-bold">Chats</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar_width p-gutter max-w-container_max mx-auto">
+<div class="mb-stack_lg flex justify-between items-end">
+<div>
+<h2 class="font-page-title text-page-title text-on-surface mb-2">Session Conflicts</h2>
+<p class="text-on-surface-variant text-body-main">Review and resolve overlapping commitments in your schedule.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 border border-outline-variant rounded-lg text-primary font-label-bold text-label-bold hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+                    Filter
+                </button>
+</div>
+</div>
+<!-- Conflicts List -->
+<div class="flex flex-col gap-stack_md mb-stack_lg">
+<!-- Conflict Card 1 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-level2 hover:shadow-level3 transition-shadow relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex flex-col lg:flex-row items-center gap-6">
+<!-- Session A -->
+<div class="flex-1 w-full bg-surface-container-low border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-label-bold uppercase tracking-wider">Cohort A</span>
+<span class="material-symbols-outlined text-outline" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-1">Grade 9 Maths: Algebra Intro</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-[12px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span>Today, 10:00 AM - 11:30 AM</span>
+</div>
+</div>
+<!-- Connection -->
+<div class="flex flex-col items-center shrink-0 lg:px-4 py-2 lg:py-0 relative z-10">
+<div class="h-8 w-px bg-error/30 hidden lg:block absolute -top-4"></div>
+<div class="flex items-center gap-2 bg-error-container text-error px-3 py-1.5 rounded-full border border-error/20 shadow-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+<span class="font-label-bold text-label-bold">overlaps with</span>
+</div>
+<div class="h-8 w-px bg-error/30 hidden lg:block absolute -bottom-4"></div>
+</div>
+<!-- Session B -->
+<div class="flex-1 w-full bg-surface-container-low border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-tertiary-container/10 text-tertiary-container px-2 py-1 rounded text-[10px] font-label-bold uppercase tracking-wider">1-on-1 Mentorship</span>
+<span class="material-symbols-outlined text-outline" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-1">Advanced Physics Consult</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-[12px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span>Today, 11:00 AM - 12:00 PM</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0 mt-4 lg:mt-0 lg:pl-6 lg:border-l border-outline-variant">
+<button class="flex-1 lg:flex-none px-4 py-2 bg-surface border border-outline-variant rounded-lg text-primary font-label-bold text-label-bold hover:border-primary hover:bg-primary/5 transition-all text-center">
+                            Reschedule
+                        </button>
+<button class="flex-1 lg:flex-none px-4 py-2 bg-surface border border-error/30 rounded-lg text-error font-label-bold text-label-bold hover:bg-error-container/50 transition-all text-center">
+                            Cancel
+                        </button>
+</div>
+</div>
+</div>
+<!-- Conflict Card 2 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-level2 hover:shadow-level3 transition-shadow relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex flex-col lg:flex-row items-center gap-6">
+<!-- Session A -->
+<div class="flex-1 w-full bg-surface-container-low border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded text-[10px] font-label-bold uppercase tracking-wider">Staff Meeting</span>
+<span class="material-symbols-outlined text-outline" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-1">Q3 Curriculum Review</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-[12px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span>Tomorrow, 2:00 PM - 3:30 PM</span>
+</div>
+</div>
+<!-- Connection -->
+<div class="flex flex-col items-center shrink-0 lg:px-4 py-2 lg:py-0 relative z-10">
+<div class="h-8 w-px bg-error/30 hidden lg:block absolute -top-4"></div>
+<div class="flex items-center gap-2 bg-error-container text-error px-3 py-1.5 rounded-full border border-error/20 shadow-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+<span class="font-label-bold text-label-bold">overlaps with</span>
+</div>
+<div class="h-8 w-px bg-error/30 hidden lg:block absolute -bottom-4"></div>
+</div>
+<!-- Session B -->
+<div class="flex-1 w-full bg-surface-container-low border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-label-bold uppercase tracking-wider">Webinar</span>
+<span class="material-symbols-outlined text-outline" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-1">EdTech Tools Masterclass</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-[12px]">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span>Tomorrow, 3:00 PM - 4:00 PM</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0 mt-4 lg:mt-0 lg:pl-6 lg:border-l border-outline-variant">
+<button class="flex-1 lg:flex-none px-4 py-2 bg-surface border border-outline-variant rounded-lg text-primary font-label-bold text-label-bold hover:border-primary hover:bg-primary/5 transition-all text-center">
+                            Reschedule
+                        </button>
+<button class="flex-1 lg:flex-none px-4 py-2 bg-surface border border-error/30 rounded-lg text-error font-label-bold text-label-bold hover:bg-error-container/50 transition-all text-center">
+                            Cancel
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Divider -->
+<div class="my-stack_lg flex items-center">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="mx-4 text-outline-variant text-[12px] font-label-bold uppercase tracking-widest">Demonstration Empty State Below</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Empty State (Demonstration) -->
+<div class="bg-surface border border-outline-variant rounded-xl p-12 flex flex-col items-center justify-center text-center shadow-level2 mb-stack_lg">
+<img alt="No conflicts found illustration" class="w-64 h-64 object-contain mb-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAufgnleJqnaThKA5S-f9Q9U4Myvysx6OFYxXCdhx_cKnyrY40Iln1sbTk2onuKhjNhUSY4_ZkcIpxZ4JtK41rhJrKrQRnWNNAi-HGTi_5eaP-8oEhs_zK0_HuSJZP3BSgZAgbzgsULDfGcn3ZU9aiywaWOXYkP9nTH3kCqGfh65aMM4mxiuLdszPOVk5k6ivm7Rz7GyPXbhiNcV8glzLch1ltTy91C-byBUGa6_y-kuHAx34ML5oiX"/>
+<h3 class="font-section-title text-section-title text-on-surface mb-2">No session conflicts found!</h3>
+<p class="text-on-surface-variant text-body-main max-w-md">Your schedule is perfectly aligned. Enjoy a smooth and uninterrupted teaching day.</p>
+</div>
+</main>
+</body></html>

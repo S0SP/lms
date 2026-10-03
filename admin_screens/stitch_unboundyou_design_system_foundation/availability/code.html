@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Availability - UnboundYou</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-error": "#ffffff",
+                    "secondary": "#006c46",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#fefcff",
+                    "inverse-primary": "#adc6ff",
+                    "on-secondary-fixed": "#002112",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#faf8ff",
+                    "on-background": "#131b2d",
+                    "inverse-surface": "#283043",
+                    "primary-container": "#0e70e9",
+                    "surface-tint": "#005bc1",
+                    "outline-variant": "#c1c6d6",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-surface": "#131b2d",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#e9edff",
+                    "tertiary": "#825100",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#faf8ff",
+                    "secondary-fixed": "#6afcb7",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#dbe2fb",
+                    "background": "#faf8ff",
+                    "primary": "#0058bc",
+                    "surface-container-low": "#f2f3ff",
+                    "secondary-container": "#67f9b4",
+                    "outline": "#727785",
+                    "primary-fixed-dim": "#adc6ff",
+                    "secondary-fixed-dim": "#49df9d",
+                    "tertiary-container": "#a36700",
+                    "on-primary-fixed-variant": "#004494",
+                    "surface-container-high": "#e1e8ff",
+                    "surface-variant": "#dbe2fb",
+                    "primary-fixed": "#d8e2ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-container": "#007149",
+                    "on-primary-fixed": "#001a41",
+                    "on-surface-variant": "#414754",
+                    "surface-dim": "#d2d9f3",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#005234"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "container_max": "1440px",
+                    "stack_sm": "8px",
+                    "sidebar_width": "248px",
+                    "stack_md": "16px",
+                    "stack_lg": "32px"
+            },
+            "fontFamily": {
+                    "page-title-mobile": ["Plus Jakarta Sans"],
+                    "section-title": ["Plus Jakarta Sans"],
+                    "body-main": ["Plus Jakarta Sans"],
+                    "page-title": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "page-title-mobile": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "section-title": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-main": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "page-title": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf8ff; color: #131b2d; margin: 0; padding: 0; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; font-size: 20px; }
+        .icon-light { font-variation-settings: 'wght' 200; stroke-width: 1.75px; } /* Emulating thin outline */
+        .card-shadow { box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08); }
+        .sidebar-divider { border-right: 1px solid #E5E9F0; }
+        .table-border { border: 1px solid #E5E9F0; border-radius: 12px; }
+        .chip-blue { background-color: rgba(47, 128, 249, 0.1); color: #2F80F9; border: 1px solid rgba(47, 128, 249, 0.2); }
+        .chip-purple { background-color: rgba(147, 51, 234, 0.1); color: #9333EA; border: 1px solid rgba(147, 51, 234, 0.2); }
+        .chip-green { background-color: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .time-block-available { background-color: #08BD7E; }
+        .time-block-busy { background-color: #E5E9F0; }
+        .cal-sync-active { background-color: #08BD7E; border: 2px solid white; }
+        .cal-sync-inactive { border: 2px solid #E5E9F0; background-color: white; }
+    </style>
+</head>
+<body class="bg-background flex h-screen overflow-hidden">
+<!-- Navigation Drawer (Sidebar) -->
+<aside class="bg-surface w-sidebar_width h-full fixed left-0 top-0 border-r border-outline-variant flex flex-col py-stack_lg z-20">
+<div class="px-gutter mb-stack_lg">
+<h1 class="font-page-title text-page-title text-primary">UnboundYou</h1>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<!-- Mapping "Availability" to Dashboard as closest fallback or creating new if exact doesn't exist. Creating new exact match based on intent. -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">dashboard</span>
+<span class="font-body-main text-body-main font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-primary bg-primary/10 text-primary font-bold cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light" style="font-variation-settings: 'FILL' 1;">event_available</span>
+<span class="font-body-main text-body-main">Availability</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">school</span>
+<span class="font-body-main text-body-main font-semibold">Courses</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">assignment</span>
+<span class="font-body-main text-body-main font-semibold">Assignments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">group</span>
+<span class="font-body-main text-body-main font-semibold">Students</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">bar_chart</span>
+<span class="font-body-main text-body-main font-semibold">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined icon-light">settings</span>
+<span class="font-body-main text-body-main font-semibold">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-sidebar_width flex-1 flex flex-col h-full overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface w-full h-16 border-b border-outline-variant flex items-center justify-between px-gutter transition-all duration-200 z-10 shrink-0">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-page-title text-page-title text-primary">Availability Dashboard</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined icon-light">search</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full transition-colors relative">
+<span class="material-symbols-outlined icon-light">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant cursor-pointer ml-2">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a smiling administrator in a brightly lit modern office setting, soft professional lighting, sharp focus, corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzlidkYZ1a0OH_tAYzLeLSA_a2Imq0TWcoHjcbq_WJHQj7wz18rq9LDhdjDIw9P8atx84DTTe3BFy6900nNCXWspzK77UM90fQUzNUBb0jX4t-PvbVG0zQT9FsjWPs7pAiwdjfQZwHmHNLVzM99pnrjwu579KuZZrluab8acjEH87Lqb1N_J8bKFIQoVzLx1-JmD_q528bgZlNwP4kkenQZ3RGbExTr84etE7R_So0XBAw9QIsZEYB"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 overflow-auto p-gutter bg-surface-container-lowest">
+<div class="max-w-container_max mx-auto space-y-stack_lg">
+<!-- Filter Bar (Bento-ish Top Area) -->
+<div class="bg-surface p-stack_md rounded-xl card-shadow border border-outline-variant flex flex-wrap items-center gap-3">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mr-2">Filters:</span>
+<div class="flex items-center gap-2 chip-blue px-3 py-1.5 rounded-full font-body-main text-body-main">
+<span>Maths</span>
+<button class="hover:text-primary-fixed-variant flex items-center justify-center"><span class="material-symbols-outlined" style="font-size: 16px;">close</span></button>
+</div>
+<div class="flex items-center gap-2 chip-purple px-3 py-1.5 rounded-full font-body-main text-body-main">
+<span>IB</span>
+<button class="hover:opacity-75 flex items-center justify-center"><span class="material-symbols-outlined" style="font-size: 16px;">close</span></button>
+</div>
+<div class="flex items-center gap-2 chip-green px-3 py-1.5 rounded-full font-body-main text-body-main">
+<span>English</span>
+<button class="hover:opacity-75 flex items-center justify-center"><span class="material-symbols-outlined" style="font-size: 16px;">close</span></button>
+</div>
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full border border-dashed border-outline-variant text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors font-body-main text-body-main ml-auto">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+<span>Add filter</span>
+</button>
+</div>
+<!-- Main Schedule Grid -->
+<div class="bg-surface rounded-xl card-shadow table-border overflow-hidden">
+<!-- Table Header (Days) -->
+<div class="grid grid-cols-[280px_repeat(5,_1fr)] border-b border-outline-variant bg-surface-container-lowest">
+<div class="p-4 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider flex items-center border-r border-outline-variant">
+                            Educator
+                        </div>
+<div class="p-4 text-center border-r border-outline-variant">
+<span class="font-label-bold text-label-bold text-on-surface">MON</span>
+<div class="font-body-main text-body-main text-on-surface-variant text-xs mt-1">12 Oct</div>
+</div>
+<div class="p-4 text-center border-r border-outline-variant">
+<span class="font-label-bold text-label-bold text-on-surface">TUE</span>
+<div class="font-body-main text-body-main text-on-surface-variant text-xs mt-1">13 Oct</div>
+</div>
+<div class="p-4 text-center border-r border-outline-variant">
+<span class="font-label-bold text-label-bold text-on-surface">WED</span>
+<div class="font-body-main text-body-main text-on-surface-variant text-xs mt-1">14 Oct</div>
+</div>
+<div class="p-4 text-center border-r border-outline-variant">
+<span class="font-label-bold text-label-bold text-on-surface">THU</span>
+<div class="font-body-main text-body-main text-on-surface-variant text-xs mt-1">15 Oct</div>
+</div>
+<div class="p-4 text-center">
+<span class="font-label-bold text-label-bold text-on-surface">FRI</span>
+<div class="font-body-main text-body-main text-on-surface-variant text-xs mt-1">16 Oct</div>
+</div>
+</div>
+<!-- Row 1 -->
+<div class="grid grid-cols-[280px_repeat(5,_1fr)] border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<!-- Educator Info -->
+<div class="p-4 flex items-center gap-4 border-r border-outline-variant">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male teacher in a classroom setting, wearing a light blue button-down shirt, warm professional lighting, soft background blur, conveying trust and academic excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_E3BVh7oc6udxFYSD0Bf-HJ9NnuAn4zaP_viU8RJxEpPuuGfHdlrWzYj0XsdLr0qnUEI85P1MID7ACxcGGu3Mh7MbnaWGt6WrfF9czY-WDtRXkO_EcrwPpe24Ke9RGO06BSxDoMDQYBH_ap6Lnsj-RfPhU2KwWTpKwLDyw3MXIiHuiSCpsfBrDWB9hW0DV58ewWrslNyDt6myQyNzoQFYg9VCYMugMBvDRCoAs-NzEeSHhty5IiYN"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full cal-sync-active z-10" title="Google Calendar Connected"></div>
+</div>
+<div>
+<div class="font-body-main text-body-main font-semibold text-on-surface">Dr. Robert Chen</div>
+<div class="font-body-main text-body-main text-xs text-on-surface-variant">Maths, Physics</div>
+</div>
+</div>
+<!-- Timeline Blocks (Simplified for visual representation) -->
+<!-- MON -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<!-- Background timeline lines -->
+<div class="absolute inset-0 flex justify-between px-2 py-4 pointer-events-none opacity-20">
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+</div>
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-available h-full" style="width: 40%;" title="Available: 09:00 - 12:00"></div>
+<div class="time-block-busy h-full" style="width: 20%;" title="Busy"></div>
+<div class="time-block-available h-full" style="width: 40%;" title="Available: 14:00 - 17:00"></div>
+</div>
+</div>
+<!-- TUE -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="absolute inset-0 flex justify-between px-2 py-4 pointer-events-none opacity-20">
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+</div>
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-busy h-full w-full" title="Busy all day"></div>
+</div>
+</div>
+<!-- WED -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="absolute inset-0 flex justify-between px-2 py-4 pointer-events-none opacity-20">
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+</div>
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="bg-transparent h-full" style="width: 20%;"></div>
+<div class="time-block-available h-full" style="width: 80%;" title="Available: 11:00 - 17:00"></div>
+</div>
+</div>
+<!-- THU -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="absolute inset-0 flex justify-between px-2 py-4 pointer-events-none opacity-20">
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+</div>
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-available h-full" style="width: 50%;" title="Available: 09:00 - 13:00"></div>
+<div class="time-block-busy h-full" style="width: 50%;"></div>
+</div>
+</div>
+<!-- FRI -->
+<div class="p-3 flex flex-col justify-center gap-1.5 relative">
+<div class="absolute inset-0 flex justify-between px-2 py-4 pointer-events-none opacity-20">
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+<div class="h-full border-l border-dashed border-outline-variant"></div>
+</div>
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-available h-full w-full" title="Available all day"></div>
+</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-[280px_repeat(5,_1fr)] hover:bg-surface-container-low transition-colors group">
+<!-- Educator Info -->
+<div class="p-4 flex items-center gap-4 border-r border-outline-variant">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden flex items-center justify-center text-on-surface-variant font-bold">
+                                    ES
+                                </div>
+<div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full cal-sync-inactive z-10" title="Calendar not connected"></div>
+</div>
+<div>
+<div class="font-body-main text-body-main font-semibold text-on-surface">Elena Smith</div>
+<div class="font-body-main text-body-main text-xs text-on-surface-variant">English, History</div>
+</div>
+</div>
+<!-- Timeline Blocks -->
+<!-- MON -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-busy h-full" style="width: 50%;"></div>
+<div class="time-block-available h-full" style="width: 50%;"></div>
+</div>
+</div>
+<!-- TUE -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-available h-full" style="width: 100%;"></div>
+</div>
+</div>
+<!-- WED -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-available h-full" style="width: 30%;"></div>
+<div class="time-block-busy h-full" style="width: 40%;"></div>
+<div class="time-block-available h-full" style="width: 30%;"></div>
+</div>
+</div>
+<!-- THU -->
+<div class="p-3 border-r border-outline-variant flex flex-col justify-center gap-1.5 relative">
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="bg-transparent h-full" style="width: 60%;"></div>
+<div class="time-block-available h-full" style="width: 40%;"></div>
+</div>
+</div>
+<!-- FRI -->
+<div class="p-3 flex flex-col justify-center gap-1.5 relative">
+<div class="h-5 w-full flex rounded overflow-hidden">
+<div class="time-block-busy h-full w-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex items-center justify-end gap-6 font-body-main text-body-main text-on-surface-variant">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded time-block-available"></div>
+<span>Available</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded time-block-busy"></div>
+<span>Busy / Unavailable</span>
+</div>
+<div class="flex items-center gap-2 ml-4">
+<div class="w-3 h-3 rounded-full cal-sync-active border border-white"></div>
+<span>Calendar Synced</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full cal-sync-inactive"></div>
+<span>Not Synced</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

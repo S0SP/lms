@@ -1,0 +1,226 @@
+erDiagram
+
+  %% ===================== IDENTITY =====================
+  ORGS ||--o{ USERS : owns
+  USERS ||--o| EDUCATOR_PROFILES : "has (role=educator)"
+  USERS ||--o| LEARNER_PROFILES : "has (role=learner)"
+  USERS ||--o{ PARENT_PROFILES : "has (role=parent)"
+  PARENT_PROFILES }o--|| LEARNER_PROFILES : guardian_of
+  USERS ||--o{ GOOGLE_OAUTH_TOKENS : "google sso"
+  USERS ||--o{ DEVICE_TOKENS : "push tokens"
+  USERS ||--o{ NOTIFICATION_LOG : receives
+  USERS ||--o{ NOTIFICATION_PREFERENCES : configures
+
+  %% ===================== TAGS =====================
+  ORGS ||--o{ TAGS : defines
+  TAGS }o--o{ EDUCATOR_PROFILES : tagged
+  TAGS }o--o{ COURSES : tagged
+  TAGS }o--o{ USERS : "learner tags"
+
+  %% ===================== COURSES =====================
+  ORGS ||--o{ COURSES : offers
+  COURSES ||--o{ COURSE_EDUCATORS : "assigned to"
+  EDUCATOR_PROFILES ||--o{ COURSE_EDUCATORS : teaches
+  COURSES ||--o{ COURSE_ENROLLMENTS : has
+  LEARNER_PROFILES ||--o{ COURSE_ENROLLMENTS : "enrolled in"
+  COURSES ||--o{ CREDITS : tracks
+  LEARNER_PROFILES ||--o{ CREDITS : owns
+  COURSES ||--o| COURSE_SELLING_PAGES : "public page"
+  COURSES ||--o{ COUPONS : "discounts for"
+  COURSES ||--o{ PAYMENT_PLANS : "billed via"
+  COURSES ||--o{ COURSE_REVIEWS : receives
+  LEARNER_PROFILES ||--o{ COURSE_REVIEWS : writes
+  COURSES ||--o{ COURSE_BUNDLES : "grouped in"
+
+  %% ===================== CONTENT (Group/Recorded) =====================
+  COURSES ||--o{ CONTENT_SECTIONS : organizes
+  CONTENT_SECTIONS ||--o{ CONTENT_RESOURCES : contains
+  CONTENT_RESOURCES ||--o| VIDEO_ASSETS : "video type"
+  CONTENT_RESOURCES ||--o| FILE_ASSETS : "file type"
+  CONTENT_RESOURCES ||--o| TESTS : "test type"
+  CONTENT_RESOURCES ||--o| ASSESSMENTS : "assessment type"
+  TESTS ||--o{ TEST_QUESTIONS : has
+  TEST_QUESTIONS ||--o{ TEST_QUESTION_OPTIONS : has
+  TESTS ||--o{ TEST_ATTEMPTS : "attempted by"
+  LEARNER_PROFILES ||--o{ TEST_ATTEMPTS : attempts
+  TEST_ATTEMPTS ||--o{ TEST_ANSWERS : records
+  ASSESSMENTS ||--o{ ASSESSMENT_CRITERIA : "graded on"
+  ASSESSMENTS ||--o{ ASSESSMENT_SUBMISSIONS : receives
+  LEARNER_PROFILES ||--o{ ASSESSMENT_SUBMISSIONS : submits
+  ASSESSMENT_SUBMISSIONS ||--o{ ASSESSMENT_SCORES : "scored per criterion"
+  CONTENT_RESOURCES ||--o{ LEARNER_CONTENT_PROGRESS : "progress tracked"
+  LEARNER_PROFILES ||--o{ LEARNER_CONTENT_PROGRESS : tracks
+
+  %% ===================== TIMELINE (posts/polls) =====================
+  COURSES ||--o{ TIMELINE_POSTS : has
+  TIMELINE_POSTS ||--o| POLLS : "poll/quiz variant"
+  POLLS ||--o{ POLL_OPTIONS : has
+  POLL_OPTIONS ||--o{ POLL_RESPONSES : "voted by"
+  LEARNER_PROFILES ||--o{ POLL_RESPONSES : votes
+  TIMELINE_POSTS ||--o{ TIMELINE_COMMENTS : has
+  USERS ||--o{ TIMELINE_COMMENTS : writes
+
+  %% ===================== SESSIONS =====================
+  COURSES ||--o{ SESSIONS : schedules
+  EDUCATOR_PROFILES ||--o{ SESSIONS : hosts
+  SESSIONS ||--o{ SESSION_ATTENDEES : "learners in"
+  LEARNER_PROFILES ||--o{ SESSION_ATTENDEES : attends
+  SESSIONS ||--o{ ZOOM_ATTENDANCE : "logged by webhook"
+  USERS ||--o{ ZOOM_ATTENDANCE : "participant"
+  SESSIONS ||--o| SESSION_FEEDBACK : "operational record"
+  SESSIONS ||--o| SESSION_REPORTS : "AI/learner-facing report"
+  SESSIONS ||--o{ CONFIDENTIAL_FEEDBACK_EDUCATOR : "private, admin-only"
+  SESSIONS ||--o{ CONFIDENTIAL_FEEDBACK_LEARNER : "private, admin-only"
+  SESSIONS ||--o{ SESSION_CONFLICTS : "may raise"
+  SESSIONS ||--o{ SESSION_REMINDER_JOBS : schedules
+
+  %% ===================== AVAILABILITY =====================
+  EDUCATOR_PROFILES ||--o{ AVAILABILITY_PROFILES : defines
+  EDUCATOR_PROFILES ||--o{ LEAVES : requests
+  EDUCATOR_PROFILES ||--o| GOOGLE_CALENDAR_TOKENS : connects
+  EDUCATOR_PROFILES ||--o{ GOOGLE_CALENDAR_CHANNELS : subscribes
+
+  %% ===================== PAYOUTS =====================
+  EDUCATOR_PROFILES ||--o{ PAYOUTS : "earns"
+  PAYOUTS ||--o{ PAYOUT_SESSION_LINKS : "line items"
+  SESSIONS ||--o{ PAYOUT_SESSION_LINKS : "billed in"
+
+  %% ===================== REPORTS =====================
+  LEARNER_PROFILES ||--o{ MONTHLY_REPORTS : "generated for"
+  COURSES ||--o{ MONTHLY_REPORTS : "scoped to"
+
+  %% ===================== CHAT (metadata mirror; live data in Firestore) =====================
+  COURSES ||--o{ CHAT_THREADS : "auto-created per course"
+  CHAT_THREADS ||--o{ CHAT_MEMBERS : includes
+  USERS ||--o{ CHAT_MEMBERS : "member of"
+
+  %% ===================== STORE / CONSULTATIONS / PAYMENTS =====================
+  ORGS ||--o| STORE_SETTINGS : configures
+  ORGS ||--o{ CONSULTATIONS : "receives leads"
+  CONSULTATIONS ||--o| LEARNER_PROFILES : "converts to"
+  COURSE_ENROLLMENTS ||--o{ PAYMENT_TRANSACTIONS : "paid via"
+  PAYMENT_TRANSACTIONS ||--o| COUPONS : "applied"
+
+  %% ===================== NOTIFICATIONS / EMAIL =====================
+  NOTIFICATION_LOG }o--|| USERS : "belongs to"
+  EMAIL_LOG }o--o| USERS : "sent to"
+  EMAIL_LOG }o--o| SESSIONS : "about"
+
+  %% ===================== CERTIFICATES (Phase 2, planned) =====================
+  COURSE_ENROLLMENTS ||--o| CERTIFICATES : "awarded on completion"
+
+  USERS {
+    uuid id PK
+    string email
+    string phone
+    enum role "owner|admin|educator|learner|parent"
+    string password_hash
+    uuid org_id FK
+    timestamptz created_at
+  }
+
+  LEARNER_PROFILES {
+    uuid user_id PK_FK
+    string display_name
+    date dob
+    int age
+    string private_note "admin-only, never joined into learner/educator queries"
+    string board
+    timestamptz created_at
+  }
+
+  PARENT_PROFILES {
+    uuid id PK
+    uuid user_id FK
+    uuid learner_id FK
+    string name
+    string email
+    string phone
+  }
+
+  EDUCATOR_PROFILES {
+    uuid user_id PK_FK
+    string tagline
+    text about
+    string youtube_url
+    numeric payout_default_rate
+    string payout_currency
+    boolean calendar_connected
+    string pin_hash
+    string zoom_user_id
+  }
+
+  COURSES {
+    uuid id PK
+    string name
+    string short_code
+    enum type "one_on_one|group|recorded"
+    enum status "draft|published|archived"
+    uuid org_id FK
+    jsonb selling_page_json
+    timestamptz created_at
+  }
+
+  SESSIONS {
+    uuid id PK
+    uuid course_id FK
+    uuid educator_id FK
+    timestamptz scheduled_at
+    int duration_min
+    enum status "scheduled|live|completed|cancelled|no_show"
+    string zoom_meeting_id
+    string zoom_meeting_url
+    numeric credits_consumed
+    enum hosted_by "admin|educator|learner_self_book"
+    timestamptz actual_start_at
+    timestamptz actual_end_at
+  }
+
+  ZOOM_ATTENDANCE {
+    uuid id PK
+    uuid session_id FK
+    uuid user_id FK "nullable, unmatched"
+    enum role "educator|learner"
+    enum event "joined|left"
+    string zoom_participant_id
+    timestamptz event_at
+    int duration_seconds
+  }
+
+  CREDITS {
+    uuid id PK
+    uuid course_id FK
+    uuid learner_id FK
+    numeric total
+    numeric consumed
+    uuid adjusted_by FK
+    timestamptz adjusted_at
+  }
+
+  MONTHLY_REPORTS {
+    uuid id PK
+    uuid learner_id FK
+    uuid course_id FK
+    date month_year
+    jsonb sections_json
+    enum status "draft|sent"
+    timestamptz sent_at
+  }
+
+  CONFIDENTIAL_FEEDBACK_EDUCATOR {
+    uuid id PK
+    uuid session_id FK
+    uuid educator_id FK
+    uuid learner_id FK
+    text content
+    timestamptz created_at
+  }
+
+  CONFIDENTIAL_FEEDBACK_LEARNER {
+    uuid id PK
+    uuid session_id FK
+    uuid learner_id FK
+    uuid educator_id FK
+    text content
+    timestamptz created_at
+  }

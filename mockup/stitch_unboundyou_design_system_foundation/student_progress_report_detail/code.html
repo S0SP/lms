@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Progress Report Detail - August 2026</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "inverse-primary": "#adc6ff",
+                    "surface-container": "#e9edff",
+                    "on-surface-variant": "#414754",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#fefcff",
+                    "primary-container": "#0e70e9",
+                    "surface-tint": "#005bc1",
+                    "primary-fixed": "#d8e2ff",
+                    "inverse-on-surface": "#edf0ff",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#825100",
+                    "on-tertiary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#001a41",
+                    "outline": "#727785",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#67f9b4",
+                    "on-secondary-container": "#007149",
+                    "primary": "#0058bc",
+                    "surface-dim": "#d2d9f3",
+                    "secondary-fixed": "#6afcb7",
+                    "on-tertiary-container": "#fffbff",
+                    "tertiary-container": "#a36700",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-secondary-fixed-variant": "#005234",
+                    "surface-container-highest": "#dbe2fb",
+                    "surface-container-low": "#f2f3ff",
+                    "surface-variant": "#dbe2fb",
+                    "secondary-fixed-dim": "#49df9d",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#ffddb8",
+                    "inverse-surface": "#283043",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#c1c6d6",
+                    "secondary": "#006c46",
+                    "on-background": "#131b2d",
+                    "on-primary-fixed-variant": "#004494",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-surface": "#131b2d",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#002112",
+                    "surface-container-high": "#e1e8ff",
+                    "surface": "#faf8ff",
+                    "background": "#faf8ff",
+                    "surface-bright": "#faf8ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack_lg": "32px",
+                    "sidebar_width": "248px",
+                    "stack_sm": "8px",
+                    "stack_md": "16px",
+                    "gutter": "24px",
+                    "container_max": "1440px"
+            },
+            "fontFamily": {
+                    "section-title": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-main": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-bold": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title-mobile": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "page-title": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "section-title": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-main": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-bold": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "page-title-mobile": [
+                            "22px",
+                            {
+                                    "lineHeight": "28px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "page-title": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background min-h-screen text-on-background flex">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-inverse-surface fixed left-0 top-0 h-screen w-sidebar_width border-r border-outline-variant dark:border-outline flat no shadows flex flex-col h-full py-stack_lg hidden md:flex">
+<div class="px-6 mb-8">
+<h1 class="font-page-title text-page-title font-bold text-primary dark:text-primary-fixed-dim">EduPortal</h1>
+<p class="font-body-main text-body-main text-on-surface-variant mt-1">Student Account</p>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span>My Courses</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span>Sessions</span>
+</a>
+<a class="flex items-center gap-3 border-l-4 border-primary bg-primary/10 text-primary font-label-bold text-label-bold px-4 py-3 transition-all duration-200 ease-in-out rounded-r-lg" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span>Progress Reports</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Fees</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span>Chats</span>
+</a>
+</nav>
+<div class="px-4 mt-auto mb-4">
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-label-bold text-label-bold hover:opacity-90 transition-opacity">
+                Enroll New Course
+            </button>
+</div>
+<div class="px-4 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-sidebar_width min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center h-16 px-gutter z-10 sticky">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-page-title text-page-title font-bold text-primary hidden md:block">LMS Portal</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 p-2 rounded-full hidden sm:block">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer active:opacity-70 ml-2">
+<img alt="Student Avatar" class="w-full h-full object-cover" data-alt="A professional student avatar portrait of a young adult, clean background, modern lighting, clear face, academic context. Studio lighting, soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVvnlvpKLDt3TWn6AdC5HnKVD2HxZGopblcOYqziLzicieivgyB9JSUQg523yxDTT7ShZrbVr4YqIFQnGj6hnGu8BIL-2oIcLFZz2OTYG9dyCPalWSNMMkzP2tAHT_uY5PQaARpeAchcePmsq44yjcLTCk3cu8h2P8skpF8CfedBfOPGPVVctDO-I_9YQS4uBVbGQCLQy6TYqIePIMIdGC-6bX72AbLNmR94C07yVunBlwXUl3KRhE"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-gutter lg:px-12 lg:py-8 max-w-[1000px] w-full mx-auto">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-stack_lg">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h1 class="font-page-title text-page-title text-on-surface">August 2026 Progress Report</h1>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest border border-outline-variant text-xs font-semibold text-primary">
+<span>✨</span> AI-generated summary
+                        </span>
+</div>
+<p class="font-body-main text-body-main text-on-surface-variant">IGCSE Grade 9 Maths — Dr. Sarah Jenkins</p>
+</div>
+<button class="flex items-center justify-center gap-2 px-4 py-2 border border-outline-variant rounded-lg font-label-bold text-label-bold text-on-surface hover:bg-surface-container-low transition-colors whitespace-nowrap self-start">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Download PDF
+                </button>
+</div>
+<!-- Main Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-[12px] p-6 sm:p-8 shadow-[0px_4px_12px_rgba(15,23,41,0.08)]">
+<div class="space-y-stack_lg">
+<!-- Summary -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-4 pb-2 border-b border-outline-variant/50">Summary</h2>
+<div class="font-body-main text-body-main text-on-surface-variant leading-relaxed space-y-4">
+<p>The student has demonstrated commendable dedication during this term's intensive modules. They consistently engage with complex problem-solving tasks and show a proactive approach to peer collaboration. Overall comprehension of foundational algebraic concepts is solid, though advanced calculus introduction remains a focal point for the upcoming weeks.</p>
+<p>Attendance is impeccable, and participation in supplementary workshops indicates a strong intrinsic motivation to master the syllabus material ahead of scheduled timelines.</p>
+</div>
+</section>
+<!-- Topics Covered -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-4 pb-2 border-b border-outline-variant/50">Topics Covered</h2>
+<div class="font-body-main text-body-main text-on-surface-variant leading-relaxed space-y-4">
+<p>During the month of August, the curriculum focused on advanced quadratic equations, graphical inequalities, and an introduction to coordinate geometry. The class successfully completed Modules 4 through 6, culminating in a comprehensive mid-term assessment.</p>
+<p>Practical applications included modeling real-world physics problems using quadratic functions and understanding the geometric interpretations of algebraic solutions.</p>
+</div>
+</section>
+<!-- Progress & Strengths -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-4 pb-2 border-b border-outline-variant/50">Progress &amp; Strengths</h2>
+<div class="font-body-main text-body-main text-on-surface-variant leading-relaxed space-y-4">
+<p>Significant progress has been noted in analytical reasoning and the ability to deconstruct multi-step word problems. The student excels in recognizing patterns within datasets and applying appropriate mathematical models to derive logical conclusions.</p>
+<p>A notable strength is their resilience when facing challenging concepts; they are not easily deterred by initial misunderstandings and actively seek clarification through insightful questioning during lectures.</p>
+</div>
+</section>
+<!-- Areas for Growth -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-4 pb-2 border-b border-outline-variant/50">Areas for Growth</h2>
+<div class="font-body-main text-body-main text-on-surface-variant leading-relaxed space-y-4">
+<p>While theoretical understanding is strong, execution under timed conditions occasionally results in minor arithmetic errors. Developing strategies for efficient time management during assessments will be crucial moving forward.</p>
+<p>Additionally, deeper exploration into the integration of different mathematical disciplines—specifically combining geometry with algebra—would further solidify their analytical toolkit and prepare them for higher-tier examinations.</p>
+</div>
+</section>
+<!-- Next Steps -->
+<section>
+<h2 class="font-section-title text-section-title text-on-surface mb-4 pb-2 border-b border-outline-variant/50">Next Steps</h2>
+<div class="font-body-main text-body-main text-on-surface-variant leading-relaxed space-y-4">
+<p>Focus for the next grading period will shift towards trigonometry and vector calculus. It is recommended that the student reviews right-angled triangle theorems prior to the commencement of these new modules.</p>
+<p>Regular practice using past examination papers is advised to improve speed and accuracy. Continued participation in the weekly review sessions will provide the necessary support to bridge any remaining gaps in comprehension.</p>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

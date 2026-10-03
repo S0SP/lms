@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Session Feedback Modal</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dbe2fb",
+                      "secondary-fixed": "#6afcb7",
+                      "tertiary-container": "#a36700",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#fffbff",
+                      "on-primary-fixed": "#001a41",
+                      "outline-variant": "#c1c6d6",
+                      "inverse-primary": "#adc6ff",
+                      "background": "#faf8ff",
+                      "secondary-container": "#67f9b4",
+                      "outline": "#727785",
+                      "inverse-surface": "#283043",
+                      "on-secondary-container": "#007149",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface-container": "#e9edff",
+                      "primary": "#0058bc",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-surface": "#131b2d",
+                      "secondary-fixed-dim": "#49df9d",
+                      "surface-dim": "#d2d9f3",
+                      "primary-fixed": "#d8e2ff",
+                      "tertiary": "#825100",
+                      "surface-container-highest": "#dbe2fb",
+                      "on-surface-variant": "#414754",
+                      "on-secondary-fixed": "#002112",
+                      "surface": "#faf8ff",
+                      "on-background": "#131b2d",
+                      "primary-fixed-dim": "#adc6ff",
+                      "on-primary-container": "#fefcff",
+                      "on-secondary-fixed-variant": "#005234",
+                      "error-container": "#ffdad6",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#e1e8ff",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#faf8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#edf0ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary": "#006c46",
+                      "primary-container": "#0e70e9",
+                      "on-primary-fixed-variant": "#004494",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#005bc1",
+                      "surface-container-low": "#f2f3ff",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack_md": "16px",
+                      "stack_sm": "8px",
+                      "sidebar_width": "248px",
+                      "stack_lg": "32px",
+                      "container_max": "1440px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "page-title-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "section-title": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "page-title": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-bold": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-main": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "page-title-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "section-title": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "page-title": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-main": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for textareas if needed */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-main text-on-surface antialiased">
+<!-- Dimmed Overlay -->
+<div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-[2px] z-40 flex items-center justify-center p-gutter transition-opacity duration-300">
+<!-- Modal Container -->
+<div class="bg-surface-container-lowest w-full max-w-[480px] rounded-[12px] shadow-[0px_8px_24px_rgba(15,23,41,0.12)] border border-outline-variant/30 flex flex-col transform transition-transform duration-300 scale-100 opacity-100 z-50">
+<!-- Modal Header -->
+<div class="flex items-center justify-between px-[24px] py-[20px] border-b border-outline-variant/50">
+<h2 class="font-section-title text-section-title text-on-surface">Session Feedback</h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center rounded-full p-1 hover:bg-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20">
+<span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="px-[24px] py-[24px] flex flex-col gap-stack_lg overflow-y-auto max-h-[calc(100vh-140px)]">
+<!-- Session Status (Segmented Control) -->
+<div class="flex flex-col gap-stack_sm">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Session status</label>
+<div class="flex rounded-lg border border-outline-variant overflow-hidden bg-surface-container-low p-1 gap-1">
+<button class="flex-1 py-[6px] text-center rounded-md bg-primary-container text-on-primary-container font-label-bold text-label-bold transition-all shadow-sm">Completed</button>
+<button class="flex-1 py-[6px] text-center rounded-md text-on-surface-variant font-body-main text-body-main hover:bg-surface-variant/50 transition-all">No Show</button>
+<button class="flex-1 py-[6px] text-center rounded-md text-on-surface-variant font-body-main text-body-main hover:bg-surface-variant/50 transition-all">Other</button>
+</div>
+</div>
+<!-- Sessions Consumed (Chips) -->
+<div class="flex flex-col gap-stack_sm">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Sessions consumed</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-[16px] py-[6px] rounded-full border-2 border-primary bg-primary/10 text-primary font-label-bold text-label-bold transition-colors shadow-sm">1</button>
+<button class="px-[16px] py-[6px] rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-body-main text-body-main hover:border-primary/50 hover:bg-surface-variant/30 transition-colors">0.5</button>
+<button class="px-[16px] py-[6px] rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-body-main text-body-main hover:border-primary/50 hover:bg-surface-variant/30 transition-colors">0</button>
+<button class="px-[16px] py-[6px] rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-body-main text-body-main hover:border-primary/50 hover:bg-surface-variant/30 transition-colors">Custom</button>
+</div>
+</div>
+<!-- Topics Covered -->
+<div class="flex flex-col gap-stack_sm">
+<label class="font-label-bold text-label-bold text-on-surface-variant" for="topicsCovered">Topics covered</label>
+<textarea class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-[12px] py-[10px] text-on-surface font-body-main text-body-main focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none placeholder:text-outline" id="topicsCovered" placeholder="Briefly describe what was discussed..." rows="2"></textarea>
+</div>
+<!-- Comments -->
+<div class="flex flex-col gap-stack_sm">
+<label class="font-label-bold text-label-bold text-on-surface-variant" for="comments">Comments</label>
+<textarea class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-[12px] py-[10px] text-on-surface font-body-main text-body-main focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none placeholder:text-outline" id="comments" placeholder="Any internal notes or feedback?" rows="3"></textarea>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="flex items-center justify-end px-[24px] py-[16px] border-t border-outline-variant/50 gap-[12px] bg-surface-container-low/30 rounded-b-[12px]">
+<button class="px-[16px] py-[8px] rounded-lg border border-outline-variant text-on-surface font-label-bold text-label-bold hover:bg-surface-variant/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    Cancel
+                </button>
+<button class="px-[16px] py-[8px] rounded-lg bg-[#2F80F9] text-on-primary font-label-bold text-label-bold hover:bg-[#2F80F9]/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 flex items-center gap-2">
+                    Submit Feedback
+                </button>
+</div>
+</div>
+</div>
+</body></html>

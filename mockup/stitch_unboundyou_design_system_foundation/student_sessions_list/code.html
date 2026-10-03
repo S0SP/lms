@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduPortal - Sessions</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-primary": "#adc6ff",
+                        "surface-container": "#e9edff",
+                        "on-surface-variant": "#414754",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#fefcff",
+                        "primary-container": "#0e70e9",
+                        "surface-tint": "#005bc1",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#825100",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#001a41",
+                        "outline": "#727785",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#67f9b4",
+                        "on-secondary-container": "#007149",
+                        "primary": "#0058bc",
+                        "surface-dim": "#d2d9f3",
+                        "secondary-fixed": "#6afcb7",
+                        "on-tertiary-container": "#fffbff",
+                        "tertiary-container": "#a36700",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-secondary-fixed-variant": "#005234",
+                        "surface-container-highest": "#dbe2fb",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-variant": "#dbe2fb",
+                        "secondary-fixed-dim": "#49df9d",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-surface": "#283043",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c1c6d6",
+                        "secondary": "#006c46",
+                        "on-background": "#131b2d",
+                        "on-primary-fixed-variant": "#004494",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-surface": "#131b2d",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002112",
+                        "surface-container-high": "#e1e8ff",
+                        "surface": "#faf8ff",
+                        "background": "#faf8ff",
+                        "surface-bright": "#faf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack_lg": "32px",
+                        "sidebar_width": "248px",
+                        "stack_sm": "8px",
+                        "stack_md": "16px",
+                        "gutter": "24px",
+                        "container_max": "1440px"
+                    },
+                    "fontFamily": {
+                        "section-title": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom thin stroke for icons to match 1.75px requirement (approximate using material symbols weight) */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Soft shadows for cards */
+        .shadow-ambient {
+            box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08);
+        }
+        .shadow-overlay {
+            box-shadow: 0px 8px 24px rgba(15, 23, 41, 0.12);
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E5E9F0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest h-full font-body-main text-on-surface antialiased overflow-hidden flex">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-inverse-surface fixed left-0 top-0 h-screen w-sidebar_width border-r border-outline-variant dark:border-outline flat no shadows flex flex-col h-full py-stack_lg hidden md:flex z-10">
+<!-- Brand Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary font-bold text-xl">
+                EP
+            </div>
+<div>
+<h1 class="font-page-title text-page-title font-bold text-primary dark:text-primary-fixed-dim text-lg leading-tight">EduPortal</h1>
+<p class="font-body-main text-body-main text-on-surface-variant text-xs">Student Account</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col gap-1 px-3 overflow-y-auto">
+<!-- Dashboard -->
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">dashboard</span>
+                Dashboard
+            </a>
+<!-- My Courses -->
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">school</span>
+                My Courses
+            </a>
+<!-- Sessions (Active) -->
+<a class="border-l-4 border-primary bg-primary/10 text-primary font-label-bold text-label-bold px-4 py-3 transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">event</span>
+                Sessions
+            </a>
+<!-- Progress Reports -->
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">assessment</span>
+                Progress Reports
+            </a>
+<!-- Fees -->
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">payments</span>
+                Fees
+            </a>
+<!-- Chats -->
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">forum</span>
+                Chats
+            </a>
+</nav>
+<!-- CTA Button -->
+<div class="px-6 mt-4 mb-4">
+<button class="w-full bg-[#2F80F9] text-white font-label-bold text-label-bold py-2.5 rounded-lg hover:bg-primary transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Enroll New Course
+            </button>
+</div>
+<!-- Footer Links -->
+<div class="px-3 border-t border-outline-variant dark:border-outline pt-4 mt-auto">
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">settings</span>
+                Settings
+            </a>
+<a class="text-on-surface-variant font-body-main text-body-main px-4 py-3 hover:bg-primary-container/10 hover:text-primary transition-colors transition-all duration-200 ease-in-out flex items-center gap-3 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-sidebar_width flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center h-16 px-gutter flex-shrink-0 z-10">
+<!-- Mobile Menu Toggle (Hidden on Desktop) -->
+<button class="md:hidden text-on-surface-variant hover:text-primary p-2 -ml-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Product Name / Context -->
+<div class="font-section-title text-section-title text-primary dark:text-primary-fixed hidden md:block">
+                LMS Portal
+            </div>
+<!-- Search Bar -->
+<div class="flex-1 max-w-md mx-4 md:ml-8">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-main font-body-main text-on-surface focus:outline-none focus:border-[#2F80F9] focus:ring-2 focus:ring-[#2F80F9]/20 transition-all placeholder-on-surface-variant/70" placeholder="Search sessions, courses..." type="text"/>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors relative cursor-pointer active:opacity-70 p-1">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70 p-1 hidden sm:block">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer ml-2">
+<img alt="Student Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a young student in a modern educational setting, soft lighting, sharp focus, natural colors, depicting a clean and friendly aesthetic suitable for an LMS portal avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4QiT7yTaOsdOy8l2wdHcBJK4gapDP4wkyrUrmZ7keyIFsTJ-OAXThMd1fY6oCX-9E_EN6Ew-JhBbjlV85ZUwvM0EuiQV1o9tuURxiEYwQEhXoFeZNyWgxnVrr7qwEJBp1xh4i7vGpV-kHiQ2ZOh37byAZ9uHYgisjGtvnQvf5GvH7vBHHPHp8gokbeyATUkPj0yXFt2nRHxEKfC9XiVaX1_eS7LFB6viCtyj6Os7SH4NniC0Z3KJf"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="flex-1 overflow-y-auto p-4 md:p-8">
+<div class="max-w-4xl mx-auto w-full flex flex-col gap-stack_lg">
+<!-- Page Header -->
+<div>
+<h2 class="font-page-title text-page-title text-on-surface mb-2">My Sessions</h2>
+<p class="font-body-main text-body-main text-on-surface-variant">View and manage your upcoming and past learning sessions.</p>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant mb-4">
+<button class="px-6 py-3 border-b-2 border-[#2F80F9] text-[#2F80F9] font-label-bold text-label-bold transition-colors">
+                        Upcoming
+                    </button>
+<button class="px-6 py-3 border-b-2 border-transparent text-on-surface-variant font-body-main text-body-main hover:text-on-surface transition-colors">
+                        Past
+                    </button>
+</div>
+<!-- Sessions List (Vertical Stack) -->
+<div class="flex flex-col gap-4">
+<!-- Session Card 1 (Next Upcoming with Join Button) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 md:p-5 shadow-ambient flex flex-col md:flex-row gap-5 items-start md:items-center transition-all hover:shadow-overlay">
+<!-- Date/Time Block -->
+<div class="flex md:flex-col items-center md:justify-center bg-surface-container-low rounded-lg p-3 min-w-[100px] shrink-0 gap-3 md:gap-1 text-center border border-outline-variant/50">
+<div class="font-section-title text-section-title text-primary">24 Oct</div>
+<div class="font-label-bold text-label-bold text-on-surface-variant">14:00 - 15:00</div>
+</div>
+<!-- Details -->
+<div class="flex-1 flex flex-col gap-2">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-section-title text-section-title text-on-surface">IGCSE Grade 9 Maths</h3>
+<div class="inline-flex items-center gap-1 bg-[#2F80F9]/10 text-[#2F80F9] px-2.5 py-1 rounded-full font-label-bold text-label-bold text-[11px]">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+                                    Scheduled
+                                </div>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Tutor Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a female mathematics tutor, wearing a neat blouse, in a bright contemporary study environment, soft natural lighting, friendly and approachable demeanor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNya_DXLcGjURYoe7Nd-_DZXL7GPAm6Tj5Qz0aN8XK6JuIRhpQwmuMLy6NoLkuMcWESVO0Ctd0dR1CVXfU4ZfEVJpQmFw55ObO-2JvTTJrgH1gyLNcrGZFV9IrfnzEwoPGB1_r8_p3LQy7M5H2w2nM_Kg1JlCP8CTwJGLpsu46H5IniZwSDux6RVjGhE3mzWbIsu47InmKJxIouE-Xv_2kGxN9aIUrONGopyGy-hg7-cXTXPqJI7ym"/>
+</div>
+<span class="font-body-main text-body-main text-on-surface-variant">Dr. Sarah Jenkins</span>
+</div>
+</div>
+<!-- Action -->
+<div class="w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t border-outline-variant md:border-t-0 flex justify-end">
+<button class="w-full md:w-auto bg-[#2F80F9] text-white font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">videocam</span>
+                                Join
+                            </button>
+</div>
+</div>
+<!-- Session Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 md:p-5 shadow-ambient flex flex-col md:flex-row gap-5 items-start md:items-center transition-all hover:shadow-overlay opacity-90 hover:opacity-100">
+<!-- Date/Time Block -->
+<div class="flex md:flex-col items-center md:justify-center bg-surface-container-low rounded-lg p-3 min-w-[100px] shrink-0 gap-3 md:gap-1 text-center border border-outline-variant/50">
+<div class="font-section-title text-section-title text-on-surface">26 Oct</div>
+<div class="font-label-bold text-label-bold text-on-surface-variant">10:30 - 11:30</div>
+</div>
+<!-- Details -->
+<div class="flex-1 flex flex-col gap-2">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-section-title text-section-title text-on-surface">IGCSE Physics - Mechanics</h3>
+<div class="inline-flex items-center gap-1 bg-[#2F80F9]/10 text-[#2F80F9] px-2.5 py-1 rounded-full font-label-bold text-label-bold text-[11px]">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+                                    Scheduled
+                                </div>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Tutor Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a male physics tutor, wearing glasses and a collared shirt, standing in a well-lit classroom setting with a faint whiteboard in the background, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBByJxmlDhjDXzH8_qtMtfqhYrgb_qx9eJNumGCQ4jotYo7VLZWr6xQvhiJLGLTLB0bxI07T7fux8gZnJhBYJQCkpBbW1i6f7-y-9d63GBrFAIkmNpaUTLFao8qhXyHZD_7HZUh6KLr_6hEpK8ESOlQyyhTeYC5cVVGT4yiC8h6ujzitYopUAS4D4lldK5UdCVxWIGhciU5S9gjY9YYU_uP0CWCqdV7XFrF-MQL-LUbc0cLBNFFC9z-"/>
+</div>
+<span class="font-body-main text-body-main text-on-surface-variant">Prof. Alan Turing</span>
+</div>
+</div>
+<!-- Action (Disabled/Ghost for future) -->
+<div class="w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t border-outline-variant md:border-t-0 flex justify-end hidden md:flex">
+<button class="px-6 py-2.5 border border-outline-variant text-on-surface-variant font-label-bold text-label-bold rounded-lg cursor-not-allowed opacity-50 flex items-center justify-center gap-2" disabled="">
+                                Details
+                            </button>
+</div>
+</div>
+<!-- Session Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 md:p-5 shadow-ambient flex flex-col md:flex-row gap-5 items-start md:items-center transition-all hover:shadow-overlay opacity-90 hover:opacity-100">
+<!-- Date/Time Block -->
+<div class="flex md:flex-col items-center md:justify-center bg-surface-container-low rounded-lg p-3 min-w-[100px] shrink-0 gap-3 md:gap-1 text-center border border-outline-variant/50">
+<div class="font-section-title text-section-title text-on-surface">28 Oct</div>
+<div class="font-label-bold text-label-bold text-on-surface-variant">15:00 - 16:30</div>
+</div>
+<!-- Details -->
+<div class="flex-1 flex flex-col gap-2">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-section-title text-section-title text-on-surface">English Literature Prep</h3>
+<div class="inline-flex items-center gap-1 bg-[#2F80F9]/10 text-[#2F80F9] px-2.5 py-1 rounded-full font-label-bold text-label-bold text-[11px]">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+                                    Scheduled
+                                </div>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Tutor Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a female English literature tutor, casual yet smart attire, sitting in a cozy library setting surrounded by books, warm soft lighting, clear and high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3MFCpv78UaGvLvPpEtepHS1IpfasX-riyo5N7kS4E6v0GJhBeJCDxD78m18TJ8n0trVeQdSjbLBgPilG9vEi0bey3D6zE7fnBOLW4cxjlLaMjLm7bDS5y7hxsScXXSXGeSRVjSPY4WcP3hNzomYKgq_RP8muUDI7mT4CXOswthWLSDfrAR-Lui9JA6X9UdBx5etZT3fQDChnUlXPn5UXfDiU6dhzOvcAiHoL4fd7_Yu-zFmOpjz-7"/>
+</div>
+<span class="font-body-main text-body-main text-on-surface-variant">Emma Woodhouse</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

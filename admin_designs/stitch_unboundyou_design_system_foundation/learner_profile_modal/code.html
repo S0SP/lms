@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UnboundYou - Learner Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#005234",
+                        "on-secondary-container": "#007149",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#006c46",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-surface": "#131b2d",
+                        "surface-dim": "#d2d9f3",
+                        "primary-container": "#0e70e9",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#dbe2fb",
+                        "surface": "#faf8ff",
+                        "secondary-container": "#67f9b4",
+                        "tertiary": "#825100",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#005bc1",
+                        "on-surface-variant": "#414754",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-container": "#fefcff",
+                        "surface-container-low": "#f2f3ff",
+                        "on-primary-fixed-variant": "#004494",
+                        "primary-fixed-dim": "#adc6ff",
+                        "background": "#faf8ff",
+                        "on-primary-fixed": "#001a41",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#0058bc",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#002112",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#adc6ff",
+                        "surface-container-high": "#e1e8ff",
+                        "on-background": "#131b2d",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-variant": "#dbe2fb",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283043",
+                        "secondary-fixed-dim": "#49df9d",
+                        "tertiary-container": "#a36700",
+                        "secondary-fixed": "#6afcb7",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c1c6d6",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-error": "#ffffff",
+                        "outline": "#727785",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container": "#e9edff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack_md": "16px",
+                        "stack_sm": "8px",
+                        "container_max": "1440px",
+                        "stack_lg": "32px",
+                        "sidebar_width": "248px"
+                    },
+                    "fontFamily": {
+                        "page-title": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-stroke-thin {
+            font-variation-settings: 'wght' 200 !important;
+        }
+        /* Custom scrollbar for overlay */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #c1c6d6;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-main text-on-surface antialiased h-screen overflow-hidden flex">
+<!-- Background Layer (Simulating Learners List) -->
+<div class="flex-1 ml-sidebar_width flex flex-col h-screen opacity-50 pointer-events-none filter blur-sm">
+<header class="flex justify-between items-center h-16 px-gutter border-b border-outline-variant bg-surface">
+<div class="font-section-title text-section-title text-primary">Learners</div>
+</header>
+<main class="p-gutter flex-1 bg-surface-container-low"></main>
+</div>
+<!-- Modal Overlay -->
+<div aria-modal="true" class="fixed inset-0 z-50 flex justify-end bg-on-surface/20 backdrop-blur-sm transition-opacity" role="dialog">
+<!-- Sliding Panel -->
+<div class="w-full max-w-3xl h-full bg-surface shadow-[0px_8px_24px_rgba(15,23,41,0.12)] border-l border-outline-variant flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0 overflow-hidden">
+<!-- Header Section -->
+<div class="p-gutter border-b border-outline-variant bg-surface-container-lowest shrink-0">
+<div class="flex items-start justify-between">
+<div class="flex gap-6 items-start">
+<!-- Avatar -->
+<div class="w-20 h-20 rounded-xl overflow-hidden bg-surface-variant shrink-0 ring-1 ring-outline-variant shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young student, modern bright lighting, corporate educational setting, neutral clean background, wearing a casual professional shirt. Crisp focus on the face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvcdQsmRCXOt4XgIRmA-UfY-svIymnBEy4rqSN6JuqSFYbO6F5TGFFLyO667EUCOjOlW5ABf6YcMs805JkUt5Dm2jijh28IYmin8nMxCcYX3xr4zlU89KpQq-uJlcZTWmdZs3p-EuO6UFacNyYZO6u9weiKEIJ7da5uNzVXDdM8-cHIDWA-W4_sTnIDLB96Bi6P2KWCajhSXy2g9IC6oYXKqkqlGE630Sz2rVvUPJWmdhQv6SOmE_K"/>
+</div>
+<!-- Details -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<h2 class="font-page-title text-page-title text-on-surface">Alex Johnson</h2>
+<span class="bg-surface-variant text-on-surface-variant font-label-bold text-label-bold px-2 py-1 rounded">U-1024</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-on-surface-variant font-body-main text-body-main">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] icon-stroke-thin" data-icon="call">call</span>
+<span>+1 555-1234</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] icon-stroke-thin" data-icon="mail">mail</span>
+<span>alex@example.com</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] icon-stroke-thin" data-icon="calendar_today">calendar_today</span>
+<span>Oct 12, 2024</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Close Button -->
+<button aria-label="Close panel" class="p-2 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Tabs -->
+<div class="flex gap-8 mt-6 -mb-gutter overflow-x-auto custom-scrollbar">
+<button class="pb-3 border-b-2 border-primary text-primary font-label-bold text-label-bold px-1 whitespace-nowrap">Courses</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-main text-body-main px-1 whitespace-nowrap transition-colors">Sessions</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-main text-body-main px-1 whitespace-nowrap transition-colors">Fees</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body-main text-body-main px-1 whitespace-nowrap transition-colors">Communications</button>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-gutter bg-surface-container-lowest">
+<!-- Courses Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<!-- Course Card 1 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-4 shadow-[0px_4px_12px_rgba(15,23,41,0.04)] relative group hover:border-primary/50 transition-colors">
+<button aria-label="Remove course" class="absolute top-4 right-4 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined icon-stroke-thin" data-icon="delete">delete</span>
+</button>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="code">code</span>
+</div>
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface mb-1">Advanced Web Development</h3>
+<p class="text-on-surface-variant font-body-main text-[12px] line-clamp-1">Cohort 4B • Mon/Wed Evening</p>
+<div class="mt-3 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-3/4"></div>
+</div>
+<span class="font-label-bold text-[10px] text-primary">75%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-4 shadow-[0px_4px_12px_rgba(15,23,41,0.04)] relative group hover:border-primary/50 transition-colors">
+<button aria-label="Remove course" class="absolute top-4 right-4 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined icon-stroke-thin" data-icon="delete">delete</span>
+</button>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="design_services">design_services</span>
+</div>
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface mb-1">UI/UX Foundations</h3>
+<p class="text-on-surface-variant font-body-main text-[12px] line-clamp-1">Self-paced • Started Nov 1</p>
+<div class="mt-3 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim rounded-full w-full"></div>
+</div>
+<span class="font-label-bold text-[10px] text-secondary-fixed-dim">100%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Course Button -->
+<button class="border-2 border-dashed border-outline-variant rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-surface-container-low transition-colors text-on-surface-variant hover:text-primary min-h-[100px]">
+<span class="material-symbols-outlined icon-stroke-thin" data-icon="add">add</span>
+<span class="font-label-bold text-label-bold">Add course</span>
+</button>
+</div>
+<!-- Collapsible Sections -->
+<div class="flex flex-col gap-3">
+<!-- Private Note -->
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface shadow-[0px_4px_12px_rgba(15,23,41,0.04)]">
+<button aria-expanded="false" class="w-full flex items-center justify-between p-4 bg-surface hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="font-label-bold text-label-bold text-on-surface">Private Note</span>
+<div class="flex items-center gap-1 bg-surface-variant px-2 py-0.5 rounded text-[10px] font-label-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[12px]" data-icon="lock">lock</span>
+<span>Admin only</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Parent Details -->
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface shadow-[0px_4px_12px_rgba(15,23,41,0.04)]">
+<button aria-expanded="false" class="w-full flex items-center justify-between p-4 bg-surface hover:bg-surface-container-low transition-colors">
+<span class="font-label-bold text-label-bold text-on-surface">Parent Details</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Registration Details -->
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface shadow-[0px_4px_12px_rgba(15,23,41,0.04)]">
+<button aria-expanded="false" class="w-full flex items-center justify-between p-4 bg-surface hover:bg-surface-container-low transition-colors">
+<span class="font-label-bold text-label-bold text-on-surface">Registration Details</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

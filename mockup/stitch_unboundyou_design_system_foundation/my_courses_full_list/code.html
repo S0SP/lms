@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduCore LMS - My Courses</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#dbe2fb",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dbe2fb",
+                        "surface": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#d2d9f3",
+                        "on-secondary-fixed-variant": "#005234",
+                        "primary-fixed-dim": "#adc6ff",
+                        "primary": "#0058bc",
+                        "inverse-surface": "#283043",
+                        "surface-tint": "#005bc1",
+                        "on-secondary-fixed": "#002112",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-container": "#e9edff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline": "#727785",
+                        "primary-container": "#0e70e9",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#fefcff",
+                        "surface-container-high": "#e1e8ff",
+                        "on-primary-fixed-variant": "#004494",
+                        "secondary-container": "#67f9b4",
+                        "background": "#faf8ff",
+                        "surface-bright": "#faf8ff",
+                        "secondary-fixed": "#6afcb7",
+                        "on-background": "#131b2d",
+                        "on-primary-fixed": "#001a41",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary-fixed-dim": "#49df9d",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#006c46",
+                        "on-tertiary-container": "#fffbff",
+                        "on-surface-variant": "#414754",
+                        "inverse-primary": "#adc6ff",
+                        "tertiary": "#825100",
+                        "on-surface": "#131b2d",
+                        "outline-variant": "#c1c6d6",
+                        "on-secondary-container": "#007149",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffddb8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack_md": "16px",
+                        "stack_lg": "32px",
+                        "container_max": "1440px",
+                        "gutter": "24px",
+                        "sidebar_width": "248px",
+                        "stack_sm": "8px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"],
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .ambient-shadow { box-shadow: 0px 4px 12px rgba(15, 23, 41, 0.08); }
+        .course-card-radius { border-radius: 12px; }
+        .button-radius { border-radius: 8px; }
+        .success-green { color: #08BD7E; }
+        .bg-success-green { background-color: #08BD7E; }
+        
+        /* Thin outline icons (1.75px stroke equivalent) */
+        .thin-icon { font-variation-settings: 'wght' 200; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-main antialiased min-h-screen">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-full py-stack_lg bg-surface dark:bg-inverse-surface font-body-main text-body-main fixed left-0 top-0 h-screen w-sidebar_width border-r border-outline-variant dark:border-outline z-20">
+<div class="px-gutter mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="school" data-weight="fill" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<h1 class="font-page-title text-page-title text-primary dark:text-inverse-primary text-xl">EduCore LMS</h1>
+<p class="text-xs text-on-surface-variant font-label-bold">Student Portal</p>
+</div>
+</div>
+</div>
+<ul class="flex flex-col gap-1 px-4 flex-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined thin-icon" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-r-lg border-l-4 border-primary bg-primary/10 text-primary font-label-bold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-primary" data-icon="school">school</span>
+                    My Courses
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined thin-icon" data-icon="event_upcoming">event_upcoming</span>
+                    Sessions
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined thin-icon" data-icon="analytics">analytics</span>
+                    Progress Reports
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined thin-icon" data-icon="payments">payments</span>
+                    Fees
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-body-main hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined thin-icon" data-icon="chat">chat</span>
+                    Chats
+                </a>
+</li>
+</ul>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg text-primary hover:bg-surface-container-low transition-colors font-label-bold button-radius">
+<span class="material-symbols-outlined thin-icon text-sm" data-icon="support_agent">support_agent</span>
+                Get Support
+            </button>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="hidden md:flex justify-between items-center px-gutter h-full ml-sidebar_width bg-surface dark:bg-inverse-surface font-body-main text-body-main fixed top-0 right-0 w-[calc(100%-248px)] h-16 border-b border-outline-variant dark:border-outline shadow-sm z-10">
+<div class="flex-1 flex items-center">
+<!-- Mobile Menu Toggle (Visible only on small screens theoretically, but hidden md:flex overrides) -->
+<button class="md:hidden mr-4 text-on-surface-variant p-2 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="relative w-full max-w-md">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined thin-icon text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-lg bg-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm font-body-main text-body-main" placeholder="Search courses, tutors..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-low scale-95 active:scale-90 transition-transform relative">
+<span class="material-symbols-outlined thin-icon" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-low scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined thin-icon" data-icon="settings">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-low scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined thin-icon" data-icon="help">help</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container-low p-1 pr-3 rounded-full transition-colors border border-transparent hover:border-outline-variant">
+<img alt="Student Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a diverse university student in a bright modern campus library setting. Soft natural lighting, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI4H6375ca4Djhga9mLDvPQexwphAOAlr-7HP3guiuwNFBbtfiDBthCkIeFCSW3vZl9AM5jBtEHijVqCeqaDYFMq9YNf6HqVobN7dOAJqjbT71gfko32x_NO6-Yf2giciw-iPJdKIG64qeCQ1SjaVENarUFMIlPZdjPQR2DzXD8XogzY3ux_u1vxjCaPBuOnQMjxV5hlX8_0jOCYRoFpO04_Ovo2Xu8khbYuyMj4YgFmT39NK7Flyy"/>
+<span class="font-label-bold text-label-bold text-on-surface">Alex M.</span>
+<span class="material-symbols-outlined thin-icon text-sm text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar_width pt-[88px] px-gutter pb-16 md:pb-8 min-h-screen">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-stack_lg">
+<div>
+<h2 class="font-page-title text-page-title text-on-surface mb-1">My Courses</h2>
+<p class="font-body-main text-body-main text-on-surface-variant">Manage your enrolled subjects and track your progress.</p>
+</div>
+<div class="flex gap-3">
+<div class="relative">
+<select class="appearance-none bg-surface border border-outline-variant rounded-lg pl-4 pr-10 py-2 font-body-main text-body-main text-on-surface focus:outline-none focus:border-primary cursor-pointer hover:bg-surface-container-lowest">
+<option>All Semesters</option>
+<option>Current Semester</option>
+<option>Past Courses</option>
+</select>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined thin-icon text-outline pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+<div class="flex bg-surface border border-outline-variant rounded-lg p-1">
+<button class="p-1 rounded bg-surface-container-high text-primary"><span class="material-symbols-outlined" data-icon="grid_view">grid_view</span></button>
+<button class="p-1 rounded text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined thin-icon" data-icon="view_list">view_list</span></button>
+</div>
+</div>
+</div>
+<!-- Course Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Course Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant course-card-radius ambient-shadow overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-40 w-full">
+<img alt="Advanced Mathematics Thumbnail" class="w-full h-full object-cover" data-alt="A modern architectural rendering of a math classroom with complex equations on a glass board. Cinematic lighting, deep blues and pristine whites, highly detailed, professional EdTech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6rOKZXFeDwKu6ZnCc-dIh8GzEhcgPHnBNQbFhzQS90j_-nQOXRCO2wh_jVrS1R69pwAYWYgIl8OzyXo0I1Zfsvo7krtE0RI-wVo7NtJnrzvpNarZ4zFW1K9edjKWvnj1ZiDPF1zulO-yOXjSFGRoZEA-c4-j9wQ5sLixn54EF8USQ014N7d3Zi7Fao6veB_pWlXtz9N4KrsRRwfUDphvWWgfOEqB_Dk-on2B8i7V-Xx1kpuBBJ0ct"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/50 flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-success-green"></span>
+<span class="font-label-bold text-[10px] text-on-surface uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex items-start justify-between gap-2 mb-2">
+<span class="inline-block px-2 py-1 rounded text-[10px] font-label-bold bg-primary/10 text-primary uppercase tracking-wider">Mathematics</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined thin-icon text-[20px]" data-icon="more_vert">more_vert</span></button>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-3 line-clamp-2">Advanced Mathematics: Calculus &amp; Linear Algebra</h3>
+<div class="flex items-center gap-2 mb-4 mt-auto">
+<img alt="Tutor Avatar" class="w-6 h-6 rounded-full object-cover border border-outline-variant" data-alt="Professional headshot of an experienced male mathematics professor in a bright academic office. Soft natural lighting, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7YgclUFAfsvgnxhzmDb7QUCukY2SJt4aN8ips6iGp0Vm6o3D1qNhccezSPtq56Y82UoycD_znmxcl6QqKCXVfgaInBT4aaNix7fEgluatphJ6uT5-sf5IEsTXI-ZigGsgWl___QKZjfOicn-_2fpp9J_UJCagh0gnRuMuArj-EWIUCgeemRRnckYGnAMuh8fF5ByVu1AMdOvVXNycqJglMP_N87PnBfjW1ORLeini-z8wwPnTkkRZ"/>
+<span class="font-body-main text-[13px] text-on-surface-variant">Dr. Robert Chen</span>
+</div>
+<div class="mb-4">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-main text-xs text-on-surface-variant">Course Progress</span>
+<span class="font-label-bold text-xs success-green">75%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-success-green rounded-full transition-all duration-1000 ease-out" style="width: 75%;"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-bold py-2.5 button-radius hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+                        Continue Learning
+                        <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant course-card-radius ambient-shadow overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-40 w-full">
+<img alt="Physics 101 Thumbnail" class="w-full h-full object-cover" data-alt="A macro photography shot of a glowing blue physics atom model in a dark studio setting. High contrast, technical, sleek professional educational technology aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLFM8wYIW95L83-on74o6ZdZgOjen-pgdmLB29EgJiBBiYvUH8czjRajQALsJOILaanufyDuabtonCbQEHttMIpfty1FRRL4YBusmr55sIUXkD3ceDN15Ec4s6Qkr1XGgZ98betnzhPvUKnpB2WFroIjoNYc-BU0T6WkL8-cdxRGG8WBDy4ulLkqfZ9ZBm0sX6q4sNHd2zlwKH7v8W867IO7N16UNoqtzJqoQwiXCsrWM2IZ5_lx-l"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/50 flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-success-green"></span>
+<span class="font-label-bold text-[10px] text-on-surface uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex items-start justify-between gap-2 mb-2">
+<span class="inline-block px-2 py-1 rounded text-[10px] font-label-bold bg-secondary-container/30 text-secondary uppercase tracking-wider">Physics</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined thin-icon text-[20px]" data-icon="more_vert">more_vert</span></button>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-3 line-clamp-2">Physics 101: Mechanics and Thermodynamics</h3>
+<div class="flex items-center gap-2 mb-4 mt-auto">
+<img alt="Tutor Avatar" class="w-6 h-6 rounded-full object-cover border border-outline-variant" data-alt="Professional headshot of a female physics researcher in a modern laboratory. Soft lighting, sophisticated academic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW4g5MxySW1ME3mKN7Lshl8OO2oNtuwh9KYGdMkmxHy-9rmS5MJflPGVpf86-G9cZXberJc9KifdlU27NUakC7xNIkwlo10EnTe1--inrrffr11yxQl2Vg9gjVRYRLddb2b4jRqR0YWt50lpDK1SEQZgekn0TAns4oU79bTu6Yfcppy5f5uUGlCpaIT_TwVfjE54hB6gbXUGqlbZq5hiZ3f5BjFMGTU9CDg4TUR9ccUXQFAbgZ5VL_"/>
+<span class="font-body-main text-[13px] text-on-surface-variant">Prof. Sarah Jenkins</span>
+</div>
+<div class="mb-4">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-main text-xs text-on-surface-variant">Course Progress</span>
+<span class="font-label-bold text-xs success-green">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-success-green rounded-full transition-all duration-1000 ease-out" style="width: 42%;"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-bold py-2.5 button-radius hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+                        Continue Learning
+                        <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Course Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant course-card-radius ambient-shadow overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-40 w-full">
+<img alt="Introduction to Biology Thumbnail" class="w-full h-full object-cover" data-alt="A microscopic view of glowing green plant cells or DNA helix structure. Vibrant but professional EdTech aesthetic, high-key lighting, sharp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzvQ16D7L6fs5JE_0g-LWXGox0fpBCxCv8TQaj0e0m7X3aN6OulD9QO7823MQz11SMg0REKr7VX28feHEHd7YVVIlpktqSqLreAM9b2BSUctgejzSYQ1uImgnj_AGPsQwtteunQu_VQTABuZH5r41z-FCYohXr0cDUSuw2n1Wzzv6ZZRIsD6QXGaB97a0DOGfO0ya6Rz2rK6AWkjI1v9EuD4-7Siqmkrfy54LmDDJ45IbrIgJYdtOa"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/50 flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-success-green"></span>
+<span class="font-label-bold text-[10px] text-on-surface uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex items-start justify-between gap-2 mb-2">
+<span class="inline-block px-2 py-1 rounded text-[10px] font-label-bold bg-tertiary-container/10 text-tertiary uppercase tracking-wider">Biology</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined thin-icon text-[20px]" data-icon="more_vert">more_vert</span></button>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-3 line-clamp-2">Introduction to Biology: Cell Structure</h3>
+<div class="flex items-center gap-2 mb-4 mt-auto">
+<img alt="Tutor Avatar" class="w-6 h-6 rounded-full object-cover border border-outline-variant" data-alt="Professional headshot of a younger male biology tutor in a bright lecture hall. Friendly, approachable, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeApZ__xGkY1-Kix7CMjEcrYH0Ro5sNGeEomI7G3ifTAiuduylc8WwkLzItUsMI8bojFCRJyDUa4b8hWVGuO0_aJNE_ecMpLk1d617AcPwENa8rcyNNDZ6dXrN8WZQKMulaGR1onN1assp2J5M1WzhOUVefrkMWMgPXQReWxB0_Cis-1yOzf-fNPDrV4iYCkt34QmdFtqBxmFCTugeznZS1ABV_tbBMTo26Mv1Mo3Irjx92Vi3-PYq"/>
+<span class="font-body-main text-[13px] text-on-surface-variant">Dr. Michael Torres</span>
+</div>
+<div class="mb-4">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-main text-xs text-on-surface-variant">Course Progress</span>
+<span class="font-label-bold text-xs success-green">91%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-success-green rounded-full transition-all duration-1000 ease-out" style="width: 91%;"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-bold py-2.5 button-radius hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+                        Continue Learning
+                        <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- New Course Empty State / Explore Card -->
+<div class="bg-surface-container border border-dashed border-outline-variant course-card-radius overflow-hidden flex flex-col justify-center items-center p-6 text-center hover:bg-surface-container-high transition-colors cursor-pointer min-h-[360px]">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 32px;">add</span>
+</div>
+<h3 class="font-section-title text-section-title text-on-surface mb-2">Explore New Courses</h3>
+<p class="font-body-main text-body-main text-on-surface-variant mb-6 max-w-[200px]">Browse the catalog to find your next learning adventure.</p>
+<button class="px-6 py-2 border border-outline-variant text-primary font-label-bold button-radius hover:border-primary transition-colors">
+                    Browse Catalog
+                </button>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation (Visible only md:hidden) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around items-center h-16 z-20 pb-safe">
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined thin-icon mb-1" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-label-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="school" data-weight="fill" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-[10px] font-label-bold">Courses</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined thin-icon mb-1" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-[10px] font-label-bold">Sessions</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined thin-icon mb-1" data-icon="chat">chat</span>
+<span class="text-[10px] font-label-bold">Chats</span>
+</a>
+</nav>
+</body></html>

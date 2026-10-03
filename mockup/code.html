@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UnboundYou Style Guide</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2F80F9",
+                        "success": "#08BD7E",
+                        "warning": "#F59E0B",
+                        "danger": "#EF4444",
+                        "surface-main": "#F9FAFB",
+                        "border-main": "#E5E9F0",
+                        "text-main": "#0F1729",
+                        "text-muted": "#65758B"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "gutter": "24px",
+                        "stack_lg": "32px",
+                        "stack_sm": "8px",
+                        "stack_md": "16px"
+                    },
+                    fontFamily: {
+                        "sans": ["Plus Jakarta Sans", "sans-serif"],
+                        "page-title": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-main": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    boxShadow: {
+                        "ambient": "0px 4px 12px rgba(15, 23, 41, 0.08)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FFFFFF;
+            color: #0F1729;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="p-8 md:p-12 lg:p-16 max-w-7xl mx-auto">
+<!-- Header -->
+<header class="flex items-center gap-4 mb-16 border-b border-border-main pb-8">
+<img alt="UnboundYou Logo" class="w-12 h-12 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVkYHaQIci446BeWR8qTJLOWLX5g94vMGG3LKAr_4Dr7-CPokSUMbQvflCOqNbR9WYQWm7ITrSQUQqItcsWvqZx91HkFwVyN8gBrISXtiSIS9D6PWssjsTlXc6pFEijOSE09OubZ5b3oNBdd_8AJVYju55Ds027pI7mnULBiSQKA6TdrTiVVaQHGTIR7Zv-Z495VFet3vrvxZyIm1u2sAJfe0PsF93DrdXaerYLfwhmG_E9-5P_nlF"/>
+<h1 class="text-[24px] font-bold text-text-main">UnboundYou Style Guide</h1>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-16">
+<!-- Colors -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Color Palette</h2>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-primary border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Primary</div>
+<div class="text-xs text-text-muted">#2F80F9</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-success border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Success</div>
+<div class="text-xs text-text-muted">#08BD7E</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-warning border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Warning</div>
+<div class="text-xs text-text-muted">#F59E0B</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-danger border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Danger</div>
+<div class="text-xs text-text-muted">#EF4444</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-surface-main border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Surface</div>
+<div class="text-xs text-text-muted">#F9FAFB</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-border-main border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Border</div>
+<div class="text-xs text-text-muted">#E5E9F0</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-text-main border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium text-text-main">Text Primary</div>
+<div class="text-xs text-text-muted">#0F1729</div>
+</div>
+<div class="space-y-2">
+<div class="h-16 rounded-lg bg-text-muted border border-border-main shadow-sm"></div>
+<div class="text-sm font-medium">Text Muted</div>
+<div class="text-xs text-text-muted">#65758B</div>
+</div>
+</div>
+</section>
+<!-- Typography -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Typography</h2>
+<div class="space-y-8">
+<div>
+<div class="text-[28px] font-bold text-text-main leading-tight">H1 Heading</div>
+<div class="text-xs text-text-muted mt-1">Plus Jakarta Sans / Bold / 28px</div>
+</div>
+<div>
+<div class="text-[18px] font-bold text-text-main leading-snug">H2 Section Title</div>
+<div class="text-xs text-text-muted mt-1">Plus Jakarta Sans / Bold / 18px</div>
+</div>
+<div>
+<div class="text-[14px] font-normal text-text-muted leading-relaxed">Body Text - This is standard paragraph text used across the application for descriptions, instructions, and general content. It prioritizes readability and uses the muted text color to reduce cognitive load.</div>
+<div class="text-xs text-text-muted mt-2">Plus Jakarta Sans / Regular / 14px</div>
+</div>
+</div>
+</section>
+<!-- Buttons -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Buttons</h2>
+<div class="flex flex-wrap items-center gap-4">
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">Primary</button>
+<button class="bg-white text-text-main border border-border-main px-6 py-2 rounded-lg font-medium text-sm hover:bg-surface-main transition-colors">Secondary</button>
+<button class="bg-danger text-white px-6 py-2 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">Destructive</button>
+<button class="text-primary hover:bg-primary/5 px-6 py-2 rounded-lg font-medium text-sm transition-colors">Ghost</button>
+</div>
+</section>
+<!-- Navigation -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Navigation States</h2>
+<div class="flex flex-col gap-2 w-full max-w-sm bg-surface-main p-4 rounded-xl border border-border-main">
+<!-- Active -->
+<div class="flex items-center gap-3 px-4 py-3 bg-primary/10 border-l-4 border-primary text-primary font-bold rounded-r-lg cursor-pointer">
+<span class="material-symbols-outlined text-primary">dashboard</span>
+<span class="text-sm">Dashboard (Active)</span>
+</div>
+<!-- Inactive -->
+<div class="flex items-center gap-3 px-4 py-3 text-text-muted hover:bg-border-main/50 border-l-4 border-transparent rounded-r-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined">school</span>
+<span class="text-sm font-medium">Courses (Inactive)</span>
+</div>
+</div>
+</section>
+<!-- Tabs -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Tabs</h2>
+<div class="flex items-center gap-8 border-b border-border-main">
+<button class="text-primary font-bold border-b-2 border-primary pb-3 px-1 text-sm">Active Tab</button>
+<button class="text-text-muted hover:text-text-main pb-3 px-1 text-sm font-medium transition-colors">Inactive Tab</button>
+<button class="text-text-muted hover:text-text-main pb-3 px-1 text-sm font-medium transition-colors">Another Tab</button>
+</div>
+</section>
+<!-- Status Badges -->
+<section class="space-y-6">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Status Badges</h2>
+<div class="flex flex-wrap gap-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                    Success
+                </div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warning/10 text-warning text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                    Warning
+                </div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-danger/10 text-danger text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                    Danger
+                </div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">info</span>
+                    Info
+                </div>
+</div>
+</section>
+<!-- Component Example -->
+<section class="space-y-6 lg:col-span-2">
+<h2 class="text-[18px] font-bold text-text-main border-b border-border-main pb-2">Component Example: Card</h2>
+<div class="bg-white border border-border-main rounded-[12px] shadow-ambient p-6 max-w-md">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-main border border-border-main flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A detailed headshot portrait of a professional corporate educator or tech administrator in a modern, well-lit office setting. The lighting is soft and natural, creating a clean, bright, and professional aesthetic suitable for a high-end B2B platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZ25jEJ6k4qG-PFyXovxrv5d3xnwn9cvb0jihOljqQ3hxBh3q5u96Q6V-FbW9da7DWHlK_gz-w7zrwywzL9cyZMvfjF8CiuY7seJWYnTgEfzVlCMj92PNOtiicr9C-ryFbzStm-cwAMhLZ_Owagv7P95echAPfiLjnKs-HD-iC1hmMh6akhSRQeqdL0kLUPLbQHeCwJ0k3fXU5fhr96le99FHf-mq7ZzWZzYFcPIIJ8yBclVvDf2IA"/>
+</div>
+<div>
+<h3 class="text-[16px] font-bold text-text-main leading-tight">Sarah Jenkins</h3>
+<p class="text-[12px] text-text-muted mt-1">Lead Instructor • Engineering</p>
+<p class="text-[14px] text-text-muted mt-3 leading-relaxed">
+                            Sarah has been leading the curriculum development for advanced robotics. This card demonstrates the standard elevation and border treatments for main content containers.
+                        </p>
+<div class="mt-4 flex gap-2">
+<button class="bg-primary/10 text-primary hover:bg-primary/20 px-4 py-1.5 rounded-lg font-medium text-xs transition-colors">View Profile</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</body></html>

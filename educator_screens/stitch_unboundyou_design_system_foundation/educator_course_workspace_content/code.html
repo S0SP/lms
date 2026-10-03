@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Course Workspace - Content</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002112",
+                        "on-primary-container": "#fefcff",
+                        "outline-variant": "#c1c6d6",
+                        "surface-container-low": "#f2f3ff",
+                        "on-background": "#131b2d",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#67f9b4",
+                        "secondary": "#006c46",
+                        "surface": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-primary-fixed": "#001a41",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#49df9d",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d2d9f3",
+                        "error": "#ba1a1a",
+                        "surface-container": "#e9edff",
+                        "surface-container-highest": "#dbe2fb",
+                        "on-primary-fixed-variant": "#004494",
+                        "surface-tint": "#005bc1",
+                        "on-surface": "#131b2d",
+                        "primary-container": "#0e70e9",
+                        "surface-container-high": "#e1e8ff",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-bright": "#faf8ff",
+                        "secondary-fixed": "#6afcb7",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#dbe2fb",
+                        "primary-fixed": "#d8e2ff",
+                        "background": "#faf8ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "primary": "#0058bc",
+                        "on-secondary-fixed-variant": "#005234",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#727785",
+                        "on-surface-variant": "#414754",
+                        "tertiary-container": "#a36700",
+                        "on-error": "#ffffff",
+                        "tertiary": "#825100",
+                        "on-secondary-container": "#007149",
+                        "inverse-surface": "#283043",
+                        "inverse-primary": "#adc6ff",
+                        "blue-custom": "#2F80F9",
+                        "success-custom": "#08BD7E"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "12px",
+                        "full": "9999px",
+                        "btn": "8px"
+                    },
+                    "spacing": {
+                        "stack_sm": "8px",
+                        "sidebar_width": "248px",
+                        "stack_md": "16px",
+                        "gutter": "24px",
+                        "container_max": "1440px",
+                        "stack_lg": "32px"
+                    },
+                    "fontFamily": {
+                        "page-title-mobile": ["Plus Jakarta Sans"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "page-title": ["Plus Jakarta Sans"],
+                        "section-title": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "page-title-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "page-title": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "section-title": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-main antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="w-[248px] h-screen fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-stack_lg px-stack_md z-50">
+<div class="mb-stack_lg flex items-center gap-3">
+<img alt="Educator Profile Avatar" class="w-8 h-8 rounded-md object-cover" data-alt="A clean, modern geometric logo icon for an education platform featuring abstract, overlapping transparent shapes in vibrant primary blue and cyan. The aesthetic is extremely minimalist and corporate. Bright, flat white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjhUelnGKxUp9x1EhoTX998fDFQtfBUdKZBfaRlKLmsbVCbgjTvVOGCkNLhnPJoJ_WSjbgxe6Aaq0EA8FjMYIp4BqWA2xDZJkOZB7nIH5eWioypqfRkVDm4BVZqTxqh5BcMUmnDvWwAt15mXdCnHsmrbJncNzUp1a8wabslwo2E4c_UQwjTh81J_4cme9KxprCbyU1cUq0Apv64H_gou1ak7jCUKRysudsUwWNVR4tTyiwD4JNH0er"/>
+<div>
+<h1 class="font-page-title text-page-title font-bold text-primary">UnboundYou</h1>
+<p class="font-body-main text-body-main text-on-surface-variant text-[13px]">Educator Portal</p>
+</div>
+</div>
+<button class="mb-8 w-full bg-blue-custom text-white font-label-bold text-label-bold py-2.5 rounded-btn flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            Create New Course
+        </button>
+<ul class="flex flex-col gap-1 flex-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 border-l-4 border-blue-custom bg-blue-custom/10 text-blue-custom font-bold rounded-r-md transition-colors w-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">book_5</span>
+                    Courses
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                    Calendar
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">event_available</span>
+                    Availability
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+                    Payouts
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+                    Chats
+                </a>
+</li>
+</ul>
+<ul class="flex flex-col gap-1 mt-auto border-t border-outline-variant pt-4">
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 ml-1 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Support
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Workspace -->
+<main class="ml-[248px] flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar (Course Specific) -->
+<header class="h-16 px-gutter border-b border-outline-variant bg-surface sticky top-0 z-40 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="text-[12px] font-semibold tracking-wider text-on-surface-variant bg-surface-container px-2 py-1 rounded">AR-MTH-9 · 1:1</span>
+<h2 class="font-section-title text-section-title text-on-surface">Aarav — IGCSE Grade 9 Maths</h2>
+</div>
+<div class="flex items-center bg-surface-container p-1 rounded-lg border border-outline-variant/50">
+<button class="px-4 py-1.5 text-sm font-medium text-on-surface-variant rounded-md hover:text-on-surface transition-colors">Home</button>
+<button class="px-4 py-1.5 text-sm font-medium text-on-surface-variant rounded-md hover:text-on-surface transition-colors">Timeline</button>
+<button class="px-4 py-1.5 text-sm font-medium bg-white text-blue-custom shadow-sm rounded-md transition-all">Content</button>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-8 max-w-5xl mx-auto w-full">
+<!-- Action Bar -->
+<div class="flex justify-between items-center mb-8">
+<div class="relative w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant rounded-btn text-sm focus:border-blue-custom focus:ring-2 focus:ring-blue-custom/20 transition-all outline-none" placeholder="Search resources..." type="text"/>
+</div>
+<button class="bg-blue-custom text-white px-4 py-2 rounded-btn font-label-bold text-label-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Add Section
+                </button>
+</div>
+<!-- Sections List -->
+<div class="flex flex-col gap-4">
+<!-- Expanded Section 1 -->
+<div class="bg-white border border-outline-variant rounded-2xl shadow-[0_4px_12px_rgba(15,23,41,0.04)] overflow-hidden">
+<div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-bright cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline cursor-grab hover:text-on-surface">drag_indicator</span>
+<h3 class="font-section-title text-[16px] text-on-surface">Algebraic Foundations</h3>
+<span class="ml-2 px-2.5 py-0.5 bg-surface-container text-on-surface-variant text-[12px] font-medium rounded-full">4 Resources</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-outline hover:text-blue-custom p-1 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">add_circle</span></button>
+<button class="text-outline hover:text-on-surface p-1 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+<span class="material-symbols-outlined text-on-surface transition-transform duration-200 rotate-180">expand_more</span>
+</div>
+</div>
+<div class="p-2 bg-white flex flex-col gap-1">
+<!-- Resource Row -->
+<div class="group flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center gap-4 pl-8">
+<span class="material-symbols-outlined text-outline group-hover:text-on-surface opacity-0 group-hover:opacity-100 cursor-grab absolute left-5 transition-all">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-blue-custom/10 flex items-center justify-center text-blue-custom">
+<span class="material-symbols-outlined text-[18px]">smart_display</span>
+</div>
+<span class="text-[14px] font-medium text-on-surface">Introduction to Variables</span>
+</div>
+<div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-outline hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-outline hover:text-error"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<!-- Resource Row -->
+<div class="group flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center gap-4 pl-8">
+<span class="material-symbols-outlined text-outline group-hover:text-on-surface opacity-0 group-hover:opacity-100 cursor-grab absolute left-5 transition-all">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<span class="text-[14px] font-medium text-on-surface">Worksheet 1: Basic Expressions</span>
+</div>
+<div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-outline hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-outline hover:text-error"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+<!-- Resource Row -->
+<div class="group flex items-center justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center gap-4 pl-8">
+<span class="material-symbols-outlined text-outline group-hover:text-on-surface opacity-0 group-hover:opacity-100 cursor-grab absolute left-5 transition-all">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-success-custom/10 flex items-center justify-center text-success-custom">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+</div>
+<span class="text-[14px] font-medium text-on-surface">Diagnostic Quiz</span>
+</div>
+<div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-outline hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-outline hover:text-error"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Collapsed Section 2 -->
+<div class="bg-white border border-outline-variant rounded-2xl shadow-[0_4px_12px_rgba(15,23,41,0.02)] overflow-hidden">
+<div class="flex items-center justify-between p-4 bg-surface-bright cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline cursor-grab hover:text-on-surface">drag_indicator</span>
+<h3 class="font-section-title text-[16px] text-on-surface">Linear Equations</h3>
+<span class="ml-2 px-2.5 py-0.5 bg-surface-container text-on-surface-variant text-[12px] font-medium rounded-full">6 Resources</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-outline hover:text-blue-custom p-1 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">add_circle</span></button>
+<button class="text-outline hover:text-on-surface p-1 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+<span class="material-symbols-outlined text-on-surface transition-transform duration-200">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Collapsed Section 3 -->
+<div class="bg-white border border-outline-variant rounded-2xl shadow-[0_4px_12px_rgba(15,23,41,0.02)] overflow-hidden opacity-80 border-dashed">
+<div class="flex items-center justify-center p-6 bg-surface cursor-pointer hover:bg-surface-container-lowest transition-colors text-outline">
+<span class="text-sm font-medium">+ Drop files here to create a new section or click "Add Section"</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
