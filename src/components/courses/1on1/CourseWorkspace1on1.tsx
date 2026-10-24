@@ -46,12 +46,19 @@ export interface CourseWorkspaceProps {
   courseId: string;
   userRole?: 'admin' | 'educator' | 'learner';
   currentUserId?: string;
+  initialData?: {
+    course?: any;
+    credits?: { remaining: number; consumed: number; total: number };
+    educators?: any[];
+    curriculum?: any[];
+  };
 }
 
 export function CourseWorkspace1on1({
   courseId,
   userRole = 'admin',
   currentUserId,
+  initialData,
 }: CourseWorkspaceProps) {
   const router = useRouter();
 
@@ -59,18 +66,21 @@ export function CourseWorkspace1on1({
   const [activeTab, setActiveTab] = useState<'home' | 'timeline' | 'content' | 'billing' | 'settings'>('home');
 
   // Course Data
-  const [course, setCourse] = useState<any>(null);
-  const [credits, setCredits] = useState<{ remaining: number; consumed: number; total: number }>({
-    remaining: 0,
-    consumed: 0,
-    total: 0,
-  });
+  const [course, setCourse] = useState<any>(initialData?.course || null);
+  const [credits, setCredits] = useState<{ remaining: number; consumed: number; total: number }>(
+    initialData?.credits || {
+      remaining: 0,
+      consumed: 0,
+      total: 0,
+    }
+  );
   const [creditHistory, setCreditHistory] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [timelinePosts, setTimelinePosts] = useState<any[]>([]);
-  const [educators, setEducators] = useState<any[]>([]);
-  const [contentSections, setContentSections] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [educators, setEducators] = useState<any[]>(initialData?.educators || []);
+  const [contentSections, setContentSections] = useState<any[]>(initialData?.curriculum || []);
+  const [loading, setLoading] = useState(!initialData?.course);
+  const [votingPollId, setVotingPollId] = useState<string | null>(null);
 
   // Modals state
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -83,12 +93,12 @@ export function CourseWorkspace1on1({
   const [selectedVideo, setSelectedVideo] = useState<{ title: string; url: string; date?: string; educatorName?: string } | null>(null);
 
   // Settings tab form state
-  const [courseNameInput, setCourseNameInput] = useState('');
-  const [courseSubjectInput, setCourseSubjectInput] = useState('');
-  const [courseGradeInput, setCourseGradeInput] = useState('');
-  const [courseBoardInput, setCourseBoardInput] = useState('');
-  const [courseStatusInput, setCourseStatusInput] = useState('active');
-  const [selectedEducatorId, setSelectedEducatorId] = useState('');
+  const [courseNameInput, setCourseNameInput] = useState(initialData?.course?.name || '');
+  const [courseSubjectInput, setCourseSubjectInput] = useState(initialData?.course?.subject || '');
+  const [courseGradeInput, setCourseGradeInput] = useState(initialData?.course?.grade || '');
+  const [courseBoardInput, setCourseBoardInput] = useState(initialData?.course?.board || '');
+  const [courseStatusInput, setCourseStatusInput] = useState(initialData?.course?.status || 'active');
+  const [selectedEducatorId, setSelectedEducatorId] = useState(initialData?.educators?.[0]?.id || '');
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
@@ -192,6 +202,8 @@ export function CourseWorkspace1on1({
 
   // Handle Poll / Quiz Vote
   const handleVote = async (pollId: string, optionId: string) => {
+    if (votingPollId) return;
+    setVotingPollId(pollId);
     try {
       const res = await fetch(`/api/v1/courses/${courseId}/timeline/vote`, {
         method: 'POST',
@@ -221,6 +233,8 @@ export function CourseWorkspace1on1({
       }
     } catch (err) {
       console.error('Failed to cast vote:', err);
+    } finally {
+      setVotingPollId(null);
     }
   };
 
@@ -746,28 +760,30 @@ export function CourseWorkspace1on1({
         {/* ===================== TAB 2: TIMELINE ===================== */}
         {activeTab === 'timeline' && (
           <div className="max-w-4xl mx-auto space-y-6">
-            {/* Top Action bar (Screenshots 020, 021) */}
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-4">
-              <span className="text-sm font-medium text-neutral-500">
-                Share updates, voice notes, or quizzes with the learner
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsChitChatModalOpen(true)}
-                  className="px-4 py-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-xl transition flex items-center gap-2"
-                >
-                  <MessageSquare className="w-4 h-4 text-blue-600" />
-                  Create Chit chat
-                </button>
-                <button
-                  onClick={() => setIsPollQuizModalOpen(true)}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition flex items-center gap-2 shadow-sm"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Add Poll/Quiz
-                </button>
+            {/* Top Action bar (Screenshots 020, 021) - Only for Admin/Educator */}
+            {userRole !== 'learner' && (
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-4">
+                <span className="text-sm font-medium text-neutral-500">
+                  Share updates, voice notes, or quizzes with the learner
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsChitChatModalOpen(true)}
+                    className="px-4 py-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-xl transition flex items-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4 text-blue-600" />
+                    Create Chit chat
+                  </button>
+                  <button
+                    onClick={() => setIsPollQuizModalOpen(true)}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition flex items-center gap-2 shadow-sm"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Add Poll/Quiz
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Timeline Feed */}
             {timelinePosts.length === 0 ? (
@@ -1401,6 +1417,7 @@ export function CourseWorkspace1on1({
         isOpen={!!selectedSessionForDetails}
         onClose={() => setSelectedSessionForDetails(null)}
         session={selectedSessionForDetails}
+        userRole={userRole}
         courseName={course?.name || ''}
         onSessionUpdated={fetchData}
       />

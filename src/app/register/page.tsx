@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { BrandLogo } from '@/components/ui/BrandLogo';
-import { PhoneInputWithCountry } from '@/components/ui/PhoneInputWithCountry';
 import { validateEmail, validatePhone } from '@/lib/validation';
 
 type UserRole = 'learner' | 'educator' | 'parent' | 'admin';
@@ -39,7 +38,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [isPhoneValid, setIsPhoneValid] = useState(true);
   const [role, setRole] = useState<UserRole>('learner');
 
   const [loading, setLoading] = useState(false);
@@ -57,9 +55,10 @@ export default function RegisterPage() {
       return;
     }
 
-    // Phone validation using library if entered
-    if (phone.trim()) {
-      const phoneValidation = validatePhone(phone);
+    const trimmedPhone = phone.trim();
+    // Phone validation only if provided
+    if (trimmedPhone && trimmedPhone !== '+' && !/^\+\d{1,4}$/.test(trimmedPhone)) {
+      const phoneValidation = validatePhone(trimmedPhone);
       if (!phoneValidation.isValid) {
         setError(phoneValidation.error || 'Please enter a valid phone number');
         return;
@@ -69,23 +68,33 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const cleanPhone = (trimmedPhone && trimmedPhone !== '+' && !/^\+\d{1,4}$/.test(trimmedPhone))
+        ? trimmedPhone
+        : null;
+
       const res = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone, role }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+          phone: cleanPhone,
+          role,
+        }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || data.error) {
-        throw new Error(data.error || 'Failed to create account');
+      if (!res.ok || !data || data.error || data.success === false) {
+        throw new Error(data?.error || data?.message || `Failed to create account (Status: ${res.status})`);
       }
 
       setSuccess(true);
 
       // Auto sign-in after registration
       const signInRes = await signIn('credentials', {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
@@ -253,17 +262,18 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                Phone Number (Optional)
+                Phone Number <span className="text-gray-400 font-normal lowercase">(optional)</span>
               </label>
-              <PhoneInputWithCountry
-                value={phone}
-                onChange={(p, valid) => {
-                  setPhone(p);
-                  setIsPhoneValid(valid);
-                }}
-                defaultCountry="in"
-                placeholder="Enter mobile number"
-              />
+              <div className="relative">
+                <Phone className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. 9876543210 (Optional)"
+                  className="w-full pl-11 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#080D16] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+                />
+              </div>
             </div>
 
             <button

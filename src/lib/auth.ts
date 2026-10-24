@@ -11,7 +11,7 @@ import { authConfig } from '@/lib/auth.config';
 
 const credentialsSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z.string().optional(),
   pin: z.string().optional(),
 });
 
@@ -43,10 +43,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = credentialsSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
-        const { email, password } = parsed.data;
+        const { email, password, pin } = parsed.data;
         const lowerEmail = email.toLowerCase().trim();
         const demoConfig = DEMO_ROLES[lowerEmail];
-        const rawInput = ((credentials as any).pin || password || '').trim();
+        const rawInput = (pin || password || (credentials as any).pin || (credentials as any).password || '').trim();
+
+        if (!rawInput) return null;
 
         let [user] = await db
           .select({
@@ -89,7 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.isActive) return null;
 
-        // 1. PIN-based check (Primary authentication for Students/Learners)
+        // 1. PIN-based check (Primary authentication for Students/Learners or PIN users)
         if (user.loginPin && (rawInput === user.loginPin || rawInput === String(user.loginPin).trim())) {
           await db
             .update(users)
@@ -129,22 +131,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
 
-        // 3. Password hash check (e.g. for Admin or password-based credentials)
-        if (user.passwordHash) {
-          const valid = await verify(user.passwordHash, password);
-          if (valid) {
-            await db
-              .update(users)
-              .set({ lastLoginAt: new Date(), updatedAt: new Date() })
-              .where(eq(users.id, user.id));
+        // 3. Password hash check (for all user roles registering with password)
+        const checkPassword = password || rawInput;
+        if (user.passwordHash && checkPassword) {
+          try {
+            const valid = await verify(user.passwordHash, checkPassword);
+            if (valid) {
+              await db
+                .update(users)
+                .set({ lastLoginAt: new Date(), updatedAt: new Date() })
+                .where(eq(users.id, user.id));
 
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role,
-              image: user.avatarUrl,
-            };
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                image: user.avatarUrl,
+              };
+            }
+          } catch (err) {
+            console.error('Password hash verification failed:', err);
           }
         }
 

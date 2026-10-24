@@ -426,6 +426,14 @@ export function CourseSellingPageWizardModal({
   // Public Preview Modal
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  // Drag and drop rearrange states
+  const [draggedSectionIdx, setDraggedSectionIdx] = useState<number | null>(null);
+  const [dragOverSectionIdx, setDragOverSectionIdx] = useState<number | null>(null);
+  const [draggedResource, setDraggedResource] = useState<{ secId: string; idx: number } | null>(null);
+  const [dragOverResource, setDragOverResource] = useState<{ secId: string; idx: number } | null>(null);
+  const [draggedQuestionIdx, setDraggedQuestionIdx] = useState<number | null>(null);
+  const [dragOverQuestionIdx, setDragOverQuestionIdx] = useState<number | null>(null);
+
   // Template Picker State
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [templateList, setTemplateList] = useState<any[]>([]);
@@ -1646,13 +1654,43 @@ export function CourseSellingPageWizardModal({
 
                 {/* Pre-filled & custom questions list matching screenshot */}
                 <div className="space-y-2.5">
-                  {questions.map((q) => (
+                  {questions.map((q, qIdx) => (
                     <div
                       key={q.id}
-                      className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between shadow-sm"
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggedQuestionIdx(qIdx);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverQuestionIdx !== qIdx) setDragOverQuestionIdx(qIdx);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedQuestionIdx(null);
+                        setDragOverQuestionIdx(null);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedQuestionIdx !== null && draggedQuestionIdx !== qIdx) {
+                          setQuestions((prev) => {
+                            const updated = [...prev];
+                            const [moved] = updated.splice(draggedQuestionIdx, 1);
+                            updated.splice(qIdx, 0, moved);
+                            return updated;
+                          });
+                        }
+                        setDraggedQuestionIdx(null);
+                        setDragOverQuestionIdx(null);
+                      }}
+                      className={`p-3.5 rounded-xl border bg-white dark:bg-gray-800 flex items-center justify-between shadow-sm transition-all ${
+                        dragOverQuestionIdx === qIdx
+                          ? 'border-blue-500 ring-2 ring-blue-500/20 dark:ring-blue-400/20 scale-[1.01]'
+                          : 'border-gray-200 dark:border-gray-700'
+                      } ${draggedQuestionIdx === qIdx ? 'opacity-40' : ''}`}
                     >
                       <div className="flex items-center gap-3">
-                        <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+                        <GripVertical className="w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600" />
                         <div>
                           <p className="text-xs font-bold text-gray-900 dark:text-white">{q.label}</p>
                           <p className="text-[11px] text-gray-400 mt-0.5">
@@ -1863,17 +1901,47 @@ export function CourseSellingPageWizardModal({
                 <div className="space-y-4">
                   {sections
                     .filter((s) => !contentSearch || s.title.toLowerCase().includes(contentSearch.toLowerCase()))
-                    .map((sec) => (
+                    .map((sec, secIdx) => (
                       <div
                         key={sec.id}
-                        className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-all ${
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.effectAllowed = 'move';
+                          setDraggedSectionIdx(secIdx);
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          if (dragOverSectionIdx !== secIdx) setDragOverSectionIdx(secIdx);
+                        }}
+                        onDragEnd={() => {
+                          setDraggedSectionIdx(null);
+                          setDragOverSectionIdx(null);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          if (draggedSectionIdx !== null && draggedSectionIdx !== secIdx) {
+                            setSections((prev) => {
+                              const updated = [...prev];
+                              const [moved] = updated.splice(draggedSectionIdx, 1);
+                              updated.splice(secIdx, 0, moved);
+                              return updated;
+                            });
+                          }
+                          setDraggedSectionIdx(null);
+                          setDragOverSectionIdx(null);
+                        }}
+                        className={`rounded-xl border bg-white dark:bg-gray-800 shadow-sm transition-all ${
+                          dragOverSectionIdx === secIdx
+                            ? 'border-blue-500 ring-2 ring-blue-500/20 dark:ring-blue-400/20'
+                            : 'border-gray-200 dark:border-gray-700'
+                        } ${draggedSectionIdx === secIdx ? 'opacity-40' : ''} ${
                           activeMenuSectionId === sec.id ? 'relative z-30 overflow-visible' : 'overflow-hidden'
                         }`}
                       >
                         {/* Section Card Header */}
                         <div className="p-3.5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 rounded-t-xl">
                           <div className="flex items-center gap-3">
-                            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+                            <GripVertical className="w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600" />
                             <div>
                               <input
                                 type="text"
@@ -2139,65 +2207,108 @@ export function CourseSellingPageWizardModal({
                                 No resources yet. Click + above to upload video, attach notes, or add quizzes.
                               </p>
                             ) : (
-                              sec.resources.map((res) => (
-                                <div
-                                  key={res.id}
-                                  className="py-2.5 px-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg group transition"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    {res.type === 'video' && <VideoIcon className="w-4 h-4 text-blue-500" />}
-                                    {res.type === 'file' && <FileText className="w-4 h-4 text-emerald-500" />}
-                                    {res.type === 'youtube' && <YoutubeIcon className="w-4 h-4 text-red-600" />}
-                                    {res.type === 'test' && <CheckSquare className="w-4 h-4 text-indigo-500" />}
-                                    {res.type === 'assessment' && <FileCheck className="w-4 h-4 text-rose-500" />}
-                                    {res.type === 'folder' && <Folder className="w-4 h-4 text-amber-500" />}
-                                    {res.type === 'link' && <Link2 className="w-4 h-4 text-teal-500" />}
-                                    {res.type === 'chit_chat' && <MessageSquare className="w-4 h-4 text-purple-500" />}
+                              sec.resources.map((res, rIdx) => {
+                                const isDraggedThis = draggedResource?.secId === sec.id && draggedResource.idx === rIdx;
+                                const isDragOverThis = dragOverResource?.secId === sec.id && dragOverResource.idx === rIdx;
 
-                                    <div>
-                                      <p className="text-xs font-semibold text-gray-900 dark:text-white">{res.title}</p>
-                                      <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-0.5">
-                                        <span className="uppercase font-bold">{res.type}</span>
-                                        {res.duration && <span>• {res.duration}</span>}
-                                        {res.fileSize && <span>• {res.fileSize}</span>}
-                                        {res.isFreePreview && (
-                                          <span className="text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 rounded">
-                                            FREE PREVIEW
-                                          </span>
-                                        )}
+                                return (
+                                  <div
+                                    key={res.id}
+                                    draggable
+                                    onDragStart={(e) => {
+                                      e.stopPropagation();
+                                      e.dataTransfer.effectAllowed = 'move';
+                                      setDraggedResource({ secId: sec.id, idx: rIdx });
+                                    }}
+                                    onDragOver={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (dragOverResource?.secId !== sec.id || dragOverResource?.idx !== rIdx) {
+                                        setDragOverResource({ secId: sec.id, idx: rIdx });
+                                      }
+                                    }}
+                                    onDragEnd={(e) => {
+                                      e.stopPropagation();
+                                      setDraggedResource(null);
+                                      setDragOverResource(null);
+                                    }}
+                                    onDrop={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (draggedResource && draggedResource.secId === sec.id && draggedResource.idx !== rIdx) {
+                                        setSections((prev) =>
+                                          prev.map((s) => {
+                                            if (s.id !== sec.id) return s;
+                                            const updatedRes = [...s.resources];
+                                            const [moved] = updatedRes.splice(draggedResource.idx, 1);
+                                            updatedRes.splice(rIdx, 0, moved);
+                                            return { ...s, resources: updatedRes };
+                                          })
+                                        );
+                                      }
+                                      setDraggedResource(null);
+                                      setDragOverResource(null);
+                                    }}
+                                    className={`py-2.5 px-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg group transition ${
+                                      isDragOverThis ? 'border-2 border-blue-500 bg-blue-50/20' : ''
+                                    } ${isDraggedThis ? 'opacity-40' : ''}`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <GripVertical className="w-3.5 h-3.5 text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600" />
+                                      {res.type === 'video' && <VideoIcon className="w-4 h-4 text-blue-500" />}
+                                      {res.type === 'file' && <FileText className="w-4 h-4 text-emerald-500" />}
+                                      {res.type === 'youtube' && <YoutubeIcon className="w-4 h-4 text-red-600" />}
+                                      {res.type === 'test' && <CheckSquare className="w-4 h-4 text-indigo-500" />}
+                                      {res.type === 'assessment' && <FileCheck className="w-4 h-4 text-rose-500" />}
+                                      {res.type === 'folder' && <Folder className="w-4 h-4 text-amber-500" />}
+                                      {res.type === 'link' && <Link2 className="w-4 h-4 text-teal-500" />}
+                                      {res.type === 'chit_chat' && <MessageSquare className="w-4 h-4 text-purple-500" />}
+
+                                      <div>
+                                        <p className="text-xs font-semibold text-gray-900 dark:text-white">{res.title}</p>
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-0.5">
+                                          <span className="uppercase font-bold">{res.type}</span>
+                                          {res.duration && <span>• {res.duration}</span>}
+                                          {res.fileSize && <span>• {res.fileSize}</span>}
+                                          {res.isFreePreview && (
+                                            <span className="text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 rounded">
+                                              FREE PREVIEW
+                                            </span>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
 
-                                  <div className="flex items-center gap-1.5">
-                                    {res.externalUrl && (
+                                    <div className="flex items-center gap-1.5">
+                                      {res.externalUrl && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setPreviewingResource(res)}
+                                          className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                                          title="Preview content"
+                                        >
+                                          <PlayCircle className="w-4 h-4" />
+                                        </button>
+                                      )}
                                       <button
                                         type="button"
-                                        onClick={() => setPreviewingResource(res)}
-                                        className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
-                                        title="Preview content"
+                                        onClick={() => {
+                                          setSections((prev) =>
+                                            prev.map((s) =>
+                                              s.id === sec.id
+                                                ? { ...s, resources: s.resources.filter((r) => r.id !== res.id) }
+                                                : s
+                                            )
+                                          );
+                                        }}
+                                        className="text-gray-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition"
                                       >
-                                        <PlayCircle className="w-4 h-4" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                       </button>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSections((prev) =>
-                                          prev.map((s) =>
-                                            s.id === sec.id
-                                              ? { ...s, resources: s.resources.filter((r) => r.id !== res.id) }
-                                              : s
-                                          )
-                                        );
-                                      }}
-                                      className="text-gray-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
+                                    </div>
                                   </div>
-                                </div>
-                              ))
+                                );
+                              })
                             )}
                           </div>
                         )}

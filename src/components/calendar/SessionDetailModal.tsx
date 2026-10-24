@@ -92,6 +92,7 @@ export function SessionDetailModal({
   // Rename modal state
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameInput, setRenameInput] = useState(session.title);
+  const [isDeletingSession, setIsDeletingSession] = useState(false);
 
   // Toast notification inside modal
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -435,11 +436,27 @@ export function SessionDetailModal({
   };
 
   const handleDeleteSession = async () => {
-    if (confirm('Are you sure you want to delete this session?')) {
+    if (!confirm('Are you sure you want to delete this session? This action cannot be undone.')) return;
+    try {
+      setIsDeletingSession(true);
+      const res = await fetch(`/api/v1/sessions/${session.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Failed to delete session');
+      }
+      sessionDetailCache.delete(session.id);
+      sessionAttendanceCache.delete(session.id);
       if (onDeleteSession) {
         await onDeleteSession(session.id);
       }
       onClose();
+    } catch (err: any) {
+      console.error('Delete session error:', err);
+      alert(err.message || 'Failed to delete session');
+    } finally {
+      setIsDeletingSession(false);
     }
   };
 
@@ -647,10 +664,15 @@ export function SessionDetailModal({
                           setMenuOpen(false);
                           handleDeleteSession();
                         }}
-                        className="w-full px-4 py-2.5 flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                        disabled={isDeletingSession}
+                        className="w-full px-4 py-2.5 flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left text-red-600 dark:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
+                        {isDeletingSession ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>{isDeletingSession ? 'Deleting...' : 'Delete'}</span>
                       </button>
                     )}
 
@@ -725,10 +747,15 @@ export function SessionDetailModal({
                           setMenuOpen(false);
                           handleDeleteSession();
                         }}
-                        className="w-full px-4 py-2.5 flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                        disabled={isDeletingSession}
+                        className="w-full px-4 py-2.5 flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left text-red-600 dark:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
+                        {isDeletingSession ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>{isDeletingSession ? 'Deleting...' : 'Delete'}</span>
                       </button>
                     )}
 

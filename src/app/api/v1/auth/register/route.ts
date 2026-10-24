@@ -11,7 +11,7 @@ const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['learner', 'educator', 'parent', 'admin']).default('learner'),
-  phone: z.string().optional(),
+  phone: z.string().nullable().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
 
     const { name, email, password, role, phone } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
+    const cleanPhone = phone && phone.trim() && phone.trim() !== '+' && !/^\+\d{1,4}$/.test(phone.trim())
+      ? phone.trim()
+      : null;
 
     // Check if user already exists
     const [existing] = await db
@@ -41,6 +44,11 @@ export async function POST(req: NextRequest) {
     // Hash password with Argon2id
     const passwordHash = await hash(password);
 
+    // If 4-digit numeric password or student role, provide 4-digit loginPin for PIN login compatibility
+    const loginPin = /^\d{4}$/.test(password)
+      ? password
+      : (role === 'learner' ? Math.floor(1000 + Math.random() * 9000).toString() : null);
+
     // Create user in a transaction and create role profile
     const result = await db.transaction(async (tx) => {
       const [newUser] = await tx
@@ -50,7 +58,8 @@ export async function POST(req: NextRequest) {
           email: normalizedEmail,
           passwordHash,
           role,
-          phone: phone || null,
+          phone: cleanPhone,
+          loginPin,
           isActive: true,
         })
         .returning({
@@ -72,7 +81,11 @@ export async function POST(req: NextRequest) {
           userId: newUser.id,
         });
       } else if (role === 'parent') {
-        // Parent profile record will be linked to learner upon linking
+        // Link any pre-existing parent profile registered by email
+        await tx
+          .update(parentProfiles)
+          .set({ userId: newUser.id })
+          .where(eq(parentProfiles.email, normalizedEmail));
       }
 
       return newUser;

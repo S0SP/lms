@@ -1516,6 +1516,11 @@ export function EducatorCalendarClient({
               console.error(e);
             }
           }}
+          onDeleteSession={async (sessionId) => {
+            setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+            setDetailModalSession(null);
+            showToast('Session deleted successfully');
+          }}
         />
       )}
 

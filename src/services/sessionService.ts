@@ -6,7 +6,8 @@ import { scheduleJson, cancelJobs, isQstashEnabled } from '@/lib/integrations/qs
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from '@/lib/integrations/googleCalendar';
 import { config } from '@/config/unifiedConfig';
 import { db } from '@/lib/drizzle';
-import { sessions, sessionReminderJobs, users, courses, sessionAttendees, courseEnrollments, courseEducators, tags, orgs, parentProfiles } from '@/db/schema';
+import { sessions, sessionReminderJobs, users, courses, sessionAttendees, courseEnrollments, courseEducators, tags, orgs, parentProfiles, notificationLog } from '@/db/schema';
+import { isZoomEnabled } from '@/lib/integrations/zoom';
 import { eq, and, inArray, gte, lt, ne } from 'drizzle-orm';
 import {
   sendSessionScheduledNotification,
@@ -524,6 +525,197 @@ export const sessionService = {
     }
 
     return sess;
+  },
+
+  async createSessionsBulk(data: {
+    courseId: string;
+    educatorId: string;
+    title: string;
+    topic?: string;
+    durationMin: number;
+    creditsConsumed?: number;
+    learnerIds?: string[];
+    tags?: string[];
+    createZoomMeeting?: boolean;
+    slots: Array<{ date: string; time: string }>;
+    createdById?: string;
+  }) {
+    if (!data.slots || data.slots.length === 0) {
+      throw new Error('At least one slot must be provided');
+    }
+
+    // 1. Auto-assign educator to course if not assigned
+    if (data.courseId && data.educatorId) {
+      const [assigned] = await db
+        .select({ id: courseEducators.id })
+        .from(courseEducators)
+        .where(and(eq(courseEducators.courseId, data.courseId), eq(courseEducators.educatorId, data.educatorId)))
+        .limit(1);
+      if (!assigned) {
+        await db
+          .insert(courseEducators)
+          .values({
+            courseId: data.courseId,
+            educatorId: data.educatorId,
+          })
+          .catch(() => {});
+      }
+    }
+
+    // 2. Auto-enroll learner if not enrolled
+    if (data.courseId && data.learnerIds && data.learnerIds.length > 0) {
+      for (const lId of data.learnerIds) {
+        const [enrolled] = await db
+          .select({ id: courseEnrollments.id })
+          .from(courseEnrollments)
+          .where(and(eq(courseEnrollments.courseId, data.courseId), eq(courseEnrollments.learnerId, lId)))
+          .limit(1);
+        if (!enrolled) {
+          await db
+            .insert(courseEnrollments)
+            .values({
+              courseId: data.courseId,
+              learnerId: lId,
+              status: 'active',
+            })
+            .catch(() => {});
+        }
+      }
+    }
+
+    // 3. Register tags if any
+    if (data.tags && data.tags.length > 0) {
+      const [firstOrg] = await db.select({ id: orgs.id }).from(orgs).limit(1);
+      if (firstOrg?.id) {
+        for (const t of data.tags) {
+          const tName = t.trim();
+          if (!tName) continue;
+          const [found] = await db
+            .select({ id: tags.id })
+            .from(tags)
+            .where(and(eq(tags.orgId, firstOrg.id), eq(tags.name, tName)))
+            .limit(1);
+          if (!found) {
+            await db
+              .insert(tags)
+              .values({
+                orgId: firstOrg.id,
+                name: tName,
+                category: 'custom',
+                colorHex: '#3b82f6',
+              })
+              .catch(() => {});
+          }
+        }
+      }
+    }
+
+    // 4. Fast database transaction: batch-insert all sessions and sessionAttendees
+    const createdSessions = await db.transaction(async (tx) => {
+      const sessionRows = data.slots.map((slot) => ({
+        courseId: data.courseId,
+        educatorId: data.educatorId,
+        title: data.title,
+        topic: data.topic || null,
+        scheduledAt: new Date(`${slot.date}T${slot.time}:00`),
+        durationMin: data.durationMin,
+        creditsConsumed: data.creditsConsumed !== undefined && data.creditsConsumed !== null ? String(data.creditsConsumed) : '1.0',
+        status: 'scheduled' as const,
+      }));
+
+      const inserted = await tx.insert(sessions).values(sessionRows).returning();
+
+      if (data.learnerIds && data.learnerIds.length > 0) {
+        const uniqueLearners = Array.from(new Set(data.learnerIds));
+        const attendeeRows: Array<{ sessionId: string; learnerId: string }> = [];
+        for (const sess of inserted) {
+          for (const lId of uniqueLearners) {
+            attendeeRows.push({ sessionId: sess.id, learnerId: lId });
+          }
+        }
+        if (attendeeRows.length > 0) {
+          await tx.insert(sessionAttendees).values(attendeeRows);
+        }
+      }
+
+      return inserted;
+    });
+
+    // 5. In-App Notifications logged in database for instant notification dropdown updates
+    if (data.createdById) {
+      await db
+        .insert(notificationLog)
+        .values({
+          userId: data.createdById,
+          type: 'sessions_scheduled',
+          payloadJson: {
+            message: `Successfully scheduled ${createdSessions.length} session${createdSessions.length > 1 ? 's' : ''} for "${data.title}".`,
+            courseId: data.courseId,
+            count: createdSessions.length,
+          },
+          channel: 'in_app',
+        })
+        .catch((err) => console.error('[createSessionsBulk] notification error:', err));
+    }
+
+    if (data.educatorId && data.educatorId !== data.createdById) {
+      await db
+        .insert(notificationLog)
+        .values({
+          userId: data.educatorId,
+          type: 'sessions_scheduled',
+          payloadJson: {
+            message: `${createdSessions.length} new sessions scheduled for "${data.title}".`,
+            courseId: data.courseId,
+            count: createdSessions.length,
+          },
+          channel: 'in_app',
+        })
+        .catch(() => {});
+    }
+
+    // 6. Asynchronous non-blocking background integrations (Zoom & Email)
+    (async () => {
+      try {
+        let zoomMeetingId: string | null = null;
+        let zoomMeetingUrl: string | null = null;
+        if (data.createZoomMeeting !== false && isZoomEnabled() && createdSessions.length > 0) {
+          const zoom = await createMeeting({
+            topic: data.title,
+            agenda: data.topic,
+            startTime: new Date(createdSessions[0].scheduledAt),
+            durationMin: data.durationMin,
+          }).catch(() => null);
+
+          if (zoom) {
+            zoomMeetingId = zoom.meetingId;
+            zoomMeetingUrl = zoom.joinUrl;
+            await db
+              .update(sessions)
+              .set({ zoomMeetingId, zoomMeetingUrl })
+              .where(inArray(sessions.id, createdSessions.map((s) => s.id)))
+              .catch(() => {});
+          }
+        }
+
+        // Schedule reminders for first sessions
+        for (const sess of createdSessions.slice(0, 5)) {
+          scheduleSessionReminders(sess.id, new Date(sess.scheduledAt)).catch(() => {});
+        }
+
+        // Notify session parties for the schedule series
+        if (createdSessions[0]) {
+          notifySessionParties({ type: 'scheduled', session: createdSessions[0] }).catch(() => {});
+        }
+      } catch (err) {
+        console.error('[createSessionsBulk] Background sync error:', err);
+      }
+    })();
+
+    return {
+      count: createdSessions.length,
+      sessions: createdSessions,
+    };
   },
 
   async getSessionById(id: string) {

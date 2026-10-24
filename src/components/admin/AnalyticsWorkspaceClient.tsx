@@ -1623,8 +1623,10 @@ export function AnalyticsWorkspaceClient() {
             setRecordingSession(sess);
             setIsRecordingModalOpen(true);
           }}
-          onDeleteSession={async (sessionId) => {
-            await handleDeleteSession(sessionId);
+          onDeleteSession={async () => {
+            await fetchAnalyticsData();
+            setIsModalOpen(false);
+            setSelectedSession(null);
           }}
           onUpdateSession={async (sessionId, updates) => {
             await fetch(`/api/v1/sessions/${sessionId}`, {

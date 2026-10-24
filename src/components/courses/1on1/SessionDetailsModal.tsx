@@ -22,6 +22,7 @@ interface SessionDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   session: any;
+  userRole?: 'admin' | 'educator' | 'learner' | string;
   courseName?: string;
   courseSubtitle?: string;
   onPlayRecording?: (videoUrl: string) => void;
@@ -32,11 +33,13 @@ export function SessionDetailsModal({
   isOpen,
   onClose,
   session,
+  userRole,
   courseName,
   courseSubtitle,
   onPlayRecording,
   onSessionUpdated,
 }: SessionDetailsModalProps) {
+  const isLearner = userRole === 'learner';
   const [showFullSummary, setShowFullSummary] = useState(false);
 
   // ── Real AI state loaded from backend ──
@@ -406,7 +409,7 @@ export function SessionDetailsModal({
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-300 border border-pink-200 dark:border-pink-800 flex items-center gap-1">
                   <Sparkles className="w-2.5 h-2.5" /> AI
                 </span>
-                {hasAiKey && (
+                {!isLearner && hasAiKey && (
                   <button
                     type="button"
                     onClick={handleRegenerateSummary}
@@ -479,26 +482,28 @@ export function SessionDetailsModal({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleGenerateQuiz}
-              disabled={generatingQuiz || quizGenerated || !hasAiKey || loadingAiState}
-              className="py-1.5 px-3.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generatingQuiz ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : quizGenerated ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Generated</span>
-                </>
-              ) : (
-                <span>Generate</span>
-              )}
-            </button>
+            {!isLearner && (
+              <button
+                type="button"
+                onClick={handleGenerateQuiz}
+                disabled={generatingQuiz || quizGenerated || !hasAiKey || loadingAiState}
+                className="py-1.5 px-3.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generatingQuiz ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : quizGenerated ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Generated</span>
+                  </>
+                ) : (
+                  <span>Generate</span>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Section 4: REVISION NOTES (AI) */}
@@ -526,26 +531,28 @@ export function SessionDetailsModal({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleGenerateNotes}
-              disabled={generatingNotes || notesGenerated || !hasAiKey || loadingAiState}
-              className="py-1.5 px-3.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generatingNotes ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : notesGenerated ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Generated</span>
-                </>
-              ) : (
-                <span>Generate</span>
-              )}
-            </button>
+            {!isLearner && (
+              <button
+                type="button"
+                onClick={handleGenerateNotes}
+                disabled={generatingNotes || notesGenerated || !hasAiKey || loadingAiState}
+                className="py-1.5 px-3.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generatingNotes ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : notesGenerated ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Generated</span>
+                  </>
+                ) : (
+                  <span>Generate</span>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Section 5: CREDITS CONSUMED */}
@@ -590,7 +597,7 @@ export function SessionDetailsModal({
               </div>
             </div>
 
-            {!isEditingCredits && (
+            {!isLearner && !isEditingCredits && (
               <button
                 type="button"
                 onClick={() => setIsEditingCredits(true)}
@@ -628,15 +635,17 @@ export function SessionDetailsModal({
                 >
                   {loadingAttendance && !isEditingAttendance ? 'Loading...' : isViewingAttendance ? 'Hide' : 'View'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleFetchAttendance(true)}
-                  disabled={loadingAttendance}
-                  className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                >
-                  <Edit2 className="w-3 h-3" />
-                  <span>{isEditingAttendance ? 'Done' : 'Edit'}</span>
-                </button>
+                {!isLearner && (
+                  <button
+                    type="button"
+                    onClick={() => handleFetchAttendance(true)}
+                    disabled={loadingAttendance}
+                    className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                    <span>{isEditingAttendance ? 'Done' : 'Edit'}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -678,14 +687,16 @@ export function SessionDetailsModal({
               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 EDUCATOR FEEDBACK
               </div>
-              <button
-                type="button"
-                onClick={() => setIsAddingFeedback(!isAddingFeedback)}
-                className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer"
-              >
-                <Edit2 className="w-3 h-3" />
-                <span>Add feedback</span>
-              </button>
+              {!isLearner && (
+                <button
+                  type="button"
+                  onClick={() => setIsAddingFeedback(!isAddingFeedback)}
+                  className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer"
+                >
+                  <Edit2 className="w-3 h-3" />
+                  <span>Add feedback</span>
+                </button>
+              )}
             </div>
 
             {session.topic && !isAddingFeedback && (

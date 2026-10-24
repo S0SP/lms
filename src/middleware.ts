@@ -20,6 +20,8 @@ const PUBLIC_PATHS = [
   '/store',
   '/consultation',
   '/api/auth',
+  '/api/v1/auth',
+  '/api/v1/consultations',
   '/api/webhooks',
   '/api/webhook',
   '/_next',
@@ -45,8 +47,11 @@ export default auth((req: NextRequest & { auth: any }) => {
     return NextResponse.next();
   }
 
-  // No session → redirect to login
+  // No session → return 401 JSON for API requests; redirect to login for page routes
   if (!session?.user) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);

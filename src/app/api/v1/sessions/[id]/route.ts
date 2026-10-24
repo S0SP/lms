@@ -114,15 +114,22 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-// DELETE /api/v1/sessions/[id] — admin only
+// DELETE /api/v1/sessions/[id]
 export async function DELETE(req: NextRequest, { params }: Params) {
-  const { session, error } = await requireAuth(['owner', 'admin']);
+  const { session, error } = await requireAuth(['owner', 'admin', 'educator']);
   if (error) return error;
 
   const { id } = await params;
+  const role = (session!.user as any).role as string;
+  const userId = session!.user!.id as string;
 
   const existing = await sessionService.getSessionById(id);
   if (!existing) return apiError('Session not found', 404);
+
+  // Educators can only delete their own sessions
+  if (role === 'educator' && existing.educatorId !== userId) {
+    return apiError('Forbidden: Educators can only delete their own sessions', 403);
+  }
 
   await sessionService.deleteSession(id);
 

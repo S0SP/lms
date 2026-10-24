@@ -39,7 +39,7 @@ export function validateEmail(
 }
 
 /**
- * Validates an international phone number using `libphonenumber-js`.
+ * Validates a phone number. Flexible for optional, local, and international numbers.
  */
 export function validatePhone(
   phone: string,
@@ -48,22 +48,36 @@ export function validatePhone(
   const field = options?.fieldName || 'Phone number';
   const trimmed = (phone || '').trim();
 
-  if (!trimmed) {
+  // If empty or only a bare dial prefix (e.g. '+', '+91')
+  if (!trimmed || trimmed === '+' || /^\+\d{1,4}$/.test(trimmed)) {
     if (options?.required) {
       return { isValid: false, error: `${field} is required` };
     }
     return { isValid: true };
   }
 
+  // Count total digits
+  const digitsOnly = trimmed.replace(/\D/g, '');
+  if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+    return { isValid: false, error: 'Please enter a valid phone number (7-15 digits)' };
+  }
+
+  // Try libphonenumber-js validation first
   try {
     const valid = isValidPhoneNumber(trimmed, options?.defaultCountry);
-    if (!valid) {
-      return { isValid: false, error: 'Please enter a valid international phone number' };
+    if (valid) {
+      return { isValid: true };
     }
-    return { isValid: true };
   } catch {
-    return { isValid: false, error: 'Invalid phone number format' };
+    // ignore parse error and fall back to digit check
   }
+
+  // Allow standard mobile formats (contains only digits, spaces, dashes, dots, parentheses, and leading +)
+  if (/^(\+?[0-9\s\-\(\)\.]{7,20})$/.test(trimmed)) {
+    return { isValid: true };
+  }
+
+  return { isValid: false, error: 'Please enter a valid phone number' };
 }
 
 /**

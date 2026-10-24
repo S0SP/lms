@@ -24,8 +24,57 @@ export function AddPollQuizModal({
   const [turnOffComments, setTurnOffComments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   if (!isOpen) return null;
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIdx !== index) {
+      setDragOverIdx(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIndex) {
+      setDraggedIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+
+    const nextOptions = [...options];
+    const [moved] = nextOptions.splice(draggedIdx, 1);
+    nextOptions.splice(targetIndex, 0, moved);
+    setOptions(nextOptions);
+
+    // Keep the correct option index in sync with the moved item
+    if (correctOptionIndex === draggedIdx) {
+      setCorrectOptionIndex(targetIndex);
+    } else if (correctOptionIndex !== null) {
+      if (draggedIdx < correctOptionIndex && targetIndex >= correctOptionIndex) {
+        setCorrectOptionIndex(correctOptionIndex - 1);
+      } else if (draggedIdx > correctOptionIndex && targetIndex <= correctOptionIndex) {
+        setCorrectOptionIndex(correctOptionIndex + 1);
+      }
+    }
+
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
 
   const handleAddOption = () => {
     if (options.length >= 10) return;
@@ -152,8 +201,25 @@ export function AddPollQuizModal({
 
             <div className="space-y-2">
               {options.map((opt, index) => (
-                <div key={index} className="flex items-center gap-2 group">
-                  <span className="text-gray-300 dark:text-gray-600 cursor-grab">
+                <div
+                  key={index}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center gap-2 group p-1 -m-1 rounded-xl transition-all duration-150 ${
+                    draggedIdx === index
+                      ? 'opacity-40 scale-[0.98]'
+                      : dragOverIdx === index
+                      ? 'bg-blue-50/70 dark:bg-blue-950/30 ring-2 ring-blue-500/40'
+                      : ''
+                  }`}
+                >
+                  <span
+                    className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing p-1 transition-colors"
+                    title="Drag to rearrange option"
+                  >
                     <GripVertical className="w-4 h-4" />
                   </span>
 
@@ -191,7 +257,7 @@ export function AddPollQuizModal({
                     <button
                       type="button"
                       onClick={() => handleRemoveOption(index)}
-                      className="p-1.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition"
+                      className="p-1.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

@@ -8,6 +8,10 @@ import Image from 'next/image';
 import {
   ArrowLeft,
   Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  KeyRound,
   AlertCircle,
   CheckCircle2,
   Loader2,
@@ -34,7 +38,10 @@ function LoginForm() {
   const urlError = searchParams.get('error');
 
   const [view, setView] = useState<'main' | 'email'>('main');
+  const [emailMethod, setEmailMethod] = useState<'password' | 'pin'>('password');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [pinDigits, setPinDigits] = useState<string[]>(['', '', '', '']);
   const pinRefs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -46,6 +53,21 @@ function LoginForm() {
   const [showDemoPortals, setShowDemoPortals] = useState(false);
   const [demoLoadingRole, setDemoLoadingRole] = useState<string | null>(null);
   const [demoSuccessRole, setDemoSuccessRole] = useState<string | null>(null);
+
+  const getRoleHome = (role: string) => {
+    switch (role) {
+      case 'owner':
+      case 'admin':
+        return '/admin/dashboard';
+      case 'educator':
+        return '/educator/calendar';
+      case 'parent':
+        return '/parent/dashboard';
+      case 'learner':
+      default:
+        return '/student/dashboard';
+    }
+  };
 
   // Check URL error parameter on mount
   useEffect(() => {
@@ -105,6 +127,48 @@ function LoginForm() {
     pinRefs.current[nextIndex]?.focus();
   };
 
+  // Handle Email + Password Login (All roles: Admin, Educator, Parent, Student)
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const emailCheck = validateEmail(email, { fieldName: 'Email' });
+    if (!emailCheck.isValid) {
+      setError(emailCheck.error || 'Please enter a valid email address');
+      return;
+    }
+
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await signIn('credentials', {
+        email: email.trim().toLowerCase(),
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError('Invalid email or password. Please verify your credentials or register an account.');
+        setLoading(false);
+      } else {
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData = await sessionRes.json().catch(() => null);
+        const userRole = sessionData?.user?.role || 'learner';
+        const roleHome = getRoleHome(userRole);
+        router.push(callbackUrl || roleHome);
+        router.refresh();
+      }
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
+  };
+
   // Handle Email + PIN Login
   const handlePinLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +200,11 @@ function LoginForm() {
         setError('Invalid email or PIN. Please check your 4-digit PIN or request a new code below.');
         setLoading(false);
       } else {
-        router.push(callbackUrl || '/student/dashboard');
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData = await sessionRes.json().catch(() => null);
+        const userRole = sessionData?.user?.role || 'learner';
+        const roleHome = getRoleHome(userRole);
+        router.push(callbackUrl || roleHome);
         router.refresh();
       }
     } catch {
@@ -362,7 +430,7 @@ function LoginForm() {
             </div>
           ) : (
             /* ══════════════════════════════════════════════════════════════════════
-               VIEW 2: Login with Email & PIN (Screenshot 1: input_file_0.png)
+               VIEW 2: Login with Email (Password or 4-digit PIN)
                ══════════════════════════════════════════════════════════════════════ */
             <div className="animate-in fade-in duration-150">
               {/* Back to main button */}
@@ -373,81 +441,220 @@ function LoginForm() {
                   setResendSuccess(null);
                   setView('main');
                 }}
-                className="flex items-center gap-2.5 text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-7 group cursor-pointer"
+                className="flex items-center gap-2.5 text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-5 group cursor-pointer"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
                 <span className="text-xl font-bold tracking-tight">Login with Email</span>
               </button>
 
-              <form onSubmit={handlePinLogin} className="space-y-5">
-                {/* Email Address */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="student@example.com"
-                    required
-                    className="w-full px-4 py-2.5 rounded-lg border border-blue-100 dark:border-gray-700 bg-[#EEF4FD] dark:bg-[#1C2333] text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
-                  />
-                </div>
-
-                {/* Enter 4-digit PIN */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Enter PIN
-                  </label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {[0, 1, 2, 3].map((idx) => (
-                      <input
-                        key={idx}
-                        ref={(el) => {
-                          pinRefs.current[idx] = el;
-                        }}
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={1}
-                        value={pinDigits[idx]}
-                        onChange={(e) => handlePinChange(idx, e.target.value)}
-                        onKeyDown={(e) => handlePinKeyDown(idx, e)}
-                        onPaste={handlePinPaste}
-                        className="w-full h-14 text-center text-2xl font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#121620] text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xs"
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Login Button */}
+              {/* Method Switcher Tabs: Password vs PIN */}
+              <div className="flex p-1 bg-gray-100 dark:bg-gray-800/60 rounded-xl mb-5">
                 <button
-                  type="submit"
-                  disabled={loading || !isPinComplete || !email}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-xs cursor-pointer ${
-                    isPinComplete && email
-                      ? 'bg-[#707B8C] hover:bg-[#5C6675] text-white active:scale-[0.99]'
-                      : 'bg-[#98A2B3] text-white/90 cursor-not-allowed'
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setEmailMethod('password');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    emailMethod === 'password'
+                      ? 'bg-white dark:bg-[#1E2535] text-gray-900 dark:text-white shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
                   }`}
                 >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
-                  <span>Login</span>
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Password</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setEmailMethod('pin');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    emailMethod === 'pin'
+                      ? 'bg-white dark:bg-[#1E2535] text-gray-900 dark:text-white shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>4-Digit PIN</span>
+                </button>
+              </div>
 
-                {/* Forgot PIN / Resend PIN */}
-                <div className="pt-2 text-center text-xs text-gray-600 dark:text-gray-400">
-                  Forgot PIN?{' '}
+              {emailMethod === 'password' ? (
+                <form onSubmit={handlePasswordLogin} className="space-y-4">
+                  {/* Email Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@organization.com"
+                        required
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#121620] text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                        className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#121620] text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                        title={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Sign In Button */}
                   <button
-                    type="button"
-                    onClick={handleResendPin}
-                    disabled={resendingPin}
-                    className="font-medium text-gray-900 dark:text-gray-200 underline hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer disabled:opacity-50"
+                    type="submit"
+                    disabled={loading || !email || !password}
+                    className="w-full mt-2 py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                   >
-                    {resendingPin ? 'Sending PIN...' : 'Resend PIN / Request Code'}
+                    {loading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                    <span>Sign In</span>
                   </button>
-                </div>
-              </form>
+
+                  <div className="pt-2 text-center text-xs text-gray-600 dark:text-gray-400">
+                    Prefer PIN login?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError(null);
+                        setEmailMethod('pin');
+                      }}
+                      className="font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    >
+                      Use 4-digit PIN
+                    </button>
+                  </div>
+
+                  <div className="text-center text-xs text-gray-600 dark:text-gray-400">
+                    Don&apos;t have an account?{' '}
+                    <Link
+                      href="/register"
+                      className="font-semibold text-gray-900 dark:text-white hover:underline"
+                    >
+                      Create account
+                    </Link>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handlePinLogin} className="space-y-4">
+                  {/* Email Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="student@example.com"
+                        required
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#121620] text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Enter 4-digit PIN */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      Enter 4-Digit PIN
+                    </label>
+                    <div className="grid grid-cols-4 gap-3">
+                      {[0, 1, 2, 3].map((idx) => (
+                        <input
+                          key={idx}
+                          ref={(el) => {
+                            pinRefs.current[idx] = el;
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={1}
+                          value={pinDigits[idx]}
+                          onChange={(e) => handlePinChange(idx, e.target.value)}
+                          onKeyDown={(e) => handlePinKeyDown(idx, e)}
+                          onPaste={handlePinPaste}
+                          className="w-full h-14 text-center text-2xl font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#121620] text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xs"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Login Button */}
+                  <button
+                    type="submit"
+                    disabled={loading || !isPinComplete || !email}
+                    className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                    <span>Login with PIN</span>
+                  </button>
+
+                  {/* Forgot PIN / Resend PIN */}
+                  <div className="pt-1 text-center text-xs text-gray-600 dark:text-gray-400 flex flex-col gap-1.5">
+                    <div>
+                      Forgot PIN?{' '}
+                      <button
+                        type="button"
+                        onClick={handleResendPin}
+                        disabled={resendingPin}
+                        className="font-medium text-gray-900 dark:text-gray-200 underline hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer disabled:opacity-50"
+                      >
+                        {resendingPin ? 'Sending PIN...' : 'Resend PIN / Request Code'}
+                      </button>
+                    </div>
+                    <div>
+                      Prefer Password?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setError(null);
+                          setEmailMethod('password');
+                        }}
+                        className="font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                      >
+                        Sign in with Password
+                      </button>
+                    </div>
+                    <div>
+                      Don&apos;t have an account?{' '}
+                      <Link
+                        href="/register"
+                        className="font-semibold text-gray-900 dark:text-white hover:underline"
+                      >
+                        Create account
+                      </Link>
+                    </div>
+                  </div>
+                </form>
+              )}
             </div>
           )}
 

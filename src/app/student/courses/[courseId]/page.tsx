@@ -24,11 +24,27 @@ export default async function CourseWorkspacePage({ params }: { params: Promise<
   // If this is a 1-on-1 personalization course, provide the full 5-tab workspace replica for the learner
   if (workspace.course.type === 'one_on_one') {
     const { CourseWorkspace1on1 } = await import('@/components/courses/1on1/CourseWorkspace1on1');
+    const totalCreds = Number(workspace.credits?.total || 0);
+    const consumedCreds = Number(workspace.credits?.consumed || 0);
+
     return (
       <CourseWorkspace1on1
         courseId={courseId}
         userRole="learner"
         currentUserId={session.user.id as string}
+        initialData={{
+          course: {
+            ...workspace.course,
+            learners: [{ id: session.user.id, name: session.user.name, email: session.user.email }],
+          },
+          credits: {
+            total: totalCreds,
+            consumed: consumedCreds,
+            remaining: Math.max(0, totalCreds - consumedCreds),
+          },
+          educators: workspace.educators,
+          curriculum: workspace.content,
+        }}
       />
     );
   }

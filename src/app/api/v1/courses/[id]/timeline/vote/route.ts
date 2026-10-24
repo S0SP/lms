@@ -32,16 +32,17 @@ export async function POST(
     return apiError('Option not found', 404);
   }
 
-  // Remove any previous vote from this learner for any options in the same poll
+  // Remove any previous vote from this learner for any options in the same poll in one atomic delete
   const allPollOptions = await db
     .select({ id: pollOptions.id })
     .from(pollOptions)
     .where(eq(pollOptions.pollId, option.pollId));
 
-  for (const opt of allPollOptions) {
+  const pollOptionIds = allPollOptions.map((o) => o.id);
+  if (pollOptionIds.length > 0) {
     await db
       .delete(pollResponses)
-      .where(and(eq(pollResponses.optionId, opt.id), eq(pollResponses.learnerId, userId)));
+      .where(and(inArray(pollResponses.optionId, pollOptionIds), eq(pollResponses.learnerId, userId)));
   }
 
   // Insert the vote

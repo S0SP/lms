@@ -81,7 +81,7 @@ export async function GET(
 
       // Get votes per option
       let voteCounts: Record<string, number> = {};
-      let userVotedOptionId: string | null = null;
+      const userVotesByOptionId = new Set<string>();
 
       if (optionIds.length > 0) {
         const votes = await db
@@ -102,20 +102,21 @@ export async function GET(
           .from(pollResponses)
           .where(and(inArray(pollResponses.optionId, optionIds), eq(pollResponses.learnerId, currentUserId)));
 
-        if (userVotes.length > 0) {
-          userVotedOptionId = userVotes[0].optionId;
+        for (const uv of userVotes) {
+          userVotesByOptionId.add(uv.optionId);
         }
       }
 
       for (const p of pollRows) {
-        const pOptions = optionsRows
-          .filter((o) => o.pollId === p.id)
-          .map((o) => ({
-            id: o.id,
-            body: o.body,
-            isCorrect: o.isCorrect,
-            votes: voteCounts[o.id] || 0,
-          }));
+        const thisPollOptions = optionsRows.filter((o) => o.pollId === p.id);
+        const userVotedForThisPoll = thisPollOptions.find((o) => userVotesByOptionId.has(o.id))?.id || null;
+
+        const pOptions = thisPollOptions.map((o) => ({
+          id: o.id,
+          body: o.body,
+          isCorrect: o.isCorrect,
+          votes: voteCounts[o.id] || 0,
+        }));
 
         const totalVotes = pOptions.reduce((acc, curr) => acc + curr.votes, 0);
         const postMatching = posts.find((pt) => pt.id === p.postId);
@@ -125,7 +126,7 @@ export async function GET(
           question: postMatching?.body || '',
           isQuizMode: p.isQuizMode,
           showResultsImmediately: p.showResultsImmediately,
-          userVotedOptionId,
+          userVotedOptionId: userVotedForThisPoll,
           totalVotes,
           options: pOptions.map((o) => ({
             ...o,

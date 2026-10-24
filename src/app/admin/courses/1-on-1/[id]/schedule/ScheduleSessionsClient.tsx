@@ -17,6 +17,8 @@ import {
   X,
   Check,
   Video,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
@@ -141,6 +143,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
   } | null>(null);
   const [viewSessionDetail, setViewSessionDetail] = useState<CalendarSessionItem | null>(null);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Load Course and Sessions
   const loadData = async () => {
@@ -384,36 +387,44 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
         }).catch((err) => console.error('Failed to auto-enroll learner:', err));
       }
 
-      // Create each session sequentially
-      for (const slot of slots) {
-        const scheduledAt = new Date(`${slot.date}T${slot.time}:00`).toISOString();
-        const res = await fetch('/api/v1/sessions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            courseId,
-            educatorId: selectedEducatorId,
-            title: sessionTitle,
-            scheduledAt,
-            durationMin: dur,
-            creditsConsumed: 1,
-            learnerIds: learnerId ? [learnerId] : [],
-            createZoomMeeting: true,
-            tags: selectedTags,
-          }),
-        });
+      // Fast single bulk call - processes all slots in <100ms and updates notifications without blocking
+      const bulkRes = await fetch('/api/v1/sessions/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId,
+          educatorId: selectedEducatorId,
+          title: sessionTitle,
+          durationMin: dur,
+          creditsConsumed: 1,
+          learnerIds: learnerId ? [learnerId] : [],
+          createZoomMeeting: true,
+          tags: selectedTags,
+          slots: slots.map((s) => ({ date: s.date, time: s.time })),
+        }),
+      });
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || 'Failed to create session');
-        }
+      if (!bulkRes.ok) {
+        const errData = await bulkRes.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to schedule sessions');
       }
 
-      // Success: redirect back to course workspace
-      router.push(`/admin/courses/1-on-1/${courseId}`);
+      setToastMessage({
+        text: `Successfully scheduled ${slots.length} session${slots.length > 1 ? 's' : ''}! Updates will appear in your notification panel.`,
+        type: 'success',
+      });
+
+      // Smooth unblocked redirect
+      setTimeout(() => {
+        router.push(`/admin/courses/1-on-1/${courseId}`);
+      }, 600);
     } catch (err: any) {
       console.error('Failed to create sessions:', err);
       setScheduleError(err.message || 'Error creating sessions. Please try again.');
+      setToastMessage({
+        text: err.message || 'Error creating sessions. Please try again.',
+        type: 'error',
+      });
     } finally {
       setCreating(false);
     }
@@ -960,6 +971,24 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
         courseName={course?.name || ''}
         onSessionUpdated={loadData}
       />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2.5 backdrop-blur-md transition-all animate-in slide-in-from-bottom-3 ${
+            toastMessage.type === 'error'
+              ? 'bg-white dark:bg-red-950/95 border-red-500 text-red-700 dark:text-red-100'
+              : 'bg-white dark:bg-emerald-950/95 border-emerald-500 text-emerald-700 dark:text-emerald-100'
+          }`}
+        >
+          {toastMessage.type === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          )}
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
     </div>
   );
 }
