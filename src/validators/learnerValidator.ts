@@ -7,6 +7,7 @@ export const createLearnerSchema = z.object({
   board: z.string().optional(),
   grade: z.string().optional(),
   dob: z.string().optional(),
+  hobbies: z.union([z.string(), z.array(z.string())]).optional(),
   parentName: z.string().optional(),
   parentEmail: z.string().email().optional(),
   parentPhone: z.string().optional(),

@@ -9,21 +9,23 @@ import {
   ArrowLeft, 
   TrendingUp, 
   Target, 
-  Lightbulb, 
   ListChecks, 
   Award, 
   Sparkles,
   Calendar,
   BookOpen,
   CheckCircle2,
-  Share2,
-  Printer
+  Printer,
+  Clock,
+  ClipboardList,
+  GraduationCap,
+  MessageSquare,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Renders one monthly report with official UnboundYou branding, colors, and layout.
+ * Renders one progress report with official UnboundYou branding, colors, and layout.
  */
 export default async function ProgressReportDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -62,10 +64,12 @@ export default async function ProgressReportDetail({ params }: { params: Promise
   const parsed = reportSectionsSchema.safeParse(report.sectionsJson);
   const sections: ReportSections | null = parsed.success ? parsed.data : null;
 
-  const monthLabel = new Date(report.monthYear).toLocaleDateString('en-IN', {
+  const periodLabel = sections?.period?.label || new Date(report.monthYear).toLocaleDateString('en-IN', {
     month: 'long',
     year: 'numeric',
   });
+
+  const printShareUrl = report.shareToken ? `/reports/share/${report.shareToken}?action=print` : null;
 
   const listBlock = (
     title: string,
@@ -93,7 +97,7 @@ export default async function ProgressReportDetail({ params }: { params: Promise
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
       {/* Top Breadcrumb & Actions */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 print:hidden">
         <Link
           href="/student/progress-reports"
           className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
@@ -101,12 +105,24 @@ export default async function ProgressReportDetail({ params }: { params: Promise
           <ArrowLeft className="w-4 h-4" />
           <span>Back to all reports</span>
         </Link>
+
+        {printShareUrl && (
+          <a
+            href={printShareUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+          >
+            <Printer className="w-3.5 h-3.5 text-blue-600" />
+            <span>Download / Print PDF</span>
+          </a>
+        )}
       </div>
 
       {/* Main Branded Progress Report Container */}
-      <div className="bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 md:p-10 shadow-lg overflow-hidden relative">
+      <div className="bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 md:p-10 shadow-lg overflow-hidden relative print:shadow-none print:border-none print:p-0">
         {/* Subtle Brand Background Glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#00B4D8]/10 via-[#3A86FF]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#00B4D8]/10 via-[#3A86FF]/5 to-transparent rounded-full blur-3xl pointer-events-none print:hidden" />
 
         {/* ─── BRAND HEADER ─── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800 relative">
@@ -115,7 +131,7 @@ export default async function ProgressReportDetail({ params }: { params: Promise
               <BrandLogo size="md" />
             </div>
             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              Official Monthly Academic Evaluation & Progress Report
+              Official Academic Evaluation &amp; Progress Report
             </p>
           </div>
 
@@ -124,7 +140,7 @@ export default async function ProgressReportDetail({ params }: { params: Promise
               <Sparkles className="w-3.5 h-3.5 text-[#00B4D8]" /> AI Synthesised
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
-              <Calendar className="w-3.5 h-3.5" /> {monthLabel}
+              <Calendar className="w-3.5 h-3.5" /> {periodLabel}
             </span>
           </div>
         </div>
@@ -177,6 +193,63 @@ export default async function ProgressReportDetail({ params }: { params: Promise
           )}
         </div>
 
+        {/* Quantitative Metrics Bar */}
+        {sections?.sessionMetrics && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                <Clock className="w-3.5 h-3.5 text-blue-500" />
+                <span>Attendance</span>
+              </div>
+              <div className="text-base font-bold text-gray-900 dark:text-white">
+                {sections.sessionMetrics.attendanceRate ?? '100%'}
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                {sections.sessionMetrics.attendedSessions ?? 0} / {sections.sessionMetrics.totalSessions ?? 0} sessions
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                <GraduationCap className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Hours Completed</span>
+              </div>
+              <div className="text-base font-bold text-gray-900 dark:text-white">
+                {sections.sessionMetrics.totalHours ?? '–'}
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                Active learning time
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                <ClipboardList className="w-3.5 h-3.5 text-amber-500" />
+                <span>Assignments</span>
+              </div>
+              <div className="text-base font-bold text-gray-900 dark:text-white">
+                {sections.sessionMetrics.assignmentsCount ?? (sections.assignments?.length ?? 0)}
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                Submitted in period
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                <Award className="w-3.5 h-3.5 text-purple-500" />
+                <span>Avg Score</span>
+              </div>
+              <div className="text-base font-bold text-gray-900 dark:text-white">
+                {sections.sessionMetrics.avgAssignmentScore ?? '–'}
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                Assessment average
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ─── DETAILED SECTIONS ─── */}
         {sections ? (
           <div className="space-y-8">
@@ -197,7 +270,7 @@ export default async function ProgressReportDetail({ params }: { params: Promise
             <section className="space-y-4">
               <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <Award className="w-4 h-4 text-[#3A86FF]" />
-                Curriculum Topics & Mastery Level
+                Curriculum Topics &amp; Mastery Level
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {sections.topicsCovered.map((t) => (
@@ -238,6 +311,52 @@ export default async function ProgressReportDetail({ params }: { params: Promise
               </div>
             </section>
 
+            {/* Assignments Submitted & Graded */}
+            {sections.assignments && sections.assignments.length > 0 && (
+              <section className="space-y-3">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <ClipboardList className="w-4 h-4 text-emerald-600" />
+                  Assignments &amp; Submissions ({sections.assignments.length})
+                </h3>
+                <div className="border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-bold border-b border-gray-200 dark:border-gray-800">
+                      <tr>
+                        <th className="p-3">Assignment Title</th>
+                        <th className="p-3">Score</th>
+                        <th className="p-3">Percentage</th>
+                        <th className="p-3">Educator Feedback</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                      {sections.assignments.map((item, i) => (
+                        <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20">
+                          <td className="p-3 font-semibold text-gray-950 dark:text-white">
+                            {item.title}
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            {item.marksAwarded !== undefined ? `${item.marksAwarded} / ${item.maxMarks ?? 100}` : 'Pending'}
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            {item.percentage !== undefined ? (
+                              <span className={`px-2 py-0.5 rounded font-bold ${item.percentage >= 75 ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                                {item.percentage}%
+                              </span>
+                            ) : (
+                              '–'
+                            )}
+                          </td>
+                          <td className="p-3 italic text-gray-600 dark:text-gray-400">
+                            {item.feedback || 'Evaluated in session'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
             {/* Evaluation Triad: Strengths, Growth, Next Steps */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {listBlock(
@@ -262,6 +381,23 @@ export default async function ProgressReportDetail({ params }: { params: Promise
                 'bg-blue-50/40 dark:bg-blue-950/20'
               )}
             </div>
+
+            {/* Educator Pedagogical Notes */}
+            {sections.educatorNotes && sections.educatorNotes.length > 0 && (
+              <section className="p-4 rounded-2xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
+                  Teacher Pedagogical Notes &amp; Observations
+                </h4>
+                <ul className="space-y-1.5">
+                  {sections.educatorNotes.map((note, i) => (
+                    <li key={i} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                      "{note}"
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         ) : (
           <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">

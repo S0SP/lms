@@ -30,6 +30,7 @@ export default function GradingSubmissionsModal({
   const [feedbackInput, setFeedbackInput] = useState('');
   const [grading, setGrading] = useState(false);
   const [gradeSuccess, setGradeSuccess] = useState(false);
+  const [gradeError, setGradeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !assignmentId) return;
@@ -70,15 +71,17 @@ export default function GradingSubmissionsModal({
     setScoreInput(sub.totalScore !== null ? String(sub.totalScore) : '');
     setFeedbackInput(sub.feedback || '');
     setGradeSuccess(false);
+    setGradeError(null);
   };
 
   const handleSaveGrade = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeSubId) return;
 
+    setGradeError(null);
     const numScore = Number(scoreInput);
     if (isNaN(numScore) || numScore < 0 || numScore > maxMarks) {
-      alert(`Score must be between 0 and ${maxMarks}`);
+      setGradeError(`Score must be between 0 and ${maxMarks}`);
       return;
     }
 
@@ -110,7 +113,7 @@ export default function GradingSubmissionsModal({
       if (onGraded) onGraded();
       setTimeout(() => setGradeSuccess(false), 3000);
     } catch (err: any) {
-      alert(err.message || 'Error saving grade');
+      setGradeError(err.message || 'Error saving grade');
     } finally {
       setGrading(false);
     }
@@ -228,6 +231,7 @@ export default function GradingSubmissionsModal({
                         <div className="space-y-1.5">
                           {activeSub.fileR2Keys.map((key: string, idx: number) => {
                             const name = key.split('/').pop() || `Attachment ${idx + 1}`;
+                            const fileUrl = key.startsWith('http') ? key : `/uploads/${key}`;
                             return (
                               <div
                                 key={idx}
@@ -235,11 +239,19 @@ export default function GradingSubmissionsModal({
                               >
                                 <div className="flex items-center gap-2 truncate">
                                   <FileText className="w-4 h-4 text-blue-500 shrink-0" />
-                                  <span className="text-gray-700 dark:text-gray-300 truncate">{name}</span>
+                                  <span className="text-gray-700 dark:text-gray-300 truncate font-medium">{name}</span>
                                 </div>
-                                <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
-                                  R2 Cloud Storage
-                                </span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <a
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download
+                                    className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 font-semibold rounded text-[11px] flex items-center gap-1 transition-colors"
+                                  >
+                                    <Download className="w-3.5 h-3.5" /> Download
+                                  </a>
+                                </div>
                               </div>
                             );
                           })}
@@ -288,6 +300,10 @@ export default function GradingSubmissionsModal({
                   {gradeSuccess ? (
                     <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" /> Grade and feedback saved!
+                    </span>
+                  ) : gradeError ? (
+                    <span className="text-xs text-rose-500 font-semibold flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4 shrink-0" /> {gradeError}
                     </span>
                   ) : (
                     <span />

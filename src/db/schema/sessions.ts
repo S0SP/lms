@@ -89,10 +89,14 @@ export const sessionAttendees = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     sessionId: uuid('session_id').references(() => sessions.id, { onDelete: 'cascade' }).notNull(),
     learnerId: uuid('learner_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    attended: boolean('attended').notNull().default(false),
+    durationMinutes: integer('duration_minutes').notNull().default(0),
+    attendedAt: timestamp('attended_at', { withTimezone: true }),
   },
   (t) => [
     index('session_attendees_session_idx').on(t.sessionId),
     index('session_attendees_learner_idx').on(t.learnerId),
+    index('session_attendees_attended_idx').on(t.attended),
   ],
 );
 

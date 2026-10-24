@@ -1583,6 +1583,7 @@ function EditPublicProfileModal({
   const [youtubeUrl, setYoutubeUrl] = useState(educator.youtubeUrl || '');
   const [about, setAbout] = useState(educator.about || '');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState(educator.reviews || []);
 
   const handleAddReview = () => {
@@ -1601,6 +1602,7 @@ function EditPublicProfileModal({
   const handleSave = async () => {
     try {
       setSaving(true);
+      setError(null);
       const res = await fetch(`/api/v1/educators/${educator.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1615,11 +1617,12 @@ function EditPublicProfileModal({
       if (res.ok) {
         onSaved();
       } else {
-        alert('Failed to save profile');
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || 'Failed to save profile');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Error saving profile');
+      setError(e?.message || 'Error saving profile');
     } finally {
       setSaving(false);
     }
@@ -1640,6 +1643,11 @@ function EditPublicProfileModal({
 
         {/* Form Body */}
         <div className="p-5 overflow-y-auto space-y-4 text-xs">
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-medium">
+              {error}
+            </div>
+          )}
           {/* Cover Photo */}
           <div>
             <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
@@ -1772,10 +1780,12 @@ function EditCoursePayoutModal({
   const [currency, setCurrency] = useState(course.currency || 'INR');
   const [applyTo, setApplyTo] = useState<'future' | 'all'>('future');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     try {
       setSaving(true);
+      setError(null);
       const res = await fetch(`/api/v1/educators/${educator.id}/courses/${course.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1784,11 +1794,12 @@ function EditCoursePayoutModal({
       if (res.ok) {
         onSaved();
       } else {
-        alert('Failed to save course payout');
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || 'Failed to save course payout');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Error updating course payout');
+      setError(e?.message || 'Error updating course payout');
     } finally {
       setSaving(false);
     }
@@ -1808,6 +1819,11 @@ function EditCoursePayoutModal({
         </div>
 
         <div className="p-5 space-y-5 text-xs">
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-medium">
+              {error}
+            </div>
+          )}
           {/* Educator Avatar & Name */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-[#0D1526] text-white flex items-center justify-center font-bold text-sm shrink-0">
@@ -1912,6 +1928,7 @@ function AddCourseToEducatorModal({
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [payoutRate, setPayoutRate] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
 
   useEffect(() => {
@@ -1936,6 +1953,7 @@ function AddCourseToEducatorModal({
     if (!selectedCourseId) return;
     try {
       setSaving(true);
+      setError(null);
       const res = await fetch(`/api/v1/educators/${educatorId}/courses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1947,12 +1965,12 @@ function AddCourseToEducatorModal({
       if (res.ok) {
         onSaved();
       } else {
-        const err = await res.json();
-        alert(err.error || 'Failed to assign course');
+        const err = await res.json().catch(() => null);
+        setError(err?.error || 'Failed to assign course');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Error assigning course');
+      setError(e?.message || 'Error assigning course');
     } finally {
       setSaving(false);
     }
@@ -1971,6 +1989,11 @@ function AddCourseToEducatorModal({
         </div>
 
         <div className="p-5 space-y-4 text-xs">
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-medium">
+              {error}
+            </div>
+          )}
           {loadingCourses ? (
             <div className="py-6 flex items-center justify-center">
               <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
@@ -2055,10 +2078,12 @@ function EditPayoutDetailsModal({
   const [upiId, setUpiId] = useState(educator.payoutDetails?.upiId || '');
   const [defaultRate, setDefaultRate] = useState(educator.payoutDefaultRate || '0');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     try {
       setSaving(true);
+      setError(null);
       const res = await fetch(`/api/v1/educators/${educator.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -2077,11 +2102,12 @@ function EditPayoutDetailsModal({
       if (res.ok) {
         onSaved();
       } else {
-        alert('Failed to save payout details');
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || 'Failed to save payout details');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Error saving payout details');
+      setError(e?.message || 'Error saving payout details');
     } finally {
       setSaving(false);
     }
@@ -2100,6 +2126,11 @@ function EditPayoutDetailsModal({
         </div>
 
         <div className="p-5 space-y-4 text-xs">
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-medium">
+              {error}
+            </div>
+          )}
           <div>
             <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
               Beneficiary Name

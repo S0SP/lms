@@ -4,7 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import { 
   BookOpen, Users, Clock, ArrowRight, PlayCircle, FileText, CheckCircle2, ChevronRight, MessageSquare, Plus, FileQuestion, Save, X, Calendar as CalendarIcon, AlignLeft,
   Paperclip, BarChart2, Mic, MoreHorizontal, Play, MessageCircle, Search, GripVertical, PlusCircle, MoreVertical, ChevronDown, Video, CheckSquare, Edit, Trash2, Loader2, Check,
-  Award, Eye, EyeOff, Send, MessageCircleReply
+  Award, Eye, EyeOff, Send, MessageCircleReply, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import CreateTestBuilderModal from '@/components/educator/modals/CreateTestBuilderModal';
@@ -300,6 +300,7 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
   const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCourse() {
@@ -457,11 +458,13 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
         setTimeout(() => setSaveSuccess(false), 2500);
       } else {
         const errJson = await res.json().catch(() => null);
-        alert(errJson?.error || 'Failed to save curriculum changes.');
+        setPageError(errJson?.error || 'Failed to save curriculum changes.');
+        setTimeout(() => setPageError(null), 4000);
       }
     } catch (err) {
       console.error('Failed to save curriculum:', err);
-      alert('Network error while saving curriculum.');
+      setPageError('Network error while saving curriculum.');
+      setTimeout(() => setPageError(null), 4000);
     } finally {
       setSavingCurriculum(false);
     }
@@ -555,7 +558,8 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
           ),
         }));
       } else {
-        alert('Failed to update publish state');
+        setPageError('Failed to update publish state');
+        setTimeout(() => setPageError(null), 4000);
       }
     } catch (err) {
       console.error('Failed to toggle publish:', err);
@@ -615,11 +619,13 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
         setNewPostBody('');
       } else {
         const errJson = await res.json().catch(() => null);
-        alert(errJson?.error || 'Failed to post announcement.');
+        setPageError(errJson?.error || 'Failed to post announcement.');
+        setTimeout(() => setPageError(null), 4000);
       }
     } catch (err) {
       console.error('Failed to create post:', err);
-      alert('Network error while posting.');
+      setPageError('Network error while posting.');
+      setTimeout(() => setPageError(null), 4000);
     } finally {
       setIsPosting(false);
     }
@@ -635,7 +641,8 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
       if (res.ok) {
         setTimelinePosts((prev) => prev.filter((p) => p.id !== postId));
       } else {
-        alert('Failed to delete post.');
+        setPageError('Failed to delete post.');
+        setTimeout(() => setPageError(null), 4000);
       }
     } catch (err) {
       console.error('Failed to delete post:', err);
@@ -686,6 +693,15 @@ export default function EducatorCourseWorkspace({ params }: { params: Promise<{ 
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
+      {pageError && (
+        <div className="fixed top-6 right-6 z-50 p-4 bg-red-600 text-white rounded-xl shadow-xl flex items-center gap-3 animate-in fade-in duration-200">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span className="text-xs font-semibold">{pageError}</span>
+          <button onClick={() => setPageError(null)} className="text-white/80 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       {/* Workspace Header */}
       <div className="bg-white dark:bg-[#161B26] border-b border-[#c1c6d6] dark:border-gray-800 shrink-0">
         <div className="p-4 md:px-8 max-w-5xl mx-auto">

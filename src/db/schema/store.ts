@@ -52,7 +52,7 @@ export const paymentTransactions = pgTable(
   'payment_transactions',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    enrollmentId: uuid('enrollment_id').references(() => courseEnrollments.id).notNull(),
+    enrollmentId: uuid('enrollment_id').references(() => courseEnrollments.id),
     provider: paymentProviderEnum('provider').notNull().default('razorpay'),
     // Provider's order/payment ID
     providerRefId: text('provider_ref_id').notNull(),

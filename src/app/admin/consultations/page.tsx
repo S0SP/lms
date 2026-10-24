@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, Clock, CheckCircle, XCircle, MoreVertical, Loader2, Phone, Mail, BookOpen } from 'lucide-react';
+import { Search, Calendar, Clock, CheckCircle, XCircle, MoreVertical, Loader2, Phone, Mail, BookOpen, AlertCircle, X } from 'lucide-react';
 
 interface Consultation {
   id: string;
@@ -22,6 +22,7 @@ export default function AdminConsultationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   const fetchConsultations = async () => {
     try {
@@ -61,10 +62,13 @@ export default function AdminConsultationsPage() {
           prev.map((c) => (c.id === id ? { ...c, status: newStatus as any } : c))
         );
       } else {
-        alert('Failed to update consultation status');
+        setStatusError('Failed to update consultation status');
+        setTimeout(() => setStatusError(null), 3500);
       }
     } catch (err) {
       console.error('Failed to update status:', err);
+      setStatusError('Network error while updating status');
+      setTimeout(() => setStatusError(null), 3500);
     } finally {
       setUpdatingId(null);
     }
@@ -79,6 +83,18 @@ export default function AdminConsultationsPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage discovery calls and intake requests for prospective learners.</p>
         </div>
       </div>
+
+      {statusError && (
+        <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300 flex items-center justify-between animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+            <span>{statusError}</span>
+          </div>
+          <button onClick={() => setStatusError(null)} className="text-rose-500 hover:text-rose-700">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Main Table Card */}
       <div className="bg-white dark:bg-[#161B26] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex-1 flex flex-col">

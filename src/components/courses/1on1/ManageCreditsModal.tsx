@@ -104,8 +104,21 @@ export function ManageCreditsModal({
         onSuccess?.();
         onClose();
       } else {
-        const json = await res.json();
-        let displayError = json.error || 'Failed to update credits.';
+        let displayError = 'Failed to update credits.';
+        try {
+          const text = await res.text();
+          if (text) {
+            try {
+              const json = JSON.parse(text);
+              displayError = json.error || displayError;
+            } catch {
+              displayError = text;
+            }
+          }
+        } catch {
+          // fallback
+        }
+
         if (typeof displayError === 'string' && displayError.startsWith('[')) {
           try {
             const parsed = JSON.parse(displayError);

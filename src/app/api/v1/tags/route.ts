@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     .values({
       orgId,
       name,
-      colorHex: body.colorHex || '#3b82f6',
+      colorHex: body.colorHex || body.color || '#3b82f6',
       category: body.category || 'custom',
     })
     .returning();

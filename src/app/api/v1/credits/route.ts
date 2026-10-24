@@ -41,15 +41,20 @@ export async function POST(req: NextRequest) {
   const { session, error } = await requireAuth(['owner', 'admin']);
   if (error) return error;
 
-  const body = await req.json();
-  const parsed = adjustCreditSchema.safeParse(body);
-  if (!parsed.success) {
-    const errorMsg = parsed.error.issues?.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ') || 'Validation error';
-    return apiError(errorMsg, 400);
+  try {
+    const body = await req.json();
+    const parsed = adjustCreditSchema.safeParse(body);
+    if (!parsed.success) {
+      const errorMsg = parsed.error.issues?.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ') || 'Validation error';
+      return apiError(errorMsg, 400);
+    }
+
+    const adminId = session!.user!.id as string;
+    const updated = await creditService.adjustCredit(parsed.data, adminId);
+
+    return apiSuccess(updated);
+  } catch (err: any) {
+    console.error('[credits] POST error:', err);
+    return apiError(err.message || 'Failed to adjust credits', 500);
   }
-
-  const adminId = session!.user!.id as string;
-  const updated = await creditService.adjustCredit(parsed.data, adminId);
-
-  return apiSuccess(updated);
 }

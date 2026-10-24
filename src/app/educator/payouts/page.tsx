@@ -112,14 +112,14 @@ export default function EducatorPayouts() {
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  // Prepare chart dataset from real payouts or fallback
+  // Prepare chart dataset from real payouts
   const chartLabels = payouts.length > 0
     ? payouts.slice(0, 6).map((p) => `${months[p.month - 1]} ${p.year}`)
-    : ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+    : [];
 
   const chartValues = payouts.length > 0
     ? payouts.slice(0, 6).map((p) => p.totalSessions)
-    : [12, 18, 14, 20, 22, 19];
+    : [];
 
   const chartData = {
     labels: chartLabels,
@@ -225,9 +225,16 @@ export default function EducatorPayouts() {
                   Teaching Activity
                 </h2>
               </div>
-              <div className="h-[280px] w-full relative">
-                <Bar data={chartData} options={chartOptions} />
-              </div>
+              {payouts.length === 0 ? (
+                <div className="h-[200px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 dark:border-gray-800 rounded-lg">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">No session activity recorded</p>
+                  <p className="text-xs text-gray-400 mt-1">Teaching activity will appear here as delivered sessions are completed and logged.</p>
+                </div>
+              ) : (
+                <div className="h-[280px] w-full relative">
+                  <Bar data={chartData} options={chartOptions} />
+                </div>
+              )}
             </div>
 
             {/* Payouts Table */}
@@ -237,10 +244,10 @@ export default function EducatorPayouts() {
                   Monthly Payout Records
                 </h2>
                 <button
-                  onClick={() => alert('Exporting monthly statement...')}
-                  className="text-[#2F80F9] font-semibold text-[12px] flex items-center gap-1 hover:bg-[#2F80F9]/10 px-3 py-2 rounded-[8px] transition-colors"
+                  onClick={() => window.open('/api/v1/educator/payouts/export', '_blank')}
+                  className="text-[#2F80F9] font-semibold text-[12px] flex items-center gap-1 hover:bg-[#2F80F9]/10 px-3 py-2 rounded-[8px] transition-colors cursor-pointer"
                 >
-                  <Download className="w-[18px] h-[18px]" /> Export
+                  <Download className="w-[18px] h-[18px]" /> Export Statement
                 </button>
               </div>
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Calendar, FileText, CheckCircle2, ChevronRight, Clock, MapPin, Users, MessageSquare, PlayCircle, Download, Award, CheckSquare, Upload } from 'lucide-react';
 import StudentAssignmentModal from '@/components/course/modals/StudentAssignmentModal';
 import StudentQuizModal from '@/components/course/modals/StudentQuizModal';
+import StudentVideoModal from '@/components/course/modals/StudentVideoModal';
 
 interface CourseProps {
   id: string;
@@ -107,6 +108,7 @@ export function CourseWorkspaceClient({
   const [localContent, setLocalContent] = useState<ContentSection[]>(content);
   const [selectedAssignment, setSelectedAssignment] = useState<ContentResource | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<ContentResource | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<ContentResource | null>(null);
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0D1117] p-8">
@@ -425,9 +427,10 @@ export function CourseWorkspaceClient({
                             onClick={() => {
                               if (isAssignment) setSelectedAssignment(res);
                               if (isQuiz) setSelectedQuiz(res);
+                              if (res.type === 'video') setSelectedVideo(res);
                             }}
                             className={`p-4 flex items-center justify-between transition-colors group ${
-                              isAssignment || isQuiz ? 'cursor-pointer hover:bg-blue-50/40 dark:hover:bg-blue-900/10' : 'hover:bg-black/5 dark:hover:bg-white/5'
+                              isAssignment || isQuiz || res.type === 'video' ? 'cursor-pointer hover:bg-blue-50/40 dark:hover:bg-blue-900/10' : 'hover:bg-black/5 dark:hover:bg-white/5'
                             }`}
                           >
                             <div className="flex items-center gap-3.5 min-w-0">
@@ -557,6 +560,31 @@ export function CourseWorkspaceClient({
                           attemptsCount: (r.test?.attemptsCount ?? 0) + 1,
                           latestScore: result.autoScore,
                         },
+                      }
+                    : r
+                ),
+              }))
+            );
+          }}
+        />
+      )}
+
+      {selectedVideo && (
+        <StudentVideoModal
+          isOpen={true}
+          courseId={course.id}
+          resource={selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+          onProgressUpdate={(resourceId, progressPct, completed) => {
+            setLocalContent((prev) =>
+              prev.map((sec) => ({
+                ...sec,
+                resources: sec.resources.map((r) =>
+                  r.id === resourceId
+                    ? {
+                        ...r,
+                        completed,
+                        progressPct,
                       }
                     : r
                 ),

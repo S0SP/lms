@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "benchmark:speed": "tsx scripts/benchmark_authenticated_speed.ts",
     "audit:schema": "tsx --env-file=.env scripts/audit_database_schema.ts",
     "test:services": "tsx --env-file=.env scripts/test_platform_services.ts",
-    "verify:reports": "tsx scripts/verify-report-contract.ts && tsx scripts/verify-report-schema.ts"
+    "verify:reports": "tsx scripts/verify-report-contract.ts && tsx scripts/verify-report-schema.ts",
+    "generate:testing-pdf": "tsx scripts/generate_e2e_testing_pdf.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

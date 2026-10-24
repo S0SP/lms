@@ -14,6 +14,7 @@ import {
   TriangleAlert,
   Wallet,
 } from 'lucide-react';
+import FeePayButton from '@/components/fees/FeePayButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -159,7 +160,29 @@ export default async function StudentFees() {
   const hasPending = pendingTotals.size > 0;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-4">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Fees & Credits Ledger</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            View allocated session credits, invoice records, and purchase top-up credits.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <FeePayButton
+            buttonText="Buy Session Pack"
+            courseTitle="Personalized Session Credits Pack"
+            learnerId={learnerId}
+            price="₹5,000"
+            amount={5000}
+            credits={5}
+            purpose="credit_topup"
+            variant="primary"
+          />
+        </div>
+      </div>
+
       {/* Stats Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: Credits Remaining */}
@@ -173,10 +196,20 @@ export default async function StudentFees() {
                 <CreditCard className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <div className="mt-1">
+            <div className="mt-1 flex items-baseline justify-between">
               <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {coursesWithCredits > 0 ? formatCredits(creditsRemaining) : '—'}
+                {coursesWithCredits > 0 ? formatCredits(creditsRemaining) : '0.00'}
               </span>
+              <FeePayButton
+                buttonText="Add Credits"
+                courseTitle="1-on-1 Session Credits Top-up"
+                learnerId={learnerId}
+                price="₹2,500"
+                amount={2500}
+                credits={2}
+                purpose="credit_topup"
+                variant="outline"
+              />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">

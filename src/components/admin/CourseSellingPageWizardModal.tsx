@@ -124,6 +124,103 @@ export interface ContentSectionItem {
   isExpanded?: boolean;
 }
 
+export const STARTER_TEMPLATES = [
+  {
+    id: 'starter-stem-bootcamp',
+    name: 'STEM & Coding Bootcamp (8 Weeks)',
+    description: 'Comprehensive technical curriculum with weekly lessons, code exercises, and quizzes.',
+    board: 'General',
+    grade: 'Grade 9-12',
+    sections: [
+      {
+        id: 'tpl-sec-1',
+        title: 'Module 1: Foundations & Architecture',
+        resources: [
+          { id: 'res-t1', title: '1.1 System Architecture Overview', type: 'video' as const, duration: '20:00', isFreePreview: true },
+          { id: 'res-t2', title: '1.2 Environment Setup & Cheatsheet', type: 'file' as const, fileSize: '1.2 MB' },
+          { id: 'res-t3', title: '1.3 Orientation Discussion Board', type: 'chit_chat' as const }
+        ]
+      },
+      {
+        id: 'tpl-sec-2',
+        title: 'Module 2: Core Practical Applications',
+        resources: [
+          { id: 'res-t4', title: '2.1 Core Concepts Deep Dive', type: 'video' as const, duration: '35:00' },
+          { id: 'res-t5', title: '2.2 Interactive Knowledge Check', type: 'test' as const },
+          { id: 'res-t6', title: '2.3 Practice Exercise Handout', type: 'file' as const, fileSize: '2.5 MB' }
+        ]
+      },
+      {
+        id: 'tpl-sec-3',
+        title: 'Module 3: Capstone Project & Evaluation',
+        resources: [
+          { id: 'res-t7', title: '3.1 Capstone Project Walkthrough', type: 'video' as const, duration: '45:00' },
+          { id: 'res-t8', title: '3.2 Final Assessment & Submission', type: 'assessment' as const }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'starter-k12-syllabus',
+    name: 'Standard K-12 Syllabus (Term Unit)',
+    description: 'Standardized school syllabus structured by concepts, practice sheets, and term exams.',
+    board: 'CBSE / IGCSE',
+    grade: 'Grade 8-10',
+    sections: [
+      {
+        id: 'tpl-sec-4',
+        title: 'Chapter 1: Theory & Concept Mapping',
+        resources: [
+          { id: 'res-t9', title: 'Chapter 1 Master Lecture', type: 'video' as const, duration: '30:00', isFreePreview: true },
+          { id: 'res-t10', title: 'Summary Notes & Mindmap', type: 'file' as const, fileSize: '3.1 MB' }
+        ]
+      },
+      {
+        id: 'tpl-sec-5',
+        title: 'Chapter 2: Problem Solving & Diagnostics',
+        resources: [
+          { id: 'res-t11', title: 'Diagnostic Problem Set', type: 'file' as const, fileSize: '1.8 MB' },
+          { id: 'res-t12', title: 'Mid-Term Diagnostic Quiz', type: 'test' as const },
+          { id: 'res-t13', title: 'Doubt Clearing & Q&A Forum', type: 'chit_chat' as const }
+        ]
+      },
+      {
+        id: 'tpl-sec-6',
+        title: 'Chapter 3: Mock Examination & Review',
+        resources: [
+          { id: 'res-t14', title: 'Full Length Mock Paper', type: 'file' as const, fileSize: '4.0 MB' },
+          { id: 'res-t15', title: 'Exam Strategies & Solution Walkthrough', type: 'video' as const, duration: '40:00' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'starter-1on1-mentorship',
+    name: '1-on-1 Personalized Coaching Track',
+    description: 'Structured framework designed for high-touch personal sessions and continuous feedback.',
+    board: 'Coaching',
+    grade: 'All Levels',
+    sections: [
+      {
+        id: 'tpl-sec-7',
+        title: 'Phase 1: Diagnostic Assessment & Baseline',
+        resources: [
+          { id: 'res-t16', title: 'Baseline Diagnostic Worksheet', type: 'file' as const, fileSize: '850 KB' },
+          { id: 'res-t17', title: 'Goal Setting & Schedule Alignment', type: 'chit_chat' as const }
+        ]
+      },
+      {
+        id: 'tpl-sec-8',
+        title: 'Phase 2: Targeted Intensive Mastery',
+        resources: [
+          { id: 'res-t18', title: 'Core Strategy Workshop', type: 'video' as const, duration: '25:00' },
+          { id: 'res-t19', title: 'Weekly Progress Evaluation', type: 'test' as const }
+        ]
+      }
+    ]
+  }
+];
+
 const SIDEBAR_STEPS = [
   {
     step: 1,
@@ -329,6 +426,14 @@ export function CourseSellingPageWizardModal({
   // Public Preview Modal
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  // Template Picker State
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [templateList, setTemplateList] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
+  const [templateImportMode, setTemplateImportMode] = useState<'replace' | 'append'>('replace');
+  const [templateNotice, setTemplateNotice] = useState<string | null>(null);
+
   // Load existing data if editing
   useEffect(() => {
     if (initialData) {
@@ -529,6 +634,83 @@ export function CourseSellingPageWizardModal({
     setFileModalSectionId(null);
     setFileTitle('');
     setFileObject(null);
+  };
+
+  // Template Picker Handlers
+  const handleOpenTemplateModal = async () => {
+    setIsTemplateModalOpen(true);
+    setLoadingTemplates(true);
+    try {
+      const res = await fetch('/api/v1/courses/templates?perPage=50');
+      if (res.ok) {
+        const json = await res.json();
+        const serverTemplates = json.data || [];
+        setTemplateList(serverTemplates);
+        if (serverTemplates.length > 0) {
+          setSelectedTemplate(serverTemplates[0]);
+        } else {
+          setSelectedTemplate(STARTER_TEMPLATES[0]);
+        }
+      } else {
+        setSelectedTemplate(STARTER_TEMPLATES[0]);
+      }
+    } catch {
+      setSelectedTemplate(STARTER_TEMPLATES[0]);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleApplyTemplate = async () => {
+    if (!selectedTemplate) return;
+
+    let targetCurriculum = selectedTemplate.curriculum || selectedTemplate.sections;
+
+    if (
+      (!targetCurriculum || targetCurriculum.length === 0) &&
+      selectedTemplate.id &&
+      !selectedTemplate.id.startsWith('starter-')
+    ) {
+      try {
+        const res = await fetch(`/api/v1/courses/templates/${selectedTemplate.id}`);
+        if (res.ok) {
+          const detail = await res.json();
+          const tData = detail.data || detail;
+          targetCurriculum = tData.curriculum || tData.sections;
+        }
+      } catch (err) {
+        console.error('Failed to fetch full template details', err);
+      }
+    }
+
+    if (!targetCurriculum || targetCurriculum.length === 0) {
+      targetCurriculum = STARTER_TEMPLATES[0].sections;
+    }
+
+    const mappedSections: ContentSectionItem[] = targetCurriculum.map((sec: any, sIdx: number) => ({
+      id: `sec-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 6)}`,
+      title: sec.title || `Section ${sIdx + 1}`,
+      resources: (sec.resources || []).map((r: any, rIdx: number) => ({
+        id: `res-${Date.now()}-${rIdx}-${Math.random().toString(36).slice(2, 6)}`,
+        title: r.title || 'Untitled Resource',
+        type: r.type || 'file',
+        externalUrl: r.externalUrl || '',
+        fileSize: r.fileSize || '',
+        duration: r.duration || '',
+        isFreePreview: !!r.isFreePreview,
+      })),
+      isExpanded: true,
+    }));
+
+    if (templateImportMode === 'replace') {
+      setSections(mappedSections);
+    } else {
+      setSections((prev) => [...prev, ...mappedSections]);
+    }
+
+    setIsTemplateModalOpen(false);
+    setTemplateNotice(`Imported "${selectedTemplate.name || 'Template'}" with ${mappedSections.length} module(s)!`);
+    setTimeout(() => setTemplateNotice(null), 6000);
   };
 
   // Save All Changes
@@ -1661,6 +1843,22 @@ export function CourseSellingPageWizardModal({
                   </div>
                 </div>
 
+                {templateNotice && (
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center justify-between animate-fadeIn">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span>{templateNotice}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateNotice(null)}
+                      className="text-emerald-500 hover:text-emerald-700"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 {/* Section Cards */}
                 <div className="space-y-4">
                   {sections
@@ -2010,10 +2208,11 @@ export function CourseSellingPageWizardModal({
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => alert('Ready to use course templates.')}
-                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 flex items-center gap-1"
+                    onClick={handleOpenTemplateModal}
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition"
                   >
-                    <span>Choose a template</span>
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Choose from templates</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -3445,6 +3644,238 @@ export function CourseSellingPageWizardModal({
               >
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SUB-MODAL: CHOOSE COURSE TEMPLATE
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {isTemplateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-900/40">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-gray-900 dark:text-white">Curriculum Templates Library</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Import ready-to-teach curriculum modules, lesson structures, and resources into your course
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTemplateModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800">
+              {/* Left Column: Template List */}
+              <div className="md:col-span-5 p-4 overflow-y-auto space-y-3 bg-gray-50/50 dark:bg-gray-900/20 max-h-[55vh]">
+                <div className="flex items-center justify-between pb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Available Templates</span>
+                  {loadingTemplates && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />}
+                </div>
+
+                {/* Database Templates if any */}
+                {templateList.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Organization Templates</p>
+                    {templateList.map((tpl) => {
+                      const isSelected = selectedTemplate?.id === tpl.id;
+                      const sectionsCount = (tpl.curriculum || tpl.sections || []).length;
+                      return (
+                        <div
+                          key={tpl.id}
+                          onClick={() => setSelectedTemplate(tpl)}
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition ${
+                            isSelected
+                              ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/40 shadow-sm'
+                              : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-850 hover:border-gray-300 dark:hover:border-gray-700'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">{tpl.name}</p>
+                            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                              {sectionsCount} modules
+                            </span>
+                          </div>
+                          {tpl.description && (
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{tpl.description}</p>
+                          )}
+                          <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
+                            {tpl.board && <span>{tpl.board}</span>}
+                            {tpl.board && tpl.grade && <span>•</span>}
+                            {tpl.grade && <span>{tpl.grade}</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Standard Starter Templates */}
+                <div className="space-y-2 pt-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Curated Curricula</p>
+                  {STARTER_TEMPLATES.map((tpl) => {
+                    const isSelected = selectedTemplate?.id === tpl.id;
+                    return (
+                      <div
+                        key={tpl.id}
+                        onClick={() => setSelectedTemplate(tpl)}
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition ${
+                          isSelected
+                            ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/40 shadow-sm'
+                            : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-850 hover:border-gray-300 dark:hover:border-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">{tpl.name}</p>
+                          <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                            {tpl.sections.length} modules
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{tpl.description}</p>
+                        <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
+                          <span>{tpl.board}</span>
+                          <span>•</span>
+                          <span>{tpl.grade}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Template Preview */}
+              <div className="md:col-span-7 p-5 overflow-y-auto max-h-[55vh] space-y-4">
+                {selectedTemplate ? (
+                  <>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                          {selectedTemplate.board || 'Standard'} • {selectedTemplate.grade || 'Curriculum'}
+                        </span>
+                      </div>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white">{selectedTemplate.name}</h4>
+                      {selectedTemplate.description && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{selectedTemplate.description}</p>
+                      )}
+                    </div>
+
+                    {/* Structure Preview */}
+                    <div className="space-y-3 pt-2">
+                      <p className="text-xs font-bold text-gray-700 dark:text-gray-300">Modules Preview</p>
+                      <div className="space-y-2">
+                        {(selectedTemplate.sections || selectedTemplate.curriculum || []).map((sec: any, idx: number) => (
+                          <div
+                            key={sec.id || idx}
+                            className="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40 space-y-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center">
+                                  {idx + 1}
+                                </span>
+                                {sec.title}
+                              </p>
+                              <span className="text-[10px] text-gray-400">
+                                {(sec.resources || []).length} resources
+                              </span>
+                            </div>
+
+                            {(sec.resources || []).length > 0 && (
+                              <div className="pl-7 space-y-1">
+                                {(sec.resources || []).map((res: any, rIdx: number) => (
+                                  <div key={res.id || rIdx} className="flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400">
+                                    {res.type === 'video' ? (
+                                      <PlayCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                    ) : res.type === 'test' ? (
+                                      <CheckSquare className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                                    ) : res.type === 'chit_chat' ? (
+                                      <MessageSquare className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                                    ) : (
+                                      <FileText className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                    )}
+                                    <span className="truncate">{res.title}</span>
+                                    {res.isFreePreview && (
+                                      <span className="text-[9px] font-bold text-emerald-600 uppercase">Preview</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-48 text-center text-gray-400">
+                    <BookOpen className="w-8 h-8 mb-2 opacity-50" />
+                    <p className="text-xs">Select a template to view curriculum structure</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3.5 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#10141D] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Import Method:</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTemplateImportMode('replace')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                      templateImportMode === 'replace'
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold border border-blue-300 dark:border-blue-700'
+                        : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    Replace Current
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateImportMode('append')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                      templateImportMode === 'append'
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold border border-blue-300 dark:border-blue-700'
+                        : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    Append to Existing
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsTemplateModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyTemplate}
+                  disabled={!selectedTemplate}
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Apply Template</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

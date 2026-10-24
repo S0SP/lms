@@ -26,25 +26,34 @@ const isServerless =
   process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined ||
   process.env.CF_PAGES === '1';
 
-const sql = postgres(process.env.DATABASE_URL, {
-  // Serverless: each function invocation opens/closes one connection.
-  // Long-running server: maintain a pool.
-  max: isServerless ? 1 : 10,
+// Singleton caching on globalThis prevents pool re-creation on every Next.js SSR / HMR request
+const globalForDb = globalThis as unknown as {
+  _postgresSql?: postgres.Sql;
+  _drizzleDb?: ReturnType<typeof drizzle<typeof schema>>;
+};
 
-  // Gracefully handle idle connections being terminated by the provider.
-  idle_timeout: isServerless ? 0 : 30,
+export const sql =
+  globalForDb._postgresSql ??
+  postgres(process.env.DATABASE_URL, {
+    max: isServerless ? 1 : 15,
+    idle_timeout: isServerless ? 0 : 30,
+    connect_timeout: 10,
+    prepare: false,
+  });
 
-  // Connection timeout (seconds).
-  connect_timeout: 10,
+if (process.env.NODE_ENV !== 'production') {
+  globalForDb._postgresSql = sql;
+}
 
-  // SSL is enabled automatically when the DATABASE_URL contains sslmode=require.
-  // No provider-specific SSL config needed here.
-});
+export const db =
+  globalForDb._drizzleDb ??
+  drizzle(sql, {
+    schema,
+    logger: process.env.DEBUG_DB === 'true',
+  });
 
-export const db = drizzle(sql, {
-  schema,
-  logger: process.env.NODE_ENV === 'development',
-});
+if (process.env.NODE_ENV !== 'production') {
+  globalForDb._drizzleDb = db;
+}
 
-// Export the raw sql client if you ever need to run raw queries directly.
-export { sql };
+export default db;

@@ -113,7 +113,7 @@ export const credits = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    index('credits_course_learner_idx').on(t.courseId, t.learnerId),
+    uniqueIndex('credits_course_learner_unique_idx').on(t.courseId, t.learnerId),
     // DB-level constraint: consumed CANNOT exceed total
     check('credits_no_negative_balance', sql`consumed <= total`),
   ],

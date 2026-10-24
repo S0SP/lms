@@ -131,7 +131,7 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <Link
               key={course.id}
-              href={`/educator/courses/${course.id}`}
+              href={course.type === 'one_on_one' ? `/admin/courses/1-on-1/${course.id}` : `/admin/courses/${course.id}`}
               className="bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col justify-between"
             >
               <div className="p-5">

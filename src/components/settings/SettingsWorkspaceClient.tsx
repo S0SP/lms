@@ -507,10 +507,10 @@ export function SettingsWorkspaceClient({ role, initialProfile, linkedChildren }
 
       {/* Main Content Area */}
       <div className="flex-1 min-w-0">
-        <div className="bg-white dark:bg-[#1E2535] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#1E2535] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-visible">
           
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#161B26]/50 flex justify-between items-center">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#161B26]/50 rounded-t-xl flex justify-between items-center">
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {tabs.find(t => t.id === activeTab)?.label}

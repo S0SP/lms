@@ -17,16 +17,28 @@ import {
   Loader2,
   AlertTriangle,
   CheckCircle2,
+  ExternalLink,
+  Printer,
+  Copy,
+  Check,
+  Clock,
+  ClipboardList,
+  GraduationCap,
+  MessageSquare,
+  Plus,
+  Share2,
 } from 'lucide-react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { BrandLogo } from '@/components/ui/BrandLogo';
+import GenerateStudentReportModal from '@/components/admin/GenerateStudentReportModal';
 import {
   fetchReport,
   generateReports,
   saveReport,
   sendReport,
   type ReportListItem,
+  type ReportDetail,
 } from '@/lib/api-client';
 import { reportSectionsSchema, type ReportSections } from '@/validators/reportValidator';
 
@@ -35,7 +47,7 @@ export type { ReportListItem };
 type Props = {
   drafts: ReportListItem[];
   sent: ReportListItem[];
-  /** False means ANTHROPIC_API_KEY is absent and reports use the template. */
+  /** Indicates whether Gemini API is active for automated synthesis. */
   aiEnabled: boolean;
 };
 
@@ -69,6 +81,7 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
   const [tab, setTab] = useState<'draft' | 'sent'>('draft');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [loadedReport, setLoadedReport] = useState<ReportDetail | null>(null);
   const [detail, setDetail] = useState<ReportSections | null>(null);
   const [draft, setDraft] = useState<ReportSections | null>(null);
   const [editing, setEditing] = useState(false);
@@ -76,6 +89,8 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [generateMonth, setGenerateMonth] = useState(currentMonthInput);
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const rows = tab === 'draft' ? drafts : sent;
 
@@ -98,6 +113,7 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
 
   useEffect(() => {
     if (!selectedId) {
+      setLoadedReport(null);
       setDetail(null);
       setDraft(null);
       return;
@@ -108,12 +124,12 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
       const { data, error: err } = await fetchReport(selectedId);
       if (cancelled) return;
       if (err || !data) {
+        setLoadedReport(null);
         setDetail(null);
         setDraft(null);
         return;
       }
-      // Re-validate the stored JSON at the boundary; a legacy or malformed
-      // record renders read-only rather than crashing the editor.
+      setLoadedReport(data);
       const parsed = reportSectionsSchema.safeParse(data.sectionsJson);
       const sections = parsed.success ? parsed.data : null;
       setDetail(sections);
@@ -127,9 +143,21 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
   const selected = rows.find((r) => r.id === selectedId) ?? null;
   const isSent = selected?.status === 'sent';
 
+  const shareToken = loadedReport?.shareToken || selected?.shareToken;
+  const liveUrl = shareToken ? `/reports/share/${shareToken}` : null;
+  const printUrl = shareToken ? `/reports/share/${shareToken}?action=print` : null;
+
   const refresh = () => startTransition(() => router.refresh());
 
-  async function handleGenerate() {
+  const handleCopyLink = () => {
+    if (!liveUrl) return;
+    const fullUrl = `${window.location.origin}${liveUrl}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  async function handleGenerateBatch() {
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -137,17 +165,17 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
     setBusy(false);
 
     if (err || !data) {
-      setError(err ?? 'Generation failed');
+      setError(err ?? 'Batch generation failed');
       return;
     }
     const parts = [`${data.created} new draft${data.created === 1 ? '' : 's'}`];
     if (data.existing) parts.push(`${data.existing} already existed`);
     if (data.failed.length) parts.push(`${data.failed.length} failed`);
     if (data.truncated) {
-      parts.push(`capped at ${data.totalEligible} — some enrolments were skipped`);
+      parts.push(`capped at ${data.totalEligible}`);
     }
     setNotice(
-      `${parts.join(', ')}. Engine: ${data.engine === 'claude' ? 'Claude' : 'template'}.`,
+      `${parts.join(', ')}. Engine: ${data.engine === 'gemini' ? 'Gemini' : 'Template fallback'}.`,
     );
     refresh();
   }
@@ -159,8 +187,6 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
     const { error: err, details } = await saveReport(selectedId, { sections: draft });
     setBusy(false);
     if (err) {
-      // The most common failure is clearing a required list, so show which
-      // field the schema rejected rather than a generic message.
       setError(
         details?.length
           ? `${err}: ${details.map((d) => `${d.path || 'report'} — ${d.message}`).join('; ')}`
@@ -169,7 +195,7 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
       return;
     }
     setEditing(false);
-    setNotice('Edits saved. The original AI draft is kept for audit.');
+    setNotice('Edits saved successfully. The original AI draft is retained for audit.');
     refresh();
   }
 
@@ -180,13 +206,13 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
     const { data, error: err } = await sendReport(selectedId, true);
     setBusy(false);
     if (err || !data) {
-      setError(err ?? 'Send failed');
+      setError(err ?? 'Failed to approve and send report');
       return;
     }
     setNotice(
       data.notified > 0
-        ? `Sent to ${data.notified} recipient${data.notified === 1 ? '' : 's'}.`
-        : 'Sent. No recipients could be emailed.',
+        ? `Report approved! Sent to ${data.notified} recipient${data.notified === 1 ? '' : 's'} with live & PDF download links.`
+        : 'Report approved and marked sent. (No recipient emails registered).',
     );
     setTab('sent');
     refresh();
@@ -198,40 +224,64 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
 
   return (
     <div className="p-4 md:p-8 max-w-[1440px] mx-auto w-full">
-      {/* Generate drafts */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+      {/* Student Progress Report Modal */}
+      <GenerateStudentReportModal
+        isOpen={isStudentModalOpen}
+        onClose={() => setIsStudentModalOpen(false)}
+        onSuccess={(reportId) => {
+          setSelectedId(reportId);
+          setTab('draft');
+          setNotice('Student progress report compiled with Gemini and saved as draft! Review and approve below.');
+          refresh();
+        }}
+      />
+
+      {/* Top Banner & Generation Bar */}
+      <div className="bg-gradient-to-r from-blue-50/90 via-cyan-50/50 to-white dark:from-blue-950/30 dark:via-[#161B26] dark:to-[#161B26] border border-blue-200/80 dark:border-blue-900/40 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-sm mb-6">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#00B4D8] to-[#3A86FF] flex items-center justify-center text-white shadow-md shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 dark:text-gray-100">
-              {aiEnabled ? 'Generate monthly drafts' : 'Generate monthly drafts — template mode'}
+            <h3 className="font-extrabold text-gray-950 dark:text-gray-100 text-base">
+              Academic Progress Report Studio
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {aiEnabled
-                ? 'Creates a draft for every active enrolment. Nothing is sent until you review it.'
-                : 'ANTHROPIC_API_KEY is not set, so drafts are built from raw session data.'}
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+              Generate student-wise reports for custom intervals compiling AI summaries, teacher notes, parent reflections, and assignments.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <input
-            type="month"
-            value={generateMonth.slice(0, 7)}
-            onChange={(e) =>
-              setGenerateMonth(`${e.target.value}-01`)
-            }
-            className="px-3 py-2 bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+
+        <div className="flex items-center gap-3 w-full md:w-auto shrink-0 flex-wrap">
           <button
-            onClick={handleGenerate}
-            disabled={busy}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm whitespace-nowrap flex items-center gap-2"
+            onClick={() => setIsStudentModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#00B4D8] to-[#3A86FF] hover:from-cyan-500 hover:to-blue-600 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
           >
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Generate
+            <Plus className="w-4 h-4" />
+            Generate Student Report
           </button>
+
+          <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 hidden sm:block" />
+
+          {/* Batch monthly generation */}
+          <div className="flex items-center gap-1.5">
+            <input
+              type="month"
+              value={generateMonth.slice(0, 7)}
+              onChange={(e) => setGenerateMonth(`${e.target.value}-01`)}
+              className="px-2.5 py-1.5 bg-white dark:bg-[#161B26] border border-gray-200 dark:border-gray-700 rounded-lg text-xs"
+              title="Batch generate for month"
+            />
+            <button
+              onClick={handleGenerateBatch}
+              disabled={busy}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161B26] hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50"
+              title="Generate drafts for all active enrollments in selected month"
+            >
+              {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-blue-500" />}
+              Batch All
+            </button>
+          </div>
         </div>
       </div>
 
@@ -390,6 +440,42 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  {/* Share / Live Viewer Links */}
+                  {liveUrl && (
+                    <>
+                      <button
+                        onClick={handleCopyLink}
+                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bg-white dark:bg-[#161B26] text-xs flex items-center gap-1.5"
+                        title="Copy Public Live Share Link"
+                      >
+                        {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedLink ? 'Copied Link' : 'Copy Live Link'}</span>
+                      </button>
+
+                      <a
+                        href={liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bg-white dark:bg-[#161B26] text-xs flex items-center gap-1.5"
+                        title="View Public Live Report"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Live View</span>
+                      </a>
+
+                      <a
+                        href={printUrl!}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bg-white dark:bg-[#161B26] text-xs flex items-center gap-1.5"
+                        title="Direct Download / Print PDF"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-purple-600" />
+                        <span>Download PDF</span>
+                      </a>
+                    </>
+                  )}
+
                   {editing ? (
                     <>
                       <button
@@ -433,7 +519,7 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
                       className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm flex items-center gap-2 shadow-sm"
                     >
                       {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      Send to family
+                      Approve &amp; Send to Family
                     </button>
                   )}
                 </div>
@@ -454,7 +540,7 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
                 ) : (
                   <div className="max-w-3xl mx-auto space-y-8">
                     {/* Branded Header Badge */}
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800 flex-wrap gap-2">
                       <div className="flex items-center gap-3">
                         <BrandLogo size="sm" />
                         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -462,9 +548,75 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
                         </span>
                       </div>
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/50 text-[#3A86FF] dark:text-[#60A5FA] border border-blue-200 dark:border-blue-800">
-                        <Sparkles className="w-3 h-3 text-[#00B4D8]" /> AI Synthesised
+                        <Sparkles className="w-3 h-3 text-[#00B4D8]" /> AI Synthesised (Gemini)
                       </span>
                     </div>
+
+                    {/* Period Banner */}
+                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2">
+                      <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                      <span>Evaluation Interval:</span>
+                      <strong className="text-gray-950 dark:text-white font-bold">
+                        {draft.period?.label || monthLabel(selected.monthYear)}
+                      </strong>
+                    </div>
+
+                    {/* Quantitative Session & Student Metrics */}
+                    {draft.sessionMetrics && (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                            <Clock className="w-3.5 h-3.5 text-blue-500" />
+                            <span>Attendance</span>
+                          </div>
+                          <div className="text-base font-bold text-gray-950 dark:text-white">
+                            {draft.sessionMetrics.attendanceRate ?? '100%'}
+                          </div>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            {draft.sessionMetrics.attendedSessions ?? 0} / {draft.sessionMetrics.totalSessions ?? 0} sessions
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                            <GraduationCap className="w-3.5 h-3.5 text-emerald-500" />
+                            <span>Hours Completed</span>
+                          </div>
+                          <div className="text-base font-bold text-gray-950 dark:text-white">
+                            {draft.sessionMetrics.totalHours ?? '–'}
+                          </div>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            Active learning time
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                            <ClipboardList className="w-3.5 h-3.5 text-amber-500" />
+                            <span>Assignments</span>
+                          </div>
+                          <div className="text-base font-bold text-gray-950 dark:text-white">
+                            {draft.sessionMetrics.assignmentsCount ?? (draft.assignments?.length ?? 0)}
+                          </div>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            Submitted in period
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                            <Award className="w-3.5 h-3.5 text-purple-500" />
+                            <span>Avg Score</span>
+                          </div>
+                          <div className="text-base font-bold text-gray-950 dark:text-white">
+                            {draft.sessionMetrics.avgAssignmentScore ?? '–'}
+                          </div>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            Assessment average
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <section>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
@@ -689,6 +841,89 @@ export default function ReportsWorkspace({ drafts, sent, aiEnabled }: Props) {
                         )}
                       </section>
                     ))}
+
+                    {/* Assignments & Submissions Table */}
+                    {draft.assignments && draft.assignments.length > 0 && (
+                      <section className="space-y-3">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                          <ClipboardList className="w-5 h-5 text-emerald-600" />
+                          Assignments &amp; Submissions ({draft.assignments.length})
+                        </h3>
+                        <div className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xs">
+                          <table className="w-full text-xs text-left">
+                            <thead className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 font-bold border-b border-gray-200 dark:border-gray-800">
+                              <tr>
+                                <th className="p-3">Assignment Title</th>
+                                <th className="p-3">Score</th>
+                                <th className="p-3">Percentage</th>
+                                <th className="p-3">Teacher Feedback</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                              {draft.assignments.map((item, i) => (
+                                <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                                  <td className="p-3 font-semibold text-gray-950 dark:text-white">
+                                    {item.title}
+                                  </td>
+                                  <td className="p-3 whitespace-nowrap">
+                                    {item.marksAwarded !== undefined ? `${item.marksAwarded} / ${item.maxMarks ?? 100}` : 'Pending'}
+                                  </td>
+                                  <td className="p-3 whitespace-nowrap">
+                                    {item.percentage !== undefined ? (
+                                      <span className={`px-2 py-0.5 rounded font-bold ${item.percentage >= 75 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'}`}>
+                                        {item.percentage}%
+                                      </span>
+                                    ) : (
+                                      '–'
+                                    )}
+                                  </td>
+                                  <td className="p-3 italic text-gray-600 dark:text-gray-400">
+                                    {item.feedback || 'Evaluated in session'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Educator Pedagogical Notes & Parent Feedback */}
+                    {((draft.educatorNotes && draft.educatorNotes.length > 0) || (draft.parentLearnerNotes && draft.parentLearnerNotes.length > 0)) && (
+                      <div className="space-y-4">
+                        {draft.educatorNotes && draft.educatorNotes.length > 0 && (
+                          <section className="p-4 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-1.5">
+                              <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
+                              Teacher Pedagogical Notes &amp; Observations
+                            </h4>
+                            <ul className="space-y-1.5">
+                              {draft.educatorNotes.map((note, i) => (
+                                <li key={i} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                                  "{note}"
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+
+                        {draft.parentLearnerNotes && draft.parentLearnerNotes.length > 0 && (
+                          <section className="p-4 rounded-xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                              <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
+                              Parent &amp; Learner Reflections
+                            </h4>
+                            <ul className="space-y-1.5">
+                              {draft.parentLearnerNotes.map((note, i) => (
+                                <li key={i} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                                  "{note}"
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

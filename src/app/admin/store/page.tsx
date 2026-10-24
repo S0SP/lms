@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/drizzle';
 import { AdminStoreFilter } from '@/components/store/StoreFilters';
+import { StoreCourseCardActions } from '@/components/store/StoreCourseCardActions';
 import {
   orgs,
   users,
@@ -473,6 +474,13 @@ export default async function AdminStorePage({ searchParams }: PageProps) {
                             <span className="text-xs text-gray-400 dark:text-gray-500">No public slug</span>
                           )}
                         </div>
+
+                        <StoreCourseCardActions
+                          courseId={course.id}
+                          courseType={course.type}
+                          initialStatus={course.status}
+                          urlSlug={course.urlSlug}
+                        />
                       </div>
                     </div>
                   </div>

@@ -14,6 +14,7 @@ import {
 } from '@/db/schema';
 import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { Coins, CreditCard, FileText, Landmark, User } from 'lucide-react';
+import FeePayButton from '@/components/fees/FeePayButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -275,8 +276,32 @@ export default async function ParentFees({ searchParams }: PageProps) {
   const childLabel =
     links.length === 1 ? (links[0].learnerName ?? 'your child') : `${links.length} children`;
 
+  const defaultLearnerId = links[0]?.learnerId;
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Fees & Family Ledger</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            Track tuition fee transactions, active enrollment plans, and credit balances.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <FeePayButton
+            buttonText="Top Up Credits"
+            courseTitle="Scholar Session Credits Pack"
+            learnerId={defaultLearnerId}
+            price="₹10,000"
+            amount={10000}
+            credits={10}
+            purpose="credit_topup"
+            variant="primary"
+          />
+        </div>
+      </div>
+
       {/* Top Metric Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-[#1E2535] rounded-md border border-gray-200 dark:border-gray-800 p-4 min-h-[104px] flex flex-col justify-between">
@@ -296,12 +321,24 @@ export default async function ParentFees({ searchParams }: PageProps) {
         </div>
 
         <div className="bg-white dark:bg-[#1E2535] rounded-md border border-gray-200 dark:border-gray-800 p-4 min-h-[104px] flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            Credits Remaining
-          </span>
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Credits Remaining
+            </span>
+            <FeePayButton
+              buttonText="Add Credits"
+              courseTitle="1-on-1 Session Credits"
+              learnerId={defaultLearnerId}
+              price="₹5,000"
+              amount={5000}
+              credits={5}
+              purpose="credit_topup"
+              variant="outline"
+            />
+          </div>
           <div className="flex flex-col gap-1 mt-2">
             <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {creditBalances.length > 0 ? formatCredits(creditsRemaining) : '—'}
+              {creditBalances.length > 0 ? formatCredits(creditsRemaining) : '0.00'}
             </span>
             <span className="text-[12px] text-gray-500 dark:text-gray-400">
               {creditBalances.length > 0

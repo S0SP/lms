@@ -154,6 +154,9 @@ export const sessionRepository = {
         recordingDuration: sessions.recordingDuration,
         recordingFiles: sessions.recordingFiles,
         aiSummary: sessions.aiSummary,
+        transcriptText: sessions.transcriptText,
+        transcriptVtt: sessions.transcriptVtt,
+        transcriptUrl: sessions.transcriptUrl,
         educatorName: users.name,
         courseName: courses.name,
       })

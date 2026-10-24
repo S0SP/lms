@@ -13,11 +13,16 @@ export interface CalendarSessionItem {
   zoomMeetingUrl?: string | null;
   zoomMeetingId?: string | null;
   courseName?: string | null;
+  courseId?: string | null;
+  educatorId?: string | null;
   educatorName?: string;
   learnerNames?: string[];
   creditsConsumed?: string | number | null;
   aiSummary?: string | null;
   recordingUrl?: string | null;
+  transcriptVtt?: string | null;
+  transcriptText?: string | null;
+  recordingFiles?: any[] | null;
 }
 
 interface SessionPopoverCardProps {

@@ -32,6 +32,7 @@ import {
 import { CustomSelect, SelectOption } from '@/components/ui/CustomSelect';
 import { SessionDetailModal } from '@/components/calendar/SessionDetailModal';
 import { CalendarSessionItem } from '@/components/calendar/SessionPopoverCard';
+import { ZoomRecordingPlayerModal } from '@/components/calendar/ZoomRecordingPlayerModal';
 
 interface AnalyticsData {
   overview: {
@@ -97,6 +98,8 @@ export function AnalyticsWorkspaceClient() {
   // Selected Session for Calendar Modal
   const [selectedSession, setSelectedSession] = useState<CalendarSessionItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recordingSession, setRecordingSession] = useState<any | null>(null);
+  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
   // Data Loading & State
   const [loading, setLoading] = useState(true);
@@ -1617,11 +1620,8 @@ export function AnalyticsWorkspaceClient() {
           session={selectedSession}
           userRole="admin"
           onPlayRecording={(sess) => {
-            if (sess.recordingUrl) {
-              window.open(sess.recordingUrl, '_blank');
-            } else {
-              alert('Recording is being processed by Zoom AI Companion.');
-            }
+            setRecordingSession(sess);
+            setIsRecordingModalOpen(true);
           }}
           onDeleteSession={async (sessionId) => {
             await handleDeleteSession(sessionId);
@@ -1634,6 +1634,20 @@ export function AnalyticsWorkspaceClient() {
             });
             await fetchAnalyticsData();
           }}
+        />
+      )}
+
+      {recordingSession && (
+        <ZoomRecordingPlayerModal
+          isOpen={isRecordingModalOpen}
+          onClose={() => {
+            setIsRecordingModalOpen(false);
+            setRecordingSession(null);
+          }}
+          title={recordingSession.title || 'Session Recording'}
+          videoUrl={recordingSession.recordingUrl}
+          scheduledAt={recordingSession.startTime || recordingSession.scheduledAt}
+          educatorName={recordingSession.educatorName}
         />
       )}
     </div>

@@ -63,7 +63,7 @@ export default function StudentQuizModal({
         }
         setQuiz(data.data);
 
-        // 2. Start attempt
+        // 2. Start or resume attempt
         const startRes = await fetch(`/api/v1/quizzes/${resourceId}/attempts`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -72,9 +72,24 @@ export default function StudentQuizModal({
         const startData = await startRes.json();
         if (startRes.ok && startData.data?.id) {
           setAttemptId(startData.data.id);
-        }
 
-        if (data.data?.timeLimitSeconds) {
+          // Restore draft answers if resuming an in-progress attempt
+          if (startData.data?.draftAnswers && Array.isArray(startData.data.draftAnswers)) {
+            const restored: Record<string, { selectedOptionIds: string[] }> = {};
+            for (const d of startData.data.draftAnswers) {
+              restored[d.questionId] = d.answerJson;
+            }
+            setAnswers(restored);
+          }
+
+          // Compute accurate remaining time from startedAt
+          if (data.data?.timeLimitSeconds) {
+            const startedAt = startData.data.startedAt ? new Date(startData.data.startedAt).getTime() : Date.now();
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const remaining = Math.max(0, data.data.timeLimitSeconds - elapsed);
+            setTimeLeftSeconds(remaining);
+          }
+        } else if (data.data?.timeLimitSeconds) {
           setTimeLeftSeconds(data.data.timeLimitSeconds);
         }
       } catch (err: any) {
@@ -86,6 +101,33 @@ export default function StudentQuizModal({
 
     loadQuiz();
   }, [isOpen, resourceId]);
+
+  // Periodic draft auto-save heartbeat (every 15s)
+  useEffect(() => {
+    if (!isOpen || !attemptId || result || Object.keys(answers).length === 0) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const answersList = Object.entries(answers).map(([questionId, ans]) => ({
+          questionId,
+          answerJson: ans,
+        }));
+        await fetch(`/api/v1/quizzes/${resourceId}/attempts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'draft',
+            attemptId,
+            answers: answersList,
+          }),
+        });
+      } catch (err) {
+        console.error('[StudentQuizModal] Auto-save draft error:', err);
+      }
+    }, 15_000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, attemptId, result, answers, resourceId]);
 
   // Countdown effect
   useEffect(() => {

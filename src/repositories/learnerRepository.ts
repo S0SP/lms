@@ -58,6 +58,17 @@ export const learnerRepository = {
 
   async create(data: z.infer<typeof createLearnerSchema>, orgId?: string | null) {
     const lowerEmail = data.email.toLowerCase().trim();
+    const hobbiesStr = Array.isArray(data.hobbies) ? data.hobbies.join(', ') : data.hobbies?.trim();
+    let computedPrivateNote = data.privateNote || '';
+    if (hobbiesStr) {
+      computedPrivateNote = computedPrivateNote
+        ? `${computedPrivateNote}\nHobbies & Interests: ${hobbiesStr}`
+        : `Hobbies & Interests: ${hobbiesStr}`;
+    }
+
+    const hobbyList = hobbiesStr ? hobbiesStr.split(',').map((h) => h.trim()).filter(Boolean) : [];
+    const allTags = [...(data.tags || []), ...hobbyList];
+
     const [existing] = await db
       .select({
         id: users.id,
@@ -104,7 +115,7 @@ export const learnerRepository = {
               board: data.board,
               grade: data.grade,
               dob: data.dob ? new Date(data.dob) : undefined,
-              privateNote: data.privateNote,
+              privateNote: computedPrivateNote || undefined,
               updatedAt: new Date(),
             })
             .where(eq(learnerProfiles.userId, existing.id));
@@ -114,7 +125,7 @@ export const learnerRepository = {
             board: data.board,
             grade: data.grade,
             dob: data.dob ? new Date(data.dob) : undefined,
-            privateNote: data.privateNote,
+            privateNote: computedPrivateNote || undefined,
           });
         }
 
@@ -156,7 +167,7 @@ export const learnerRepository = {
         board: data.board,
         grade: data.grade,
         dob: data.dob ? new Date(data.dob) : undefined,
-        privateNote: data.privateNote,
+        privateNote: computedPrivateNote || undefined,
       });
 
       if (data.parentEmail) {
@@ -169,8 +180,8 @@ export const learnerRepository = {
       }
 
       // Save tags and link to learner if provided
-      if (data.tags && data.tags.length > 0 && orgId) {
-        for (const rawTag of data.tags) {
+      if (allTags.length > 0 && orgId) {
+        for (const rawTag of allTags) {
           const tagName = rawTag.trim();
           if (!tagName) continue;
 

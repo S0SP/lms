@@ -6,68 +6,125 @@ import { UsersWorkspaceClient, LearnerRow, EducatorRow } from '@/components/admi
 export const dynamic = 'force-dynamic';
 
 export default async function AdminUsersPage() {
-  // 1. Fetch learners
-  const rawLearners = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      avatarUrl: users.avatarUrl,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .where(eq(users.role, 'learner'))
-    .orderBy(desc(users.createdAt))
-    .limit(100);
+  // Batch 1: Concurrently fetch learners, educators, courses, and tags
+  const [rawLearners, rawEducators, allCourses, allTags] = await Promise.all([
+    db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        avatarUrl: users.avatarUrl,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.role, 'learner'))
+      .orderBy(desc(users.createdAt))
+      .limit(100),
+
+    db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        avatarUrl: users.avatarUrl,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.role, 'educator'))
+      .orderBy(desc(users.createdAt))
+      .limit(100),
+
+    db
+      .select({
+        id: courses.id,
+        name: courses.name,
+      })
+      .from(courses)
+      .orderBy(courses.name),
+
+    db
+      .select({
+        id: tags.id,
+        name: tags.name,
+        color: tags.colorHex,
+      })
+      .from(tags)
+      .orderBy(tags.name),
+  ]);
 
   const learnerIds = rawLearners.map((l) => l.id);
+  const educatorIds = rawEducators.map((e) => e.id);
 
-  // 2. Fetch parent links for these learners
+  // Batch 2: Concurrently fetch parent relations, enrollments, and educator assignments
+  const [parentRows, enrollmentRows, educatorCourseRows] = await Promise.all([
+    learnerIds.length > 0
+      ? db
+          .select({
+            learnerId: parentProfiles.learnerId,
+            parentId: users.id,
+            parentName: users.name,
+            parentEmail: users.email,
+          })
+          .from(parentProfiles)
+          .innerJoin(users, eq(parentProfiles.userId, users.id))
+          .where(inArray(parentProfiles.learnerId, learnerIds))
+      : Promise.resolve([]),
+
+    learnerIds.length > 0
+      ? db
+          .select({
+            learnerId: courseEnrollments.learnerId,
+            courseId: courses.id,
+            courseName: courses.name,
+          })
+          .from(courseEnrollments)
+          .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+          .where(inArray(courseEnrollments.learnerId, learnerIds))
+      : Promise.resolve([]),
+
+    educatorIds.length > 0
+      ? db
+          .select({
+            educatorId: courseEducators.educatorId,
+            courseId: courses.id,
+            courseName: courses.name,
+          })
+          .from(courseEducators)
+          .innerJoin(courses, eq(courseEducators.courseId, courses.id))
+          .where(inArray(courseEducators.educatorId, educatorIds))
+      : Promise.resolve([]),
+  ]);
+
+  // Build lookup maps
   const parentsMap = new Map<string, { id: string; name: string; email: string }[]>();
-  if (learnerIds.length > 0) {
-    const parentRows = await db
-      .select({
-        learnerId: parentProfiles.learnerId,
-        parentId: users.id,
-        parentName: users.name,
-        parentEmail: users.email,
-      })
-      .from(parentProfiles)
-      .innerJoin(users, eq(parentProfiles.userId, users.id))
-      .where(inArray(parentProfiles.learnerId, learnerIds));
-
-    parentRows.forEach((p) => {
-      if (!parentsMap.has(p.learnerId)) parentsMap.set(p.learnerId, []);
-      parentsMap.get(p.learnerId)!.push({
-        id: p.parentId,
-        name: p.parentName,
-        email: p.parentEmail,
-      });
+  parentRows.forEach((p) => {
+    if (!parentsMap.has(p.learnerId)) parentsMap.set(p.learnerId, []);
+    parentsMap.get(p.learnerId)!.push({
+      id: p.parentId,
+      name: p.parentName,
+      email: p.parentEmail,
     });
-  }
+  });
 
-  // 3. Fetch courses enrolled for these learners
   const coursesMap = new Map<string, { id: string; name: string }[]>();
-  if (learnerIds.length > 0) {
-    const enrollmentRows = await db
-      .select({
-        learnerId: courseEnrollments.learnerId,
-        courseId: courses.id,
-        courseName: courses.name,
-      })
-      .from(courseEnrollments)
-      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
-      .where(inArray(courseEnrollments.learnerId, learnerIds));
-
-    enrollmentRows.forEach((c) => {
-      if (!coursesMap.has(c.learnerId)) coursesMap.set(c.learnerId, []);
-      coursesMap.get(c.learnerId)!.push({
-        id: c.courseId,
-        name: c.courseName,
-      });
+  enrollmentRows.forEach((c) => {
+    if (!coursesMap.has(c.learnerId)) coursesMap.set(c.learnerId, []);
+    coursesMap.get(c.learnerId)!.push({
+      id: c.courseId,
+      name: c.courseName,
     });
-  }
+  });
+
+  const educatorCoursesMap = new Map<string, { id: string; name: string }[]>();
+  educatorCourseRows.forEach((ec) => {
+    if (!educatorCoursesMap.has(ec.educatorId)) educatorCoursesMap.set(ec.educatorId, []);
+    educatorCoursesMap.get(ec.educatorId)!.push({
+      id: ec.courseId,
+      name: ec.courseName,
+    });
+  });
 
   const learners: LearnerRow[] = rawLearners.map((l) => ({
     id: l.id,
@@ -80,45 +137,6 @@ export default async function AdminUsersPage() {
     courses: coursesMap.get(l.id) || [],
   }));
 
-  // 4. Fetch educators
-  const rawEducators = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      avatarUrl: users.avatarUrl,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .where(eq(users.role, 'educator'))
-    .orderBy(desc(users.createdAt))
-    .limit(100);
-
-  const educatorIds = rawEducators.map((e) => e.id);
-
-  // 5. Fetch assigned courses for these educators
-  const educatorCoursesMap = new Map<string, { id: string; name: string }[]>();
-  if (educatorIds.length > 0) {
-    const educatorCourseRows = await db
-      .select({
-        educatorId: courseEducators.educatorId,
-        courseId: courses.id,
-        courseName: courses.name,
-      })
-      .from(courseEducators)
-      .innerJoin(courses, eq(courseEducators.courseId, courses.id))
-      .where(inArray(courseEducators.educatorId, educatorIds));
-
-    educatorCourseRows.forEach((ec) => {
-      if (!educatorCoursesMap.has(ec.educatorId)) educatorCoursesMap.set(ec.educatorId, []);
-      educatorCoursesMap.get(ec.educatorId)!.push({
-        id: ec.courseId,
-        name: ec.courseName,
-      });
-    });
-  }
-
   const educators: EducatorRow[] = rawEducators.map((e) => ({
     id: e.id,
     name: e.name || 'Unnamed Educator',
@@ -128,25 +146,6 @@ export default async function AdminUsersPage() {
     createdAt: e.createdAt?.toISOString() ?? new Date().toISOString(),
     courses: educatorCoursesMap.get(e.id) || [],
   }));
-
-  // 6. Fetch all platform courses for Filter modal
-  const allCourses = await db
-    .select({
-      id: courses.id,
-      name: courses.name,
-    })
-    .from(courses)
-    .orderBy(courses.name);
-
-  // 7. Fetch all tags for Filter modal
-  const allTags = await db
-    .select({
-      id: tags.id,
-      name: tags.name,
-      color: tags.colorHex,
-    })
-    .from(tags)
-    .orderBy(tags.name);
 
   return (
     <UsersWorkspaceClient

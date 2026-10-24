@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   X, 
   Check, 
@@ -20,8 +20,13 @@ import {
 } from 'lucide-react';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
 
-export default function CourseCreationWizardPage() {
+function CourseCreationWizardInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const typeParam = searchParams?.get('type');
+  const validTypes = ['one_on_one', 'group', 'recorded'] as const;
+  const initialType = validTypes.includes(typeParam as any) ? (typeParam as any) : 'one_on_one';
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +40,7 @@ export default function CourseCreationWizardPage() {
   const [formData, setFormData] = useState({
     name: '',
     urlSlug: '',
-    type: 'one_on_one' as 'one_on_one' | 'group' | 'recorded',
+    type: initialType as 'one_on_one' | 'group' | 'recorded',
     board: 'IGCSE',
     grade: 'Grade 9',
     description: '',
@@ -569,5 +574,19 @@ export default function CourseCreationWizardPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function CourseCreationWizardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 max-w-5xl mx-auto flex items-center justify-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      }
+    >
+      <CourseCreationWizardInner />
+    </Suspense>
   );
 }

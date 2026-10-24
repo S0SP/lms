@@ -2,16 +2,21 @@ import { db } from '@/lib/drizzle';
 import {
   monthlyReports,
   users,
+  learnerProfiles,
   courses,
   sessions,
   sessionAttendees,
   sessionFeedback,
+  confidentialFeedbackEducator,
+  confidentialFeedbackLearner,
+  assessments,
+  assessmentSubmissions,
   credits,
   courseEnrollments,
   zoomAttendance,
   parentProfiles,
 } from '@/db/schema';
-import { eq, and, desc, gte, lt, sql, isNull, inArray } from 'drizzle-orm';
+import { eq, and, desc, gte, lt, lte, sql, isNull, inArray } from 'drizzle-orm';
 
 export interface ReportQueryFilters {
   role: string;
@@ -114,6 +119,7 @@ export const reportRepository = {
           status: monthlyReports.status,
           headline: sql<string | null>`${monthlyReports.sectionsJson}->>'headline'`,
           overallScore: sql<number | null>`(${monthlyReports.sectionsJson}->>'overallScore')::int`,
+          shareToken: monthlyReports.shareToken,
           sentAt: monthlyReports.sentAt,
           generatedAt: monthlyReports.generatedAt,
           createdAt: monthlyReports.createdAt,
@@ -197,6 +203,9 @@ export const reportRepository = {
         monthYear: monthlyReports.monthYear,
         status: monthlyReports.status,
         sectionsJson: monthlyReports.sectionsJson,
+        selectedSessionIds: monthlyReports.selectedSessionIds,
+        shareToken: monthlyReports.shareToken,
+        brandTheme: monthlyReports.brandTheme,
         aiDraft: monthlyReports.aiDraft,
         editedContent: monthlyReports.editedContent,
         generatedAt: monthlyReports.generatedAt,
@@ -267,6 +276,62 @@ export const reportRepository = {
   },
 
   /**
+   * Students ordered alphabetically for the Super Admin generation form.
+   * Includes profile, grade, board, and active enrolled courses.
+   */
+  async listStudentsForReportGeneration() {
+    const learners = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        avatarUrl: users.avatarUrl,
+        grade: sql<string | null>`(SELECT grade FROM learner_profiles WHERE user_id = ${users.id})`,
+        board: sql<string | null>`(SELECT board FROM learner_profiles WHERE user_id = ${users.id})`,
+      })
+      .from(users)
+      .where(and(eq(users.role, 'learner'), eq(users.isActive, true)))
+      .orderBy(users.name);
+
+    if (learners.length === 0) return [];
+
+    const learnerIds = learners.map((l) => l.id);
+    const enrollments = await db
+      .select({
+        learnerId: courseEnrollments.learnerId,
+        courseId: courses.id,
+        courseName: courses.name,
+        courseType: courses.type,
+      })
+      .from(courseEnrollments)
+      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+      .where(
+        and(
+          inArray(courseEnrollments.learnerId, learnerIds),
+          eq(courseEnrollments.status, 'active'),
+        ),
+      );
+
+    const enrollmentMap = new Map<string, Array<{ id: string; name: string; type: string | null }>>();
+    for (const e of enrollments) {
+      if (!enrollmentMap.has(e.learnerId)) {
+        enrollmentMap.set(e.learnerId, []);
+      }
+      enrollmentMap.get(e.learnerId)!.push({
+        id: e.courseId,
+        name: e.courseName,
+        type: e.courseType,
+      });
+    }
+
+    return learners.map((l) => ({
+      ...l,
+      name: l.name || 'Unnamed Scholar',
+      courses: enrollmentMap.get(l.id) || [],
+    }));
+  },
+
+  /**
    * The single report for a learner/course/month, if one exists.
    * Used to short-circuit regeneration and to enforce the natural key.
    */
@@ -293,18 +358,47 @@ export const reportRepository = {
   },
 
   /**
-   * Everything Gemini needs to write a monthly report: who the learner is,
-   * the course context, and the month's sessions with educator feedback,
-   * attendance, and Zoom audio transcripts. Returns null when the learner is not enrolled in the course.
+   * Everything Gemini needs to write a comprehensive progress report:
+   *  - Learner & course identity
+   *  - Sessions with educator feedback, Zoom AI summaries, transcripts & attendance
+   *  - Confidential teacher feedback for student
+   *  - Confidential parent/learner feedback
+   *  - Assignments submitted and scored with percentage and educator marks
+   *  - Aggregated overall student metrics for the selected interval of periods
    */
   async collectGenerationContext(
-    learnerId: string,
-    courseId: string,
-    monthStart: Date,
-    selectedSessionIds?: string[],
+    arg1: string | { learnerId: string; courseId: string; startDate: Date; endDate?: Date; selectedSessionIds?: string[] },
+    arg2?: string,
+    arg3?: Date,
+    arg4?: string[] | Date,
+    arg5?: string[],
   ) {
-    const monthEnd = new Date(monthStart);
-    monthEnd.setMonth(monthEnd.getMonth() + 1);
+    let learnerId: string;
+    let courseId: string;
+    let periodStart: Date;
+    let periodEnd: Date;
+    let selectedSessionIds: string[] | undefined;
+
+    if (typeof arg1 === 'object') {
+      learnerId = arg1.learnerId;
+      courseId = arg1.courseId;
+      periodStart = arg1.startDate;
+      periodEnd = arg1.endDate ? new Date(arg1.endDate) : new Date(periodStart);
+      if (!arg1.endDate) periodEnd.setMonth(periodEnd.getMonth() + 1);
+      selectedSessionIds = arg1.selectedSessionIds;
+    } else {
+      learnerId = arg1;
+      courseId = arg2!;
+      periodStart = arg3!;
+      if (arg4 instanceof Date) {
+        periodEnd = arg4;
+        selectedSessionIds = arg5;
+      } else {
+        periodEnd = new Date(periodStart);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+        selectedSessionIds = arg4;
+      }
+    }
 
     const [learnerRows, courseRows, enrollmentRows] = await Promise.all([
       db
@@ -343,19 +437,19 @@ export const reportRepository = {
 
     if (!learnerRows[0] || !courseRows[0]) return null;
 
-    // Build session filter: either explicit selectedSessionIds or sessions in date range
+    // 1. Build session filter: either explicit selectedSessionIds or sessions in date range
     const sessionConditions = [eq(sessionAttendees.learnerId, learnerId)];
     if (selectedSessionIds && selectedSessionIds.length > 0) {
       sessionConditions.push(inArray(sessions.id, selectedSessionIds));
     } else {
       sessionConditions.push(
-        gte(sessions.scheduledAt, monthStart),
-        lt(sessions.scheduledAt, monthEnd),
+        gte(sessions.scheduledAt, periodStart),
+        lt(sessions.scheduledAt, periodEnd),
       );
     }
 
-    // Sessions in the target period that this learner was booked into.
-    const monthSessions = await db
+    // Sessions in the target period that this learner was booked into
+    const periodSessions = await db
       .select({
         id: sessions.id,
         title: sessions.title,
@@ -378,8 +472,8 @@ export const reportRepository = {
       .where(and(...sessionConditions))
       .orderBy(sessions.scheduledAt);
 
-    // Attendance totals for the sessions (from Zoom webhooks).
-    const sessionIds = monthSessions.map((s) => s.id);
+    // 2. Attendance totals for the sessions (from Zoom webhooks)
+    const sessionIds = periodSessions.map((s) => s.id);
     const [attendance] = sessionIds.length
       ? await db
           .select({
@@ -395,36 +489,134 @@ export const reportRepository = {
           )
       : [{ totalJoins: 0, totalSeconds: 0 }];
 
-    // Credit balance for the course.
+    // 3. Teacher confidential pedagogical feedback
+    const teacherNotes = await db
+      .select({
+        id: confidentialFeedbackEducator.id,
+        content: confidentialFeedbackEducator.content,
+        createdAt: confidentialFeedbackEducator.createdAt,
+      })
+      .from(confidentialFeedbackEducator)
+      .where(
+        and(
+          eq(confidentialFeedbackEducator.learnerId, learnerId),
+          gte(confidentialFeedbackEducator.createdAt, periodStart),
+          lt(confidentialFeedbackEducator.createdAt, periodEnd),
+        ),
+      );
+
+    // 4. Parent notes and learner feedback
+    const parentLearnerNotes = await db
+      .select({
+        id: confidentialFeedbackLearner.id,
+        content: confidentialFeedbackLearner.content,
+        createdAt: confidentialFeedbackLearner.createdAt,
+      })
+      .from(confidentialFeedbackLearner)
+      .where(
+        and(
+          eq(confidentialFeedbackLearner.learnerId, learnerId),
+          gte(confidentialFeedbackLearner.createdAt, periodStart),
+          lt(confidentialFeedbackLearner.createdAt, periodEnd),
+        ),
+      );
+
+    // 5. Assignments submitted & scored
+    const submissions = await db
+      .select({
+        id: assessmentSubmissions.id,
+        assessmentId: assessmentSubmissions.assessmentId,
+        title: assessments.title,
+        maxMarks: assessments.maxMarks,
+        totalScore: assessmentSubmissions.totalScore,
+        feedback: assessmentSubmissions.feedback,
+        submittedAt: assessmentSubmissions.submittedAt,
+        gradedAt: assessmentSubmissions.gradedAt,
+      })
+      .from(assessmentSubmissions)
+      .innerJoin(assessments, eq(assessmentSubmissions.assessmentId, assessments.id))
+      .where(
+        and(
+          eq(assessmentSubmissions.learnerId, learnerId),
+          gte(assessmentSubmissions.submittedAt, periodStart),
+          lte(assessmentSubmissions.submittedAt, periodEnd),
+        ),
+      )
+      .orderBy(desc(assessmentSubmissions.submittedAt));
+
+    // 6. Credit balance for the course
     const [credit] = await db
       .select({ total: credits.total, consumed: credits.consumed })
       .from(credits)
       .where(and(eq(credits.courseId, courseId), eq(credits.learnerId, learnerId)))
       .limit(1);
 
-    // Parents to notify when the report is sent.
+    // 7. Parents to notify
     const parents = await db
       .select({ name: parentProfiles.name, email: parentProfiles.email })
       .from(parentProfiles)
       .where(eq(parentProfiles.learnerId, learnerId));
 
-    const completed = monthSessions.filter((s) => s.status === 'completed').length;
-    const noShows = monthSessions.filter((s) => s.status === 'no_show').length;
+    const completed = periodSessions.filter((s) => s.status === 'completed').length;
+    const noShows = periodSessions.filter((s) => s.status === 'no_show').length;
+
+    // Assignment score average
+    const scoredSubmissions = submissions.filter(
+      (s) => s.totalScore !== null && Number(s.maxMarks) > 0,
+    );
+    const avgAssignmentScore = scoredSubmissions.length
+      ? Math.round(
+          scoredSubmissions.reduce(
+            (acc, s) => acc + (Number(s.totalScore) / Number(s.maxMarks)) * 100,
+            0,
+          ) / scoredSubmissions.length,
+        )
+      : null;
+
+    const totalCreditsConsumed = periodSessions.reduce(
+      (acc, s) => acc + (Number(s.creditsConsumed) || 0),
+      0,
+    );
 
     return {
       learner: learnerRows[0],
       course: courseRows[0],
       enrollment: enrollmentRows[0] ?? null,
       parents,
-      sessions: monthSessions,
+      period: {
+        start: periodStart,
+        end: periodEnd,
+      },
+      sessions: periodSessions,
+      teacherNotes: teacherNotes.map((n) => n.content),
+      parentLearnerNotes: parentLearnerNotes.map((n) => n.content),
+      submissions: submissions.map((s) => ({
+        title: s.title,
+        maxMarks: Number(s.maxMarks) || 100,
+        marksAwarded: s.totalScore !== null ? Number(s.totalScore) : undefined,
+        percentage:
+          s.totalScore !== null && Number(s.maxMarks) > 0
+            ? Math.round((Number(s.totalScore) / Number(s.maxMarks)) * 100)
+            : undefined,
+        feedback: s.feedback || undefined,
+        submittedAt: s.submittedAt ? s.submittedAt.toISOString() : undefined,
+      })),
       stats: {
-        totalSessions: monthSessions.length,
+        totalSessions: periodSessions.length,
         completedSessions: completed,
         noShows,
         attendanceJoins: attendance?.totalJoins ?? 0,
         attendanceSeconds: attendance?.totalSeconds ?? 0,
-        sessionsWithFeedback: monthSessions.filter((s) => s.comments || s.topicsCovered).length,
+        attendanceRate:
+          periodSessions.length > 0
+            ? Math.round((completed / periodSessions.length) * 100)
+            : 0,
+        sessionsWithFeedback: periodSessions.filter((s) => s.comments || s.topicsCovered).length,
         creditsRemaining: credit ? Number(credit.total) - Number(credit.consumed) : null,
+        creditsConsumed: totalCreditsConsumed,
+        assignmentsCount: submissions.length,
+        gradedAssignments: scoredSubmissions.length,
+        avgAssignmentScore: avgAssignmentScore !== null ? `${avgAssignmentScore}%` : undefined,
       },
     };
   },

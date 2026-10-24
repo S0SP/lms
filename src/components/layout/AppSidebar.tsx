@@ -55,7 +55,7 @@ export default function AppSidebar({
       `}>
         {/* Top Logo & Header */}
         <div className={`h-16 flex items-center shrink-0 relative ${isCollapsed ? 'justify-center px-0' : 'px-3.5 justify-between'}`}>
-          <Link href={dashboardUrl} className={`flex items-center ${isCollapsed ? 'justify-center' : 'w-full pr-2'}`}>
+          <Link href={dashboardUrl} prefetch={true} className={`flex items-center ${isCollapsed ? 'justify-center' : 'w-full pr-2'}`}>
             {isCollapsed ? (
               <BrandLogo size="sm" iconOnly />
             ) : (
@@ -98,6 +98,7 @@ export default function AppSidebar({
               <Link
                 key={item.name}
                 href={item.href}
+                prefetch={true}
                 onClick={() => setMobileOpen && setMobileOpen(false)}
                 className={`
                   relative flex items-center px-3 py-2 mx-2 rounded-md transition-colors group
@@ -133,6 +134,7 @@ export default function AppSidebar({
             {settingsUrl && (
               <Link 
                 href={settingsUrl}
+                prefetch={true}
                 onClick={() => setMobileOpen && setMobileOpen(false)}
                 className={`
                   relative flex items-center px-3 py-2 mx-2 rounded-md transition-colors w-[calc(100%-1rem)]

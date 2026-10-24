@@ -541,6 +541,156 @@ export async function sendSessionUpdatedNotification(opts: {
 }
 
 /**
+ * Host Assignment Notification (Sent to newly assigned educator)
+ */
+export async function sendHostAssignedNotification(opts: {
+  to: string;
+  recipientName: string;
+  sessionTitle: string;
+  sessionTopic?: string | null;
+  scheduledAt: Date;
+  durationMin: number;
+  courseName?: string | null;
+  studentNames?: string[];
+  zoomUrl?: string | null;
+  timezone?: string | null;
+  reason?: string;
+}) {
+  const when = formatWhen(opts.scheduledAt, opts.timezone);
+  const subject = `Session Host Assignment: ${opts.sessionTitle} (${when})`;
+  const portalUrl = `${config.appUrl}/educator/calendar`;
+
+  const detailsHtml = `
+    <table role="presentation" cellpadding="8" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:20px 0;width:100%;">
+      ${opts.courseName ? `<tr><td style="color:#64748b;width:130px;font-size:13px;font-weight:600;">Course</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.courseName}</td></tr>` : ''}
+      <tr><td style="color:#64748b;width:130px;font-size:13px;font-weight:600;">Date &amp; Time</td><td style="font-weight:700;font-size:14px;color:#2563eb;">${when}</td></tr>
+      <tr><td style="color:#64748b;font-size:13px;font-weight:600;">Duration</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.durationMin} minutes</td></tr>
+      ${opts.studentNames && opts.studentNames.length > 0 ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Scholar(s)</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.studentNames.join(', ')}</td></tr>` : ''}
+      ${opts.sessionTopic ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Topic</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.sessionTopic}</td></tr>` : ''}
+      ${opts.reason ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Admin Note</td><td style="font-weight:600;font-size:13px;color:#475569;">${opts.reason}</td></tr>` : ''}
+    </table>
+  `;
+
+  const bodyHtml = `
+    <p style="margin: 0 0 16px 0;">Hi <strong>${opts.recipientName}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">You have been <strong>assigned as the host/educator</strong> for the following session:</p>
+    ${detailsHtml}
+    ${opts.zoomUrl ? `
+      <div style="margin: 20px 0 16px 0;">
+        <a href="${opts.zoomUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+          Join Zoom Meeting as Host
+        </a>
+      </div>
+    ` : ''}
+  `;
+
+  const html = layout({
+    title: 'New Host Assignment',
+    subtitle: opts.sessionTitle,
+    bodyHtml,
+    buttonUrl: portalUrl,
+    buttonLabel: 'View in Educator Calendar',
+  });
+
+  return sendEmail(opts.to, subject, html, { template: 'session_scheduled' });
+}
+
+/**
+ * Host Unassignment Notification (Sent to previously assigned educator)
+ */
+export async function sendHostUnassignedNotification(opts: {
+  to: string;
+  recipientName: string;
+  sessionTitle: string;
+  scheduledAt: Date;
+  timezone?: string | null;
+  courseName?: string | null;
+  reason?: string;
+}) {
+  const when = formatWhen(opts.scheduledAt, opts.timezone);
+  const subject = `Host Reassigned: ${opts.sessionTitle} (${when})`;
+  const portalUrl = `${config.appUrl}/educator/calendar`;
+
+  const bodyHtml = `
+    <p style="margin: 0 0 16px 0;">Hi <strong>${opts.recipientName}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">Please note that you have been <strong>unassigned as the host</strong> for the following scheduled session:</p>
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 16px 0;">
+      <p style="font-size: 14px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">${opts.sessionTitle}</p>
+      ${opts.courseName ? `<p style="font-size: 13px; color: #64748b; margin: 0 0 4px 0;">Course: <strong>${opts.courseName}</strong></p>` : ''}
+      <p style="font-size: 13px; color: #64748b; margin: 0 0 4px 0;">Scheduled: <strong>${when}</strong></p>
+      ${opts.reason ? `<p style="font-size: 13px; color: #b45309; margin: 8px 0 0 0;"><strong>Reason:</strong> ${opts.reason}</p>` : ''}
+    </div>
+    <p style="font-size: 13px; color: #64748b; margin: 0;">This session has been removed from your active teaching schedule and another educator has taken over the host role.</p>
+  `;
+
+  const html = layout({
+    title: 'Session Host Reassigned',
+    subtitle: opts.sessionTitle,
+    bodyHtml,
+    buttonUrl: portalUrl,
+    buttonLabel: 'View Your Schedule',
+  });
+
+  return sendEmail(opts.to, subject, html, { template: 'session_updated' });
+}
+
+/**
+ * Session Host Changed Notification (Sent to Students & Parents)
+ */
+export async function sendSessionHostChangedNotification(opts: {
+  to: string;
+  recipientName: string;
+  role: 'student' | 'parent';
+  sessionTitle: string;
+  newEducatorName: string;
+  previousEducatorName?: string | null;
+  scheduledAt: Date;
+  durationMin: number;
+  courseName?: string | null;
+  studentNames?: string[];
+  zoomUrl?: string | null;
+  timezone?: string | null;
+}) {
+  const when = formatWhen(opts.scheduledAt, opts.timezone);
+  const subject = `Educator Assigned for Class: ${opts.sessionTitle} (${when})`;
+  const portalUrl = `${config.appUrl}/student/calendar`;
+
+  const detailsHtml = `
+    <table role="presentation" cellpadding="8" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:20px 0;width:100%;">
+      ${opts.courseName ? `<tr><td style="color:#64748b;width:130px;font-size:13px;font-weight:600;">Course</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.courseName}</td></tr>` : ''}
+      <tr><td style="color:#64748b;width:130px;font-size:13px;font-weight:600;">Date &amp; Time</td><td style="font-weight:700;font-size:14px;color:#0f172a;">${when}</td></tr>
+      <tr><td style="color:#64748b;font-size:13px;font-weight:600;">New Educator</td><td style="font-weight:700;font-size:14px;color:#2563eb;">${opts.newEducatorName}</td></tr>
+      ${opts.previousEducatorName ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Previous Educator</td><td style="font-size:13px;color:#64748b;">${opts.previousEducatorName}</td></tr>` : ''}
+      <tr><td style="color:#64748b;font-size:13px;font-weight:600;">Duration</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.durationMin} minutes</td></tr>
+      ${opts.studentNames && opts.studentNames.length > 0 ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Scholar(s)</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.studentNames.join(', ')}</td></tr>` : ''}
+    </table>
+  `;
+
+  const bodyHtml = `
+    <p style="margin: 0 0 16px 0;">Hi <strong>${opts.recipientName}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">The educator for your upcoming session has been updated to <strong>${opts.newEducatorName}</strong>:</p>
+    ${detailsHtml}
+    ${opts.zoomUrl ? `
+      <div style="margin: 20px 0 16px 0;">
+        <a href="${opts.zoomUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+          Join Zoom Meeting
+        </a>
+      </div>
+    ` : ''}
+  `;
+
+  const html = layout({
+    title: 'Educator Assigned for Class',
+    subtitle: opts.sessionTitle,
+    bodyHtml,
+    buttonUrl: portalUrl,
+    buttonLabel: 'View in Calendar',
+  });
+
+  return sendEmail(opts.to, subject, html, { template: 'session_updated' });
+}
+
+/**
  * Session Cancelled Notification
  */
 export async function sendSessionCancelledNotification(opts: {
@@ -640,6 +790,54 @@ export async function sendSessionReminder(opts: {
   return sendEmail(opts.to, subject, html, { template: 'session_reminder' });
 }
 
+export async function sendSessionFeedbackNotification(opts: {
+  to: string;
+  recipientName: string;
+  role: 'student' | 'parent';
+  sessionTitle: string;
+  courseName?: string | null;
+  educatorName?: string | null;
+  topicsCovered?: string | null;
+  comments?: string | null;
+  homeworkAssigned?: string | null;
+  creditsConsumed?: string | number | null;
+}) {
+  const subject = `Session Notes & Feedback: ${opts.sessionTitle}`;
+  const portalUrl = `${config.appUrl}/${opts.role === 'parent' ? 'parent/reports' : 'student/reports'}`;
+
+  const detailsHtml = `
+    <table role="presentation" cellpadding="8" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:20px 0;width:100%;">
+      ${opts.courseName ? `<tr><td style="color:#64748b;width:130px;font-size:13px;font-weight:600;">Course</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.courseName}</td></tr>` : ''}
+      ${opts.educatorName ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Educator</td><td style="font-weight:600;font-size:14px;color:#0f172a;">${opts.educatorName}</td></tr>` : ''}
+      ${opts.topicsCovered ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Topics Covered</td><td style="font-weight:500;font-size:14px;color:#0f172a;">${opts.topicsCovered}</td></tr>` : ''}
+      ${opts.homeworkAssigned ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Homework</td><td style="font-weight:500;font-size:14px;color:#0f172a;">${opts.homeworkAssigned}</td></tr>` : ''}
+      ${opts.creditsConsumed ? `<tr><td style="color:#64748b;font-size:13px;font-weight:600;">Credits Used</td><td style="font-weight:500;font-size:14px;color:#0f172a;">${opts.creditsConsumed}</td></tr>` : ''}
+    </table>
+  `;
+
+  const bodyHtml = `
+    <p style="margin: 0 0 16px 0;">Hi <strong>${opts.recipientName}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">Your instructor has submitted session feedback and notes for <strong>${opts.sessionTitle}</strong>:</p>
+    ${detailsHtml}
+    ${opts.comments ? `
+      <div style="background-color: #f1f5f9; border-left: 4px solid #2563eb; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+        <strong style="color: #1e293b; display: block; margin-bottom: 4px;">Instructor Comments:</strong>
+        <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.5;">${opts.comments}</p>
+      </div>
+    ` : ''}
+  `;
+
+  const html = layout({
+    title: 'Session Feedback & Report',
+    subtitle: opts.sessionTitle,
+    bodyHtml,
+    buttonUrl: portalUrl,
+    buttonLabel: 'View Detailed Report',
+  });
+
+  return sendEmail(opts.to, subject, html, { template: 'session_feedback' });
+}
+
 export async function sendAdminInvite(opts: {
   to: string;
   name: string;
@@ -704,20 +902,69 @@ export async function sendProgressReport(opts: {
   courseName: string;
   monthYear: string;
   reportUrl: string;
+  liveUrl?: string;
+  downloadUrl?: string;
+  overallScore?: number;
+  summary?: string;
 }) {
+  const liveLink = opts.liveUrl || opts.reportUrl;
+  const downloadLink = opts.downloadUrl || `${liveLink}?action=print`;
+
+  const scoreBadgeHtml = opts.overallScore !== undefined
+    ? `
+      <div style="display: inline-block; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9999px; padding: 6px 16px; margin-bottom: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">
+          Overall Score: ${opts.overallScore}/100
+        </span>
+      </div>
+    `
+    : '';
+
+  const summaryHtml = opts.summary
+    ? `
+      <div style="background-color: #f8fafc; border-left: 4px solid #0284c7; border-radius: 4px; padding: 14px 18px; margin: 16px 0 20px 0;">
+        <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0; font-style: italic;">
+          "${opts.summary}"
+        </p>
+      </div>
+    `
+    : '';
+
   const bodyHtml = `
-    <p style="margin: 0 0 16px 0;">Hi <strong>${opts.name}</strong>,</p>
-    <p style="margin: 0 0 16px 0;">Your progress report for <strong>${opts.courseName}</strong> covering ${opts.monthYear} is ready.</p>
+    <p style="margin: 0 0 16px 0;">Dear <strong>${opts.name}</strong>,</p>
+    <p style="margin: 0 0 16px 0;">The progress report for <strong>${opts.courseName}</strong> covering <strong>${opts.monthYear}</strong> has been finalized and approved by our academic team.</p>
+    ${scoreBadgeHtml}
+    ${summaryHtml}
+    <p style="margin: 0 0 16px 0; font-size: 14px; color: #64748b;">
+      You can access the interactive live report or download/print the official PDF copy using the options below:
+    </p>
+  `;
+
+  const accountBox = `
+    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; margin-top: 16px;">
+      <a href="${liveLink}" style="display: inline-block; background-color: #0284c7; color: #ffffff; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-right: 8px; margin-bottom: 8px;">
+        View Live Report
+      </a>
+      <a href="${downloadLink}" style="display: inline-block; background-color: #f1f5f9; color: #334155; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none; border: 1px solid #cbd5e1; margin-bottom: 8px;">
+        Download / Print PDF
+      </a>
+      <p style="font-size: 12px; color: #94a3b8; margin: 12px 0 0 0;">
+        Direct Live Link: <a href="${liveLink}" style="color: #0284c7; word-break: break-all;">${liveLink}</a>
+      </p>
+    </div>
   `;
 
   const html = layout({
     title: `${opts.monthYear} Progress Report`,
+    subtitle: opts.courseName,
     bodyHtml,
-    buttonUrl: opts.reportUrl,
-    buttonLabel: 'View Progress Report',
+    accountBox,
+    buttonUrl: liveLink,
+    buttonLabel: 'Open Full Report',
   });
 
-  return sendEmail(opts.to, `Your ${opts.monthYear} progress report is ready`, html, {
+  return sendEmail(opts.to, `Progress Report: ${opts.monthYear} - ${opts.courseName}`, html, {
     template: 'progress_report',
   });
 }
+

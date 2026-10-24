@@ -1,9 +1,10 @@
 import { type NextRequest } from 'next/server';
 import { requireAuth, apiSuccess, apiError } from '@/lib/api';
 import { db } from '@/lib/drizzle';
-import { sessions, courses, users, sessionReports, timelinePosts, polls, pollOptions } from '@/db/schema';
+import { sessions, courses, users, sessionReports, timelinePosts, polls, pollOptions, contentSections } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { config } from '@/config/unifiedConfig';
+import { quizRepository } from '@/repositories/quizRepository';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -184,44 +185,91 @@ Do not include any markdown wrappers or commentary, only raw JSON.`;
         return apiError('AI generated an empty questions list.', 500);
       }
 
-      // Automatically post the primary question as an interactive quiz to the course timeline
-      const primaryQ = questions[0];
-      const [newPost] = await db
-        .insert(timelinePosts)
-        .values({
-          courseId: sess.courseId,
-          authorId: currentUserId,
-          bodyRichtext: `📝 Post-Session AI Quiz: ${sess.title}\n\n${primaryQ.question}`,
-          commentsDisabled: false,
-        })
-        .returning();
+      // 1. Persist complete multi-question quiz in course test builder
+      let savedTest: any = null;
+      try {
+        let [section] = await db
+          .select()
+          .from(contentSections)
+          .where(eq(contentSections.courseId, sess.courseId))
+          .limit(1);
 
-      if (newPost) {
-        const [newPoll] = await db
-          .insert(polls)
+        if (!section) {
+          const [newSection] = await db
+            .insert(contentSections)
+            .values({
+              courseId: sess.courseId,
+              title: 'Session Quizzes & Assessments',
+              sortOrder: 0,
+            })
+            .returning();
+          section = newSection;
+        }
+
+        if (section) {
+          savedTest = await quizRepository.create({
+            sectionId: section.id,
+            name: `AI Quiz: ${sess.title}`,
+            timeLimitSeconds: questions.length * 60,
+            isPublished: true,
+            questions: questions.map((q: any) => ({
+              bodyRichtext: q.question,
+              type: 'single_correct',
+              marks: 1,
+              options: (q.options || []).map((opt: string, idx: number) => ({
+                body: opt,
+                isCorrect: idx === (q.correctOptionIndex ?? 0),
+              })),
+            })),
+          });
+        }
+      } catch (saveErr) {
+        console.error('[sessions/ai/POST] Error saving quiz to test builder:', saveErr);
+      }
+
+      // 2. Automatically post all generated questions to the course timeline as interactive polls
+      const timelinePostIds: string[] = [];
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const [newPost] = await db
+          .insert(timelinePosts)
           .values({
-            postId: newPost.id,
-            isQuizMode: true,
-            showResultsImmediately: true,
+            courseId: sess.courseId,
+            authorId: currentUserId,
+            bodyRichtext: `📝 Post-Session AI Quiz (${i + 1}/${questions.length}): ${sess.title}\n\n${q.question}`,
+            commentsDisabled: false,
           })
           .returning();
 
-        if (newPoll && Array.isArray(primaryQ.options)) {
-          for (let i = 0; i < primaryQ.options.length; i++) {
-            await db.insert(pollOptions).values({
-              pollId: newPoll.id,
-              body: primaryQ.options[i],
-              isCorrect: i === (primaryQ.correctOptionIndex ?? 0),
-              sortOrder: i,
-            });
+        if (newPost) {
+          timelinePostIds.push(newPost.id);
+          const [newPoll] = await db
+            .insert(polls)
+            .values({
+              postId: newPost.id,
+              isQuizMode: true,
+              showResultsImmediately: true,
+            })
+            .returning();
+
+          if (newPoll && Array.isArray(q.options)) {
+            for (let optIdx = 0; optIdx < q.options.length; optIdx++) {
+              await db.insert(pollOptions).values({
+                pollId: newPoll.id,
+                body: q.options[optIdx],
+                isCorrect: optIdx === (q.correctOptionIndex ?? 0),
+                sortOrder: optIdx,
+              });
+            }
           }
         }
       }
 
       return apiSuccess({
-        message: 'Quiz generated and posted to Course Timeline',
+        message: 'Quiz generated and saved successfully',
         questions,
-        timelinePostId: newPost?.id,
+        testId: savedTest?.id,
+        timelinePostIds,
       });
     }
 

@@ -84,9 +84,13 @@ export const reportService = {
     monthYear: Date;
     force: boolean;
     sessionIds?: string[];
+    startDate?: Date;
+    endDate?: Date;
+    periodLabel?: string;
   }): Promise<GenerationOutcome> {
-    const monthStart = startOfMonth(input.monthYear);
-    const monthLabel = format(monthStart, 'MMMM yyyy');
+    const monthStart = input.startDate || startOfMonth(input.monthYear);
+    const periodEnd = input.endDate;
+    const periodLabel = input.periodLabel || format(monthStart, 'MMMM yyyy');
 
     const existing = await reportRepository.findByScope(
       input.learnerId,
@@ -111,23 +115,47 @@ export const reportService = {
       };
     }
 
-    const context = await reportRepository.collectGenerationContext(
-      input.learnerId,
-      input.courseId,
-      monthStart,
-      input.sessionIds,
-    );
+    const context = await reportRepository.collectGenerationContext({
+      learnerId: input.learnerId,
+      courseId: input.courseId,
+      startDate: monthStart,
+      endDate: periodEnd,
+      selectedSessionIds: input.sessionIds,
+    });
 
     if (!context) {
       return { ok: false, code: 'not_found', message: 'Learner or course not found' };
     }
 
-    const { sections, engine, usage } = await this.synthesise(context, monthLabel);
+    const { sections, engine, usage } = await this.synthesise(context, periodLabel);
+
+    // Firmly bind real quantitative metrics, submitted assessments, and notes to sectionsJson
+    sections.period = {
+      startDate: context.period.start.toISOString(),
+      endDate: context.period.end.toISOString(),
+      label: periodLabel,
+    };
+    sections.assignments = context.submissions;
+    sections.sessionMetrics = {
+      totalSessions: context.stats.totalSessions,
+      attendedSessions: context.stats.completedSessions,
+      totalHours: (context.stats.attendanceSeconds / 3600).toFixed(1) + ' hrs',
+      attendanceRate: `${context.stats.attendanceRate}%`,
+      assignmentsCount: context.stats.assignmentsCount,
+      avgAssignmentScore: context.stats.avgAssignmentScore,
+      creditsConsumed: context.stats.creditsConsumed,
+    };
+    if ((!sections.educatorNotes || sections.educatorNotes.length === 0) && context.teacherNotes.length > 0) {
+      sections.educatorNotes = context.teacherNotes.slice(0, 5);
+    }
+    if ((!sections.parentLearnerNotes || sections.parentLearnerNotes.length === 0) && context.parentLearnerNotes.length > 0) {
+      sections.parentLearnerNotes = context.parentLearnerNotes.slice(0, 5);
+    }
 
     const aiDraft = renderReportMarkdown(sections, {
       learnerName: context.learner.name,
       courseName: context.course.name,
-      monthYear: monthLabel,
+      monthYear: periodLabel,
     });
 
     const { report, created } = await reportRepository.upsertDraft({
@@ -159,10 +187,10 @@ export const reportService = {
     };
   },
 
-  /** Calls Gemini with the month's evidence and Zoom transcripts and returns schema-valid sections. */
+  /** Calls Gemini with the period's evidence, Zoom transcripts, teacher and parent notes, and assignments. */
   async synthesise(
     context: NonNullable<Awaited<ReturnType<typeof reportRepository.collectGenerationContext>>>,
-    monthLabel: string,
+    periodLabel: string,
   ): Promise<{
     sections: ReportSections;
     engine: 'gemini' | 'gemini_fallback';
@@ -171,7 +199,7 @@ export const reportService = {
     const result = await generateStructuredWithGemini({
       system: SYSTEM_PROMPT,
       schema: reportSectionsSchema,
-      prompt: buildPrompt(context, monthLabel),
+      prompt: buildPrompt(context, periodLabel),
     });
 
     if (result.ok) {
@@ -184,18 +212,13 @@ export const reportService = {
 
     console.warn('[reports] Gemini generation fell back to template synthesis:', result.message);
     return {
-      sections: buildFallbackSections(context, monthLabel),
+      sections: buildFallbackSections(context, periodLabel),
       engine: 'gemini_fallback',
     };
   },
 
   /**
    * Creates or refreshes drafts for every active enrolment in a month.
-   *
-   * Sequential rather than parallel: each call is a separate AI request, and a
-   * burst would both spike cost and risk provider rate limits. One failure does
-   * not abort the run — failures are collected and returned so the admin sees
-   * exactly which learners were skipped and why.
    */
   async generateAllForMonth(input: {
     monthYear: Date;
@@ -248,7 +271,7 @@ export const reportService = {
 
   /**
    * Marks the report sent and notifies the learner + linked parents.
-   * Idempotent: a second call is a no-op rather than a duplicate email.
+   * Delivers live web view, direct download / print PDF, and executive summary.
    */
   async sendReport(id: string, sentBy: string, notify: boolean) {
     const report = await reportRepository.findById(id);
@@ -277,8 +300,16 @@ export const reportService = {
       ...parents.map((p) => ({ email: p.email, name: p.name ?? 'there' })),
     ];
 
-    const reportUrl = `${config.appUrl}/student/progress-reports/${report.id}`;
-    const monthYear = format(report.monthYear, 'MMMM yyyy');
+    const shareToken = report.shareToken;
+    const liveUrl = shareToken
+      ? `${config.appUrl}/reports/share/${shareToken}`
+      : `${config.appUrl}/student/progress-reports/${report.id}`;
+    const downloadUrl = shareToken
+      ? `${config.appUrl}/reports/share/${shareToken}?action=print`
+      : `${config.appUrl}/student/progress-reports/${report.id}`;
+
+    const sections = report.sectionsJson as ReportSections | null;
+    const periodLabel = sections?.period?.label || format(report.monthYear, 'MMMM yyyy');
     const courseName = report.courseName ?? 'your course';
 
     const results = await Promise.allSettled(
@@ -287,8 +318,12 @@ export const reportService = {
           to: r.email,
           name: r.name,
           courseName,
-          monthYear,
-          reportUrl,
+          monthYear: periodLabel,
+          reportUrl: liveUrl,
+          liveUrl,
+          downloadUrl,
+          overallScore: sections?.overallScore,
+          summary: sections?.summary,
         }),
       ),
     );
@@ -308,49 +343,84 @@ type ReportContext = NonNullable<
   Awaited<ReturnType<typeof reportRepository.collectGenerationContext>>
 >;
 
-function buildPrompt(context: ReportContext, monthLabel: string): string {
-  const { learner, course, sessions, stats } = context;
+function buildPrompt(context: ReportContext, periodLabel: string): string {
+  const { learner, course, sessions, stats, teacherNotes, parentLearnerNotes, submissions } = context;
 
   const sessionLines = sessions.length
     ? sessions
         .map((s) => {
-          const date = format(new Date(s.scheduledAt), 'd MMM');
-          const parts = [`- ${date} | ${s.title}${s.topic ? ` (${s.topic})` : ''} | ${s.status}`];
-          if (s.educatorName) parts.push(`educator: ${s.educatorName}`);
-          if (s.aiSummary) parts.push(`Zoom AI Summary: ${s.aiSummary}`);
-          if (s.topicsCovered) parts.push(`topics: ${s.topicsCovered}`);
-          if (s.comments) parts.push(`educator notes: ${s.comments}`);
-          if (s.homeworkAssigned) parts.push(`homework: ${s.homeworkAssigned}`);
-          if (s.transcriptText) parts.push(`transcript excerpt: ${s.transcriptText.slice(0, 250)}`);
+          const date = format(new Date(s.scheduledAt), 'd MMM yyyy');
+          const parts = [`- ${date} | "${s.title}"${s.topic ? ` (Topic: ${s.topic})` : ''} | Status: ${s.status}`];
+          if (s.educatorName) parts.push(`Educator: ${s.educatorName}`);
+          if (s.aiSummary) parts.push(`AI Session Summary: ${s.aiSummary}`);
+          if (s.topicsCovered) parts.push(`Topics Covered: ${s.topicsCovered}`);
+          if (s.comments) parts.push(`Teacher Feedback: ${s.comments}`);
+          if (s.homeworkAssigned) parts.push(`Homework: ${s.homeworkAssigned}`);
+          if (s.transcriptText) parts.push(`Transcript Excerpt: ${s.transcriptText.slice(0, 300)}`);
           return parts.join(' | ');
         })
         .join('\n')
-    : '- No sessions were scheduled in this period.';
+    : '- No sessions were held in this evaluation interval.';
 
-  return `Write the monthly progress report for the following period and learner.
+  const teacherFeedbackLines = teacherNotes.length
+    ? teacherNotes.map((n) => `- ${n}`).join('\n')
+    : '- No standalone confidential educator notes recorded for this period.';
 
-PERIOD: ${monthLabel}
-LEARNER: ${learner.name}${learner.grade ? ` (${learner.grade})` : ''}${learner.board ? `, ${learner.board} board` : ''}
+  const parentFeedbackLines = parentLearnerNotes.length
+    ? parentLearnerNotes.map((n) => `- ${n}`).join('\n')
+    : '- No parent or learner reflections submitted for this period.';
+
+  const assignmentLines = submissions.length
+    ? submissions
+        .map(
+          (sub) =>
+            `- "${sub.title}": Scored ${sub.marksAwarded ?? 'Pending'}/${sub.maxMarks} (${sub.percentage !== undefined ? `${sub.percentage}%` : 'Not graded yet'})${sub.feedback ? ` | Teacher Evaluation: "${sub.feedback}"` : ''}`
+        )
+        .join('\n')
+    : '- No assessments or assignments submitted in this period.';
+
+  return `Write an in-depth, structured progress report in the UnboundYou brand format for the student and period below.
+
+EVALUATION PERIOD: ${periodLabel}
+LEARNER: ${learner.name}${learner.grade ? ` (Grade: ${learner.grade})` : ''}${learner.board ? `, Board: ${learner.board}` : ''}
 COURSE: ${course.name}${course.type ? ` (${course.type.replace(/_/g, ' ')})` : ''}
 
-ACTIVITY THIS MONTH
-Sessions scheduled: ${stats.totalSessions}
-Completed: ${stats.completedSessions}
-No-shows: ${stats.noShows}
-Sessions with educator feedback: ${stats.sessionsWithFeedback}
-Recorded attendance events: ${stats.attendanceJoins} (${Math.round(stats.attendanceSeconds / 60)} minutes)
-${stats.creditsRemaining !== null ? `Credits remaining on this course: ${stats.creditsRemaining}` : ''}
+OVERALL STUDENT METRICS FOR THIS PERIOD:
+- Total sessions scheduled: ${stats.totalSessions}
+- Completed sessions: ${stats.completedSessions}
+- Attendance rate: ${stats.attendanceRate}%
+- Total attended time: ${Math.round(stats.attendanceSeconds / 60)} minutes (~${(stats.attendanceSeconds / 3600).toFixed(1)} hours)
+- Credits consumed: ${stats.creditsConsumed}
+- Assignments submitted: ${stats.assignmentsCount}
+- Graded assignments: ${stats.gradedAssignments}
+- Average assignment score: ${stats.avgAssignmentScore ?? 'N/A'}
+${stats.creditsRemaining !== null ? `- Remaining course credits: ${stats.creditsRemaining}` : ''}
 
-SESSION LOG
+TEACHER CONFIDENTIAL FEEDBACK & PEDAGOGICAL NOTES:
+${teacherFeedbackLines}
+
+PARENT & LEARNER FEEDBACK / REFLECTIONS:
+${parentFeedbackLines}
+
+SUBMITTED ASSIGNMENTS & SCORES:
+${assignmentLines}
+
+DETAILED SESSION LOGS (INCLUDING AI SUMMARIES & TRANSCRIPTS):
 ${sessionLines}
 
-Produce the report. If the evidence is thin, reflect that honestly in the summary and keep lists short.`;
+Instructions:
+1. Provide a professional, encouraging, and evidence-grounded executive summary (2-4 sentences) addressing the parent.
+2. Outline distinct topics covered with mastery level (1 to 5) and concise observational notes.
+3. Highlight genuine strengths backed by the session summaries and assignment scores.
+4. Identify 2-4 actionable areas for growth and clear next steps the family can support.
+5. Provide a calculated holistic overall score (0-100) and engagement rating (1-5).
+6. Provide a concise, inspiring headline summarizing student momentum.`;
 }
 
 // ─── Deterministic fallback (no API key) ──────────────────────────────────────
 
-function buildFallbackSections(context: ReportContext, monthLabel: string): ReportSections {
-  const { learner, course, sessions, stats } = context;
+function buildFallbackSections(context: ReportContext, periodLabel: string): ReportSections {
+  const { learner, course, sessions, stats, submissions, teacherNotes, parentLearnerNotes } = context;
 
   const completed = sessions.filter((s) => s.status === 'completed');
   const topics = dedupe(
@@ -361,37 +431,57 @@ function buildFallbackSections(context: ReportContext, monthLabel: string): Repo
       .filter(Boolean),
   );
 
-  const topicEntries = (topics.length ? topics : ['General syllabus review']).map((topic) => ({
+  const topicEntries = (topics.length ? topics : ['Core Curriculum Progress']).map((topic) => ({
     topic,
     mastery: masteryFromEvidence(topic, sessions),
   }));
 
   const summary = completed.length
-    ? `${learner.name} attended ${completed.length} of ${stats.totalSessions} scheduled session${stats.totalSessions === 1 ? '' : 's'} in ${course.name} during ${monthLabel}. ${stats.sessionsWithFeedback} of those sessions included written feedback from the educator.`
-    : `No completed sessions were recorded for ${learner.name} in ${course.name} during ${monthLabel}. A report is still generated so the record is complete, but there is limited activity to comment on.`;
+    ? `${learner.name} attended ${completed.length} of ${stats.totalSessions} scheduled session${stats.totalSessions === 1 ? '' : 's'} (${stats.attendanceRate}% attendance) in ${course.name} during ${periodLabel}. Across this period, ${stats.assignmentsCount} assignments were reviewed with an average score of ${stats.avgAssignmentScore ?? 'N/A'}.`
+    : `No completed sessions were recorded for ${learner.name} in ${course.name} during ${periodLabel}. This report summarizes baseline metrics and curriculum tracking for the period.`;
 
   return {
     headline: completed.length
-      ? `${completed.length} session${completed.length === 1 ? '' : 's'} completed in ${monthLabel}`
-      : `No sessions recorded in ${monthLabel}`,
+      ? `${completed.length} sessions completed (${stats.attendanceRate}% attendance) in ${periodLabel}`
+      : `Report period for ${periodLabel}`,
     summary,
     topicsCovered: topicEntries,
     strengths:
       completed.length > 0
-        ? [`Consistent attendance across ${completed.length} session${completed.length === 1 ? '' : 's'}`]
-        : ['No attendance data available for this period'],
+        ? [
+            `Strong commitment with ${completed.length} session${completed.length === 1 ? '' : 's'} completed`,
+            ...(stats.assignmentsCount > 0 ? [`Submitted ${stats.assignmentsCount} assignment(s) for evaluation`] : []),
+          ]
+        : ['Consistent enrollment in the scheduled learning track'],
     areasForGrowth:
       stats.noShows > 0
-        ? [`${stats.noShows} session${stats.noShows === 1 ? ' was' : 's were'} missed — confirming attendance in advance would help`]
-        : ['Continue the current pace to build depth on recently introduced topics'],
+        ? [`${stats.noShows} session${stats.noShows === 1 ? ' was' : 's were'} missed — maintaining continuity will improve skill retention`]
+        : ['Continue regular practice to master complex problem sets independently'],
     nextSteps: [
-      `Book the next ${course.name} session to maintain continuity`,
-      stats.noShows > 0
-        ? 'Confirm session times a day in advance to avoid missed sessions'
-        : 'Review homework after each session',
+      `Continue attending scheduled sessions in ${course.name}`,
+      stats.assignmentsCount > 0
+        ? 'Review teacher grading feedback on recent assignments'
+        : 'Complete upcoming practice assignments on time',
     ],
     overallScore: scoreFromStats(stats),
     engagementRating: engagementFromStats(stats),
+    period: {
+      startDate: context.period.start.toISOString(),
+      endDate: context.period.end.toISOString(),
+      label: periodLabel,
+    },
+    sessionMetrics: {
+      totalSessions: stats.totalSessions,
+      attendedSessions: stats.completedSessions,
+      totalHours: (stats.attendanceSeconds / 3600).toFixed(1) + ' hrs',
+      attendanceRate: `${stats.attendanceRate}%`,
+      assignmentsCount: stats.assignmentsCount,
+      avgAssignmentScore: stats.avgAssignmentScore,
+      creditsConsumed: stats.creditsConsumed,
+    },
+    assignments: submissions,
+    educatorNotes: teacherNotes.slice(0, 5),
+    parentLearnerNotes: parentLearnerNotes.slice(0, 5),
   };
 }
 

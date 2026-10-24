@@ -9,6 +9,9 @@ const DEFAULT_PREFERENCES: Record<string, boolean> = {
   sessionReminders: true,
   directMessages: false,
   browserPush: false,
+  emailNotifications: true,
+  smsAlerts: false,
+  whatsappMessages: true,
 };
 
 // GET /api/v1/user/notifications

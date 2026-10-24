@@ -13,6 +13,7 @@ import {
 } from '@/db/schema';
 import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { ConflictFilter } from '@/components/educator/ConflictFilter';
+import { ConflictCardActions } from '@/components/educator/ConflictCardActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -475,23 +476,14 @@ export default async function EducatorConflicts({
                       </div>
                     )}
 
-                    {/* Actions — real navigation only; resolution has no write endpoint */}
-                    <div className="flex flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0 mt-4 lg:mt-0 lg:pl-6 lg:border-l border-[#E5E9F0] dark:border-gray-800">
-                      <Link
-                        href={`/educator/sessions/${conflict.sessionId}`}
-                        className="flex-1 lg:flex-none px-4 py-2 bg-white dark:bg-[#161B26] border border-[#E5E9F0] dark:border-gray-700 rounded-lg text-[#2F80F9] dark:text-blue-400 font-semibold text-[12px] hover:border-[#2F80F9] hover:bg-[#2F80F9]/5 transition-all text-center"
-                      >
-                        View session
-                      </Link>
-                      {other ? (
-                        <Link
-                          href={`/educator/sessions/${other.id}`}
-                          className="flex-1 lg:flex-none px-4 py-2 bg-white dark:bg-[#161B26] border border-[#E5E9F0] dark:border-gray-700 rounded-lg text-[#2F80F9] dark:text-blue-400 font-semibold text-[12px] hover:border-[#2F80F9] hover:bg-[#2F80F9]/5 transition-all text-center"
-                        >
-                          View clash
-                        </Link>
-                      ) : null}
-                    </div>
+                    {/* Interactive Conflict Resolution Actions */}
+                    <ConflictCardActions
+                      conflictId={conflict.id}
+                      sessionId={conflict.sessionId}
+                      sessionTitle={conflict.sessionTitle}
+                      sessionScheduledAt={conflict.scheduledAt.toISOString()}
+                      otherSessionId={other?.id}
+                    />
                   </div>
 
                   {/* Free-form details recorded on the conflict row itself */}

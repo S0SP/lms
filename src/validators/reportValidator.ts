@@ -39,8 +39,36 @@ export const reportSectionsSchema = z.object({
       attendedSessions: z.number().optional(),
       totalHours: z.string().optional(),
       attendanceRate: z.string().optional(),
+      assignmentsCount: z.number().optional(),
+      avgAssignmentScore: z.string().optional(),
+      creditsConsumed: z.number().optional(),
     })
     .optional(),
+  /** Custom report evaluation period */
+  period: z
+    .object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      label: z.string().optional(),
+    })
+    .optional(),
+  /** Submitted & graded assessments for the period */
+  assignments: z
+    .array(
+      z.object({
+        title: z.string(),
+        maxMarks: z.number().optional(),
+        marksAwarded: z.number().optional(),
+        percentage: z.number().optional(),
+        feedback: z.string().optional(),
+        submittedAt: z.string().optional(),
+      })
+    )
+    .optional(),
+  /** Teacher feedback and confidential educator notes */
+  educatorNotes: z.array(z.string().min(1).max(500)).optional(),
+  /** Parent notes and learner feedback */
+  parentLearnerNotes: z.array(z.string().min(1).max(500)).optional(),
 });
 
 export type ReportSections = z.infer<typeof reportSectionsSchema>;
@@ -52,9 +80,19 @@ export function renderReportMarkdown(sections: ReportSections, context: {
   monthYear: string;
 }): string {
   const bullets = (items: string[]) => items.map((i) => `- ${i}`).join('\n');
+  const assignmentLines = sections.assignments && sections.assignments.length > 0
+    ? [
+        '',
+        '### Assignments & Submissions',
+        ...sections.assignments.map(
+          (a) => `- **${a.title}**: ${a.marksAwarded ?? '–'}/${a.maxMarks ?? '–'} (${a.percentage ?? 0}%)${a.feedback ? ` — "${a.feedback}"` : ''}`
+        ),
+      ]
+    : [];
+
   return [
     `## ${context.learnerName} — ${context.courseName}`,
-    `**${context.monthYear}**`,
+    `**${sections.period?.label || context.monthYear}**`,
     '',
     `*Overall score: ${sections.overallScore}/100 · Engagement: ${sections.engagementRating}/5*`,
     '',
@@ -66,6 +104,7 @@ export function renderReportMarkdown(sections: ReportSections, context: {
     ...sections.topicsCovered.map(
       (t) => `- **${t.topic}** — mastery ${t.mastery}/5${t.note ? `: ${t.note}` : ''}`,
     ),
+    ...assignmentLines,
     '',
     '### Strengths',
     bullets(sections.strengths),
@@ -85,8 +124,14 @@ export const generateReportSchema = z.discriminatedUnion('all', [
     all: z.literal(false),
     learnerId: z.string().uuid(),
     courseId: z.string().uuid(),
-    /** Any date within the target month. */
-    monthYear: z.coerce.date(),
+    /** Any date within the target month (defaults to startDate or current date). */
+    monthYear: z.coerce.date().optional(),
+    /** Custom range start date */
+    startDate: z.coerce.date().optional(),
+    /** Custom range end date */
+    endDate: z.coerce.date().optional(),
+    /** Custom period label (e.g. "Oct 1 – Oct 22, 2026") */
+    periodLabel: z.string().optional(),
     /** Overwrite an existing draft instead of returning it as-is. */
     force: z.boolean().default(false),
     /** Optional specific session IDs selected by the educator or admin */
@@ -94,8 +139,10 @@ export const generateReportSchema = z.discriminatedUnion('all', [
   }),
   z.object({
     all: z.literal(true),
-    /** Any date within the target month. */
-    monthYear: z.coerce.date(),
+    monthYear: z.coerce.date().optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
+    periodLabel: z.string().optional(),
     force: z.boolean().default(false),
     limit: z.number().int().min(1).max(200).default(50),
     sessionIds: z.array(z.string().uuid()).optional(),

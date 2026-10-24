@@ -130,7 +130,7 @@ export default function GroupCoursesPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <Link
-                        href={`/educator/courses/${course.id}`}
+                        href={`/admin/courses/${course.id}`}
                         className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         Workspace →

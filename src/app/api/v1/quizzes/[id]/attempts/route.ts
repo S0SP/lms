@@ -75,7 +75,16 @@ export async function POST(
       return apiSuccess(result);
     }
 
-    return apiError('Invalid action. Expected "start" or "submit"', 400);
+    if (action === 'draft' || action === 'heartbeat') {
+      const { attemptId, answers } = body;
+      if (!attemptId) return apiError('attemptId is required for draft auto-save', 400);
+      if (!answers || !Array.isArray(answers)) return apiError('answers array is required', 400);
+
+      const saved = await quizService.saveDraftAttempt(attemptId, userId, answers);
+      return apiSuccess(saved);
+    }
+
+    return apiError('Invalid action. Expected "start", "submit", or "draft"', 400);
   } catch (err: any) {
     return apiError(err.message || 'Failed to process quiz attempt', 400);
   }

@@ -9,7 +9,7 @@ import {
   learnerContentProgress,
   users,
 } from '@/db/schema';
-import { eq, and, desc, asc, inArray, sql } from 'drizzle-orm';
+import { eq, and, desc, asc, inArray, sql, isNull } from 'drizzle-orm';
 
 export interface CreateQuizQuestionOption {
   body: string;
@@ -179,6 +179,31 @@ export const quizRepository = {
   },
 
   async startAttempt(testId: string, learnerId: string) {
+    const [existing] = await db
+      .select()
+      .from(testAttempts)
+      .where(
+        and(
+          eq(testAttempts.testId, testId),
+          eq(testAttempts.learnerId, learnerId),
+          isNull(testAttempts.submittedAt)
+        )
+      )
+      .orderBy(desc(testAttempts.startedAt))
+      .limit(1);
+
+    if (existing) {
+      const savedAnswers = await db
+        .select()
+        .from(testAnswers)
+        .where(eq(testAnswers.attemptId, existing.id));
+
+      return {
+        ...existing,
+        draftAnswers: savedAnswers,
+      };
+    }
+
     const [attempt] = await db
       .insert(testAttempts)
       .values({
@@ -373,5 +398,33 @@ export const quizRepository = {
         marksAwarded: a.marksAwarded !== null ? Number(a.marksAwarded) : null,
       })),
     };
+  },
+
+  async saveDraftAttempt(attemptId: string, learnerId: string, answers: { questionId: string; answerJson: any }[]) {
+    return await db.transaction(async (tx) => {
+      const [attempt] = await tx
+        .select()
+        .from(testAttempts)
+        .where(and(eq(testAttempts.id, attemptId), eq(testAttempts.learnerId, learnerId)))
+        .limit(1);
+
+      if (!attempt) throw new Error('Attempt not found');
+      if (attempt.submittedAt) throw new Error('Attempt already submitted');
+
+      for (const ans of answers) {
+        if (!ans.questionId) continue;
+        await tx
+          .delete(testAnswers)
+          .where(and(eq(testAnswers.attemptId, attemptId), eq(testAnswers.questionId, ans.questionId)));
+
+        await tx.insert(testAnswers).values({
+          attemptId,
+          questionId: ans.questionId,
+          answerJson: ans.answerJson,
+        });
+      }
+
+      return { saved: true, count: answers.length };
+    });
   },
 };

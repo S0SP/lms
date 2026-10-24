@@ -7,6 +7,7 @@ import {
   Search,
   Filter,
   Plus,
+  Upload,
   MoreVertical,
   Download,
   User,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { AddLearnerModal } from './AddLearnerModal';
 import { AddEducatorModal } from './AddEducatorModal';
+import { BulkLearnerImportModal } from './BulkLearnerImportModal';
 import { EducatorProfileModal } from './EducatorProfileModal';
 import { UserFilterModal, FilterCourseOption, FilterTagOption } from './UserFilterModal';
 
@@ -56,6 +58,7 @@ export function UsersWorkspaceClient({
   const [activeTab, setActiveTab] = useState<'learners' | 'educators'>('learners');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [selectedEducatorId, setSelectedEducatorId] = useState<string | null>(null);
 
   // Filter state
@@ -291,14 +294,25 @@ export function UsersWorkspaceClient({
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add</span>
-          </button>
+            {activeTab === 'learners' && (
+              <button
+                type="button"
+                onClick={() => setIsBulkImportOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>Import CSV</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add</span>
+            </button>
         </div>
       </div>
 
@@ -620,6 +634,13 @@ export function UsersWorkspaceClient({
           setActiveCourseFilters([]);
           setActiveTagFilters([]);
         }}
+      />
+
+      {/* Bulk Learner Import Modal */}
+      <BulkLearnerImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        onSuccess={() => router.refresh()}
       />
     </div>
   );

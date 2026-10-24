@@ -40,9 +40,16 @@ export type AdminCalendarSession = {
   zoomMeetingUrl?: string | null;
   zoomMeetingId?: string | null;
   courseName: string | null;
+  courseId?: string | null;
+  educatorId?: string | null;
   educatorName: string;
   learnerNames: string[];
   creditsConsumed?: string | number | null;
+  recordingUrl?: string | null;
+  aiSummary?: string | null;
+  transcriptVtt?: string | null;
+  transcriptText?: string | null;
+  recordingFiles?: any[] | null;
 };
 
 interface Props {
@@ -136,6 +143,8 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
   const [noteInput, setNoteInput] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const [noteSuccess, setNoteSuccess] = useState(false);
+  const [noteError, setNoteError] = useState<string | null>(null);
+  const [copiedZoomLink, setCopiedZoomLink] = useState(false);
 
   // Fetch Zoom cloud recording stream when recording modal is opened
   useEffect(() => {
@@ -282,6 +291,7 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
   const handleSaveNotes = async () => {
     if (!selectedSessionForEdit) return;
     setSavingNote(true);
+    setNoteError(null);
     try {
       const res = await fetch(`/api/v1/sessions/${selectedSessionForEdit.id}`, {
         method: 'PATCH',
@@ -296,7 +306,8 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
       setNoteSuccess(true);
       setTimeout(() => setNoteSuccess(false), 2000);
     } catch (err: any) {
-      alert(err.message || 'Error saving notes');
+      setNoteError(err.message || 'Error saving notes');
+      setTimeout(() => setNoteError(null), 3500);
     } finally {
       setSavingNote(false);
     }
@@ -304,6 +315,7 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
 
   const handleUpdateStatus = async (newStatus: string) => {
     if (!selectedSessionForEdit) return;
+    setNoteError(null);
     try {
       const res = await fetch(`/api/v1/sessions/${selectedSessionForEdit.id}`, {
         method: 'PATCH',
@@ -316,7 +328,8 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
       );
       setSelectedSessionForEdit((prev) => (prev ? { ...prev, status: newStatus } : null));
     } catch (err: any) {
-      alert(err.message || 'Error updating status');
+      setNoteError(err.message || 'Error updating status');
+      setTimeout(() => setNoteError(null), 3500);
     }
   };
 
@@ -896,14 +909,17 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
           }}
           onUpdateSession={async (sessionId, updates) => {
             try {
-              await fetch(`/api/v1/sessions/${sessionId}`, {
+              const res = await fetch(`/api/v1/sessions/${sessionId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updates),
               });
+              const json = await res.json();
+              const updatedData = json.success && json.data ? json.data : updates;
               setSessions((prev) =>
-                prev.map((s) => (s.id === sessionId ? { ...s, ...updates } : s)),
+                prev.map((s) => (s.id === sessionId ? { ...s, ...updatedData } : s)),
               );
+              setDetailModalSession((prev) => (prev && prev.id === sessionId ? { ...prev, ...updatedData } : prev));
             } catch (e) {
               console.error(e);
             }
@@ -1036,13 +1052,23 @@ export function AdminCalendarClient({ sessions: initialSessions }: Props) {
                   <div className="flex items-center gap-2 shrink-0 ml-3">
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(selectedSessionForEdit.zoomMeetingUrl!);
-                        alert('Zoom link copied!');
+                        if (selectedSessionForEdit.zoomMeetingUrl) {
+                          navigator.clipboard.writeText(selectedSessionForEdit.zoomMeetingUrl);
+                          setCopiedZoomLink(true);
+                          setTimeout(() => setCopiedZoomLink(false), 2000);
+                        }
                       }}
-                      className="p-2 rounded-lg text-blue-200 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                      className="p-2 rounded-lg text-blue-200 hover:text-white hover:bg-white/10 transition cursor-pointer flex items-center gap-1.5"
                       title="Copy Zoom Link"
                     >
-                      <Copy className="w-4 h-4" />
+                      {copiedZoomLink ? (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-400" />
+                          <span className="text-[10px] text-emerald-300 font-bold">Copied!</span>
+                        </>
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </button>
                     <a
                       href={selectedSessionForEdit.zoomMeetingUrl}

@@ -61,8 +61,36 @@ export function SessionDetailsModal({
 
   // Feedback State
   const [isAddingFeedback, setIsAddingFeedback] = useState(false);
-  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackText, setFeedbackText] = useState(session?.topic || '');
   const [savingFeedback, setSavingFeedback] = useState(false);
+
+  // Attendance State
+  const [isViewingAttendance, setIsViewingAttendance] = useState(false);
+  const [isEditingAttendance, setIsEditingAttendance] = useState(false);
+  const [attendeesList, setAttendeesList] = useState<any[]>([]);
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
+
+  const handleFetchAttendance = async (editing = false) => {
+    try {
+      setLoadingAttendance(true);
+      const res = await fetch(`/api/v1/sessions/${session.id}/attendance`);
+      if (res.ok) {
+        const json = await res.json();
+        setAttendeesList(json.data || []);
+      }
+      if (editing) {
+        setIsEditingAttendance(true);
+        setIsViewingAttendance(false);
+      } else {
+        setIsViewingAttendance(true);
+        setIsEditingAttendance(false);
+      }
+    } catch (err) {
+      console.error('Failed to load attendance:', err);
+    } finally {
+      setLoadingAttendance(false);
+    }
+  };
 
   // ── Fetch real AI state from backend ──
   const fetchAiState = useCallback(async () => {
@@ -218,17 +246,34 @@ export function SessionDetailsModal({
   const handleSaveFeedback = async () => {
     try {
       setSavingFeedback(true);
-      const res = await fetch(`/api/v1/sessions/${session.id}`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/v1/sessions/${session.id}/feedback`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: feedbackText,
+          comments: feedbackText,
+          topicsCovered: session.title,
+          homeworkAssigned: '',
+          creditsConsumed: parseFloat(creditsConsumed) || 1,
         }),
       });
+
       if (res.ok) {
         setIsAddingFeedback(false);
         onSessionUpdated?.();
+      } else {
+        // If already submitted or fallback, update session topic
+        const fallbackRes = await fetch(`/api/v1/sessions/${session.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: feedbackText }),
+        });
+        if (fallbackRes.ok) {
+          setIsAddingFeedback(false);
+          onSessionUpdated?.();
+        }
       }
+    } catch (err) {
+      console.error('Failed to submit feedback:', err);
     } finally {
       setSavingFeedback(false);
     }
@@ -558,36 +603,73 @@ export function SessionDetailsModal({
           </div>
 
           {/* Section 6: ATTENDANCE */}
-          <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-4">
-              <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 text-gray-600 dark:text-gray-300">
-                <Users className="w-4 h-4" />
+          <div className="flex flex-col py-2 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 text-gray-600 dark:text-gray-300">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    ATTENDANCE
+                  </div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {session.attendeeCount != null ? `${session.attendeeCount} present` : '1 present'}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  ATTENDANCE
-                </div>
-                <div className="text-sm font-bold text-gray-900 dark:text-white">
-                  {session.attendeeCount != null ? `${session.attendeeCount} present` : '1 present'}
-                </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFetchAttendance(false)}
+                  disabled={loadingAttendance}
+                  className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+                >
+                  {loadingAttendance && !isEditingAttendance ? 'Loading...' : isViewingAttendance ? 'Hide' : 'View'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFetchAttendance(true)}
+                  disabled={loadingAttendance}
+                  className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                >
+                  <Edit2 className="w-3 h-3" />
+                  <span>{isEditingAttendance ? 'Done' : 'Edit'}</span>
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-              >
-                View
-              </button>
-              <button
-                type="button"
-                className="py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1 cursor-pointer"
-              >
-                <Edit2 className="w-3 h-3" />
-                <span>Edit</span>
-              </button>
-            </div>
+            {/* Attendance Drawer / List */}
+            {(isViewingAttendance || isEditingAttendance) && (
+              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <span>Enrolled Attendees</span>
+                  <button 
+                    onClick={() => { setIsViewingAttendance(false); setIsEditingAttendance(false); }}
+                    className="text-gray-400 hover:text-gray-600 text-[11px]"
+                  >
+                    Close
+                  </button>
+                </div>
+                {attendeesList.length === 0 ? (
+                  <p className="text-xs text-gray-400 italic py-1">
+                    No individual attendee log recorded. Standard 1-on-1 attendance applies.
+                  </p>
+                ) : (
+                  <div className="space-y-1.5 pt-1">
+                    {attendeesList.map((att) => (
+                      <div key={att.id || att.learnerId} className="flex items-center justify-between text-xs py-1 px-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{att.learnerName || 'Scholar'}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          {att.isPresent ? 'Present' : 'Absent'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Section 7: EDUCATOR FEEDBACK */}

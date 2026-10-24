@@ -6,9 +6,17 @@ import { scheduleJson, cancelJobs, isQstashEnabled } from '@/lib/integrations/qs
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from '@/lib/integrations/googleCalendar';
 import { config } from '@/config/unifiedConfig';
 import { db } from '@/lib/drizzle';
-import { sessionReminderJobs, users, courses, sessionAttendees, courseEnrollments, courseEducators, tags, orgs, parentProfiles } from '@/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
-import { sendSessionScheduledNotification, sendSessionUpdatedNotification, sendSessionCancelledNotification } from '@/lib/email';
+import { sessions, sessionReminderJobs, users, courses, sessionAttendees, courseEnrollments, courseEducators, tags, orgs, parentProfiles } from '@/db/schema';
+import { eq, and, inArray, gte, lt, ne } from 'drizzle-orm';
+import {
+  sendSessionScheduledNotification,
+  sendSessionUpdatedNotification,
+  sendSessionCancelledNotification,
+  sendSessionFeedbackNotification,
+  sendHostAssignedNotification,
+  sendHostUnassignedNotification,
+  sendSessionHostChangedNotification,
+} from '@/lib/email';
 
 async function scheduleSessionReminders(sessionId: string, scheduledAt: Date) {
   if (!isQstashEnabled()) return;
@@ -175,54 +183,144 @@ async function notifySessionParties(opts: {
         }
       }
     } else if (type === 'updated') {
-      if (educator?.email) {
-        await sendSessionUpdatedNotification({
-          to: educator.email,
-          recipientName: educator.name || 'Educator',
-          role: 'educator',
-          sessionTitle: session.title,
-          sessionTopic: session.topic,
-          scheduledAt: new Date(session.scheduledAt),
-          durationMin: session.durationMin,
-          courseName: course?.name,
-          studentNames,
-          zoomUrl: session.zoomMeetingUrl,
-        }).catch((err) => console.error('[sessionService] Failed to email update to educator:', err));
-      }
+      const isHostChanged = Boolean(
+        oldSession?.educatorId &&
+        session.educatorId &&
+        oldSession.educatorId !== session.educatorId
+      );
 
-      for (const attendee of attendees) {
-        if (attendee.email) {
-          await sendSessionUpdatedNotification({
-            to: attendee.email,
-            recipientName: attendee.name || 'Learner',
-            role: 'student',
-            sessionTitle: session.title,
-            sessionTopic: session.topic,
-            scheduledAt: new Date(session.scheduledAt),
-            durationMin: session.durationMin,
-            courseName: course?.name,
-            educatorName: educator?.name,
-            zoomUrl: session.zoomMeetingUrl,
-          }).catch((err) => console.error('[sessionService] Failed to email update to learner:', err));
+      if (isHostChanged) {
+        // Fetch previous educator details
+        let oldEducator: { id: string; name: string | null; email: string } | null = null;
+        if (oldSession?.educatorId) {
+          const [foundOld] = await db
+            .select({ id: users.id, name: users.name, email: users.email })
+            .from(users)
+            .where(eq(users.id, oldSession.educatorId))
+            .limit(1);
+          oldEducator = foundOld || null;
         }
-      }
 
-      for (const parent of parents) {
-        if (parent.email) {
-          const learner = attendees.find((a) => a.id === parent.learnerId);
-          await sendSessionUpdatedNotification({
-            to: parent.email,
-            recipientName: parent.name || 'Parent',
-            role: 'parent',
+        // 1. Notify newly assigned educator
+        if (educator?.email) {
+          await sendHostAssignedNotification({
+            to: educator.email,
+            recipientName: educator.name || 'Educator',
             sessionTitle: session.title,
             sessionTopic: session.topic,
             scheduledAt: new Date(session.scheduledAt),
             durationMin: session.durationMin,
             courseName: course?.name,
-            educatorName: educator?.name,
-            studentNames: learner ? [learner.name] : studentNames,
+            studentNames,
             zoomUrl: session.zoomMeetingUrl,
-          }).catch((err) => console.error('[sessionService] Failed to email update to parent:', err));
+            reason,
+          }).catch((err) => console.error('[sessionService] Failed to email new host:', err));
+        }
+
+        // 2. Notify unassigned prior educator
+        if (oldEducator?.email) {
+          await sendHostUnassignedNotification({
+            to: oldEducator.email,
+            recipientName: oldEducator.name || 'Educator',
+            sessionTitle: session.title,
+            scheduledAt: new Date(session.scheduledAt),
+            courseName: course?.name,
+            reason,
+          }).catch((err) => console.error('[sessionService] Failed to email unassigned host:', err));
+        }
+
+        // 3. Notify learners
+        for (const attendee of attendees) {
+          if (attendee.email) {
+            await sendSessionHostChangedNotification({
+              to: attendee.email,
+              recipientName: attendee.name || 'Learner',
+              role: 'student',
+              sessionTitle: session.title,
+              newEducatorName: educator?.name || 'Assigned Educator',
+              previousEducatorName: oldEducator?.name || null,
+              scheduledAt: new Date(session.scheduledAt),
+              durationMin: session.durationMin,
+              courseName: course?.name,
+              studentNames,
+              zoomUrl: session.zoomMeetingUrl,
+            }).catch((err) => console.error('[sessionService] Failed to email host change to learner:', err));
+          }
+        }
+
+        // 4. Notify parents
+        for (const parent of parents) {
+          if (parent.email) {
+            const learner = attendees.find((a) => a.id === parent.learnerId);
+            await sendSessionHostChangedNotification({
+              to: parent.email,
+              recipientName: parent.name || 'Parent',
+              role: 'parent',
+              sessionTitle: session.title,
+              newEducatorName: educator?.name || 'Assigned Educator',
+              previousEducatorName: oldEducator?.name || null,
+              scheduledAt: new Date(session.scheduledAt),
+              durationMin: session.durationMin,
+              courseName: course?.name,
+              studentNames: learner ? [learner.name] : studentNames,
+              zoomUrl: session.zoomMeetingUrl,
+            }).catch((err) => console.error('[sessionService] Failed to email host change to parent:', err));
+          }
+        }
+      } else {
+        // Standard session content / reschedule update
+        if (educator?.email) {
+          await sendSessionUpdatedNotification({
+            to: educator.email,
+            recipientName: educator.name || 'Educator',
+            role: 'educator',
+            sessionTitle: session.title,
+            sessionTopic: session.topic,
+            scheduledAt: new Date(session.scheduledAt),
+            durationMin: session.durationMin,
+            courseName: course?.name,
+            studentNames,
+            zoomUrl: session.zoomMeetingUrl,
+            changeNote: reason,
+          }).catch((err) => console.error('[sessionService] Failed to email update to educator:', err));
+        }
+
+        for (const attendee of attendees) {
+          if (attendee.email) {
+            await sendSessionUpdatedNotification({
+              to: attendee.email,
+              recipientName: attendee.name || 'Learner',
+              role: 'student',
+              sessionTitle: session.title,
+              sessionTopic: session.topic,
+              scheduledAt: new Date(session.scheduledAt),
+              durationMin: session.durationMin,
+              courseName: course?.name,
+              educatorName: educator?.name,
+              zoomUrl: session.zoomMeetingUrl,
+              changeNote: reason,
+            }).catch((err) => console.error('[sessionService] Failed to email update to learner:', err));
+          }
+        }
+
+        for (const parent of parents) {
+          if (parent.email) {
+            const learner = attendees.find((a) => a.id === parent.learnerId);
+            await sendSessionUpdatedNotification({
+              to: parent.email,
+              recipientName: parent.name || 'Parent',
+              role: 'parent',
+              sessionTitle: session.title,
+              sessionTopic: session.topic,
+              scheduledAt: new Date(session.scheduledAt),
+              durationMin: session.durationMin,
+              courseName: course?.name,
+              educatorName: educator?.name,
+              studentNames: learner ? [learner.name] : studentNames,
+              zoomUrl: session.zoomMeetingUrl,
+              changeNote: reason,
+            }).catch((err) => console.error('[sessionService] Failed to email update to parent:', err));
+          }
         }
       }
     } else if (type === 'cancelled') {
@@ -445,11 +543,144 @@ export const sessionService = {
     if (existing) {
       throw new Error('Feedback already submitted for this session');
     }
-    return await sessionRepository.submitFeedback(sessionId, data, educatorId, courseId);
+    const fb = await sessionRepository.submitFeedback(sessionId, data, educatorId, courseId);
+
+    // Notify session students and linked parents of feedback submission
+    try {
+      const sess = await sessionRepository.findById(sessionId);
+      const [educator] = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, educatorId))
+        .limit(1);
+
+      const [course] = await db
+        .select({ name: courses.name })
+        .from(courses)
+        .where(eq(courses.id, courseId))
+        .limit(1);
+
+      const attendees = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        })
+        .from(sessionAttendees)
+        .innerJoin(users, eq(sessionAttendees.learnerId, users.id))
+        .where(eq(sessionAttendees.sessionId, sessionId));
+
+      const attendeeIds = attendees.map((a) => a.id);
+      let parents: Array<{ name: string; email: string; learnerId: string }> = [];
+      if (attendeeIds.length > 0) {
+        parents = await db
+          .select({
+            name: parentProfiles.name,
+            email: parentProfiles.email,
+            learnerId: parentProfiles.learnerId,
+          })
+          .from(parentProfiles)
+          .where(inArray(parentProfiles.learnerId, attendeeIds));
+      }
+
+      for (const attendee of attendees) {
+        if (attendee.email) {
+          sendSessionFeedbackNotification({
+            to: attendee.email,
+            recipientName: attendee.name || 'Student',
+            role: 'student',
+            sessionTitle: sess?.title || '1-on-1 Session',
+            courseName: course?.name,
+            educatorName: educator?.name,
+            topicsCovered: data.topicsCovered,
+            comments: data.comments,
+            homeworkAssigned: data.homeworkAssigned,
+            creditsConsumed: data.creditsConsumed,
+          }).catch((err) => console.error('[sessionService] Failed to email student feedback:', err));
+        }
+      }
+
+      for (const parent of parents) {
+        if (parent.email) {
+          sendSessionFeedbackNotification({
+            to: parent.email,
+            recipientName: parent.name || 'Parent',
+            role: 'parent',
+            sessionTitle: sess?.title || '1-on-1 Session',
+            courseName: course?.name,
+            educatorName: educator?.name,
+            topicsCovered: data.topicsCovered,
+            comments: data.comments,
+            homeworkAssigned: data.homeworkAssigned,
+            creditsConsumed: data.creditsConsumed,
+          }).catch((err) => console.error('[sessionService] Failed to email parent feedback:', err));
+        }
+      }
+    } catch (notifyErr) {
+      console.error('[sessionService] Failed to dispatch session feedback notifications:', notifyErr);
+    }
+
+    return fb;
   },
 
   async updateSession(id: string, data: any) {
     const existing = await sessionRepository.findById(id);
+    if (!existing) {
+      throw new Error('Session not found');
+    }
+
+    const isEducatorChanged = Boolean(
+      data.educatorId &&
+      existing &&
+      data.educatorId !== existing.educatorId
+    );
+
+    // Conflict check on host reassignment
+    if (isEducatorChanged) {
+      const checkStart = new Date(data.scheduledAt || existing.scheduledAt);
+      const checkDuration = data.durationMin ?? existing.durationMin ?? 60;
+      const checkEnd = new Date(checkStart.getTime() + checkDuration * 60 * 1000);
+      const searchWindow = new Date(checkStart.getTime() - 24 * 60 * 60 * 1000);
+
+      const possibleConflicts = await db
+        .select({
+          id: sessions.id,
+          title: sessions.title,
+          scheduledAt: sessions.scheduledAt,
+          durationMin: sessions.durationMin,
+        })
+        .from(sessions)
+        .where(
+          and(
+            ne(sessions.id, id),
+            eq(sessions.educatorId, data.educatorId),
+            ne(sessions.status, 'cancelled'),
+            gte(sessions.scheduledAt, searchWindow),
+            lt(sessions.scheduledAt, checkEnd)
+          )
+        );
+
+      const hasConflict = possibleConflicts.find((cs) => {
+        const csStart = new Date(cs.scheduledAt).getTime();
+        const csEnd = csStart + (cs.durationMin || 60) * 60 * 1000;
+        return csStart < checkEnd.getTime() && csEnd > checkStart.getTime();
+      });
+
+      if (hasConflict && !data.allowConflict) {
+        const err: any = new Error(
+          `Schedule conflict: Educator already has an overlapping session "${hasConflict.title}" at this time.`
+        );
+        err.code = 'CONFLICT';
+        err.conflict = {
+          id: hasConflict.id,
+          title: hasConflict.title,
+          scheduledAt: hasConflict.scheduledAt.toISOString(),
+          durationMin: hasConflict.durationMin,
+        };
+        throw err;
+      }
+    }
+
     const updated = await sessionRepository.update(id, data);
 
     if (data.status === 'cancelled') {
@@ -474,6 +705,11 @@ export const sessionService = {
         existing &&
         new Date(existing.scheduledAt).getTime() !== new Date(data.scheduledAt).getTime();
       const isContentChanged = Boolean(data.title || data.topic || data.durationMin);
+      const isEducatorChanged = Boolean(
+        data.educatorId &&
+        existing &&
+        data.educatorId !== existing.educatorId
+      );
 
       if (isRescheduled) {
         await cancelSessionReminders(id);
@@ -482,11 +718,18 @@ export const sessionService = {
         }
       }
 
-      if (isRescheduled || isContentChanged) {
+      if (isEducatorChanged && existing?.googleCalendarEventId && existing?.educatorId) {
+        await deleteCalendarEvent(existing.educatorId, existing.googleCalendarEventId).catch((err) =>
+          console.error('[sessionService] Google Calendar delete old host event failed:', err),
+        );
+      }
+
+      if (data.notifyParties !== false && (isRescheduled || isContentChanged || isEducatorChanged)) {
         notifySessionParties({
           type: 'updated',
           session: updated || existing,
           oldSession: existing,
+          reason: data.changeReason,
         });
       }
 
@@ -499,7 +742,12 @@ export const sessionService = {
         }).catch((err) => console.error('[sessionService] Zoom updateMeeting failed:', err));
       }
 
-      if (existing?.googleCalendarEventId && existing?.educatorId && (isRescheduled || isContentChanged)) {
+      if (
+        !isEducatorChanged &&
+        existing?.googleCalendarEventId &&
+        existing?.educatorId &&
+        (isRescheduled || isContentChanged)
+      ) {
         const newStart = data.scheduledAt ? new Date(data.scheduledAt) : new Date(existing.scheduledAt);
         const newDuration = data.durationMin ?? existing.durationMin ?? 60;
         const newEnd = new Date(newStart.getTime() + newDuration * 60 * 1000);
@@ -512,7 +760,8 @@ export const sessionService = {
       }
     }
 
-    return updated;
+    const refreshed = await sessionRepository.findById(id);
+    return refreshed || updated;
   },
 
   async deleteSession(id: string) {

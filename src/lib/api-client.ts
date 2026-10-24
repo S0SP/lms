@@ -129,6 +129,7 @@ export type ReportListItem = {
   status: string;
   headline: string | null;
   overallScore: number | null;
+  shareToken?: string | null;
   sentAt: string | null;
   generatedAt: string | null;
   createdAt: string;
@@ -142,6 +143,7 @@ export type ReportDetail = {
   courseName: string | null;
   monthYear: string;
   status: string;
+  shareToken?: string | null;
   sectionsJson: unknown;
   aiDraft: string | null;
   editedContent: string | null;

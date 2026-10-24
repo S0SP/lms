@@ -140,6 +140,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
     position: { top: number; left: number };
   } | null>(null);
   const [viewSessionDetail, setViewSessionDetail] = useState<CalendarSessionItem | null>(null);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   // Load Course and Sessions
   const loadData = async () => {
@@ -348,12 +349,13 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
 
   // Submit and create all sessions in real database!
   const handleCreateSessions = async () => {
+    setScheduleError(null);
     if (!sessionTitle.trim()) {
-      alert('Please enter a session name');
+      setScheduleError('Please enter a session name');
       return;
     }
     if (!selectedEducatorId) {
-      alert('Please select an educator');
+      setScheduleError('Please select an educator');
       return;
     }
 
@@ -375,16 +377,10 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
       // Auto-enroll learner in course if not already enrolled
       const isLearnerEnrolled = course?.learners?.some((l: any) => l.id === learnerId);
       if (!isLearnerEnrolled && learnerId && courseId) {
-        await fetch('/api/v1/credits', {
+        await fetch(`/api/v1/courses/${courseId}/enrollments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            courseId,
-            learnerId,
-            amount: 0,
-            type: 'credit',
-            reason: 'Auto-enroll for 1-on-1 personalized schedule',
-          }),
+          body: JSON.stringify({ learnerId }),
         }).catch((err) => console.error('Failed to auto-enroll learner:', err));
       }
 
@@ -417,7 +413,7 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
       router.push(`/admin/courses/1-on-1/${courseId}`);
     } catch (err: any) {
       console.error('Failed to create sessions:', err);
-      alert(err.message || 'Error creating sessions. Please try again.');
+      setScheduleError(err.message || 'Error creating sessions. Please try again.');
     } finally {
       setCreating(false);
     }
@@ -495,6 +491,11 @@ export function ScheduleSessionsClient({ courseId }: { courseId: string }) {
           </div>
 
           <div className="flex items-center gap-3">
+            {scheduleError && (
+              <span className="text-xs font-semibold text-rose-500 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 px-3 py-1.5 rounded-lg animate-fadeIn">
+                {scheduleError}
+              </span>
+            )}
             <button
               onClick={() => router.push(`/admin/courses/1-on-1/${courseId}`)}
               className="px-4 py-2 text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition"

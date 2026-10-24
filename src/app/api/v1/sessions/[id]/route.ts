@@ -43,6 +43,10 @@ const patchSessionSchema = z.object({
   durationMin: z.number().int().min(15).max(480).optional(),
   status: z.enum(['scheduled', 'live', 'completed', 'cancelled', 'no_show']).optional(),
   creditsConsumed: z.number().min(0).optional(),
+  educatorId: z.string().uuid().optional(),
+  changeReason: z.string().optional(),
+  notifyParties: z.boolean().optional(),
+  allowConflict: z.boolean().optional(),
 });
 
 export async function PATCH(req: NextRequest, { params }: Params) {
@@ -75,15 +79,39 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (data.status !== undefined) updateData.status = data.status;
   if (data.creditsConsumed !== undefined) updateData.creditsConsumed = String(data.creditsConsumed);
 
+  // Reassign Educator / Host (Admin/Owner only)
+  if (data.educatorId !== undefined) {
+    if (role !== 'admin' && role !== 'owner') {
+      return apiError('Only admins and owners can reassign session hosts', 403);
+    }
+    updateData.educatorId = data.educatorId;
+    if (data.changeReason) {
+      updateData.changeReason = data.changeReason;
+    }
+    if (data.notifyParties !== undefined) {
+      updateData.notifyParties = data.notifyParties;
+    }
+    if (data.allowConflict !== undefined) {
+      updateData.allowConflict = data.allowConflict;
+    }
+  }
+
   // If cancelling, stamp cancelledAt
   if (data.status === 'cancelled') {
     updateData.cancelledAt = new Date();
     updateData.cancelledBy = userId;
   }
 
-  const updated = await sessionService.updateSession(id, updateData);
-
-  return apiSuccess(updated);
+  try {
+    const updated = await sessionService.updateSession(id, updateData);
+    return apiSuccess(updated);
+  } catch (err: any) {
+    if (err.code === 'CONFLICT') {
+      return apiError(err.message, 409);
+    }
+    console.error('Failed to update session:', err);
+    return apiError(err.message || 'Failed to update session', 500);
+  }
 }
 
 // DELETE /api/v1/sessions/[id] — admin only

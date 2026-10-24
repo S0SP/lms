@@ -50,9 +50,17 @@ export function TagsModal({
     setLoading(true);
     try {
       const res = await fetch('/api/v1/tags');
-      const data = await res.json();
-      if (data.tags) {
-        setTags(data.tags);
+      const json = await res.json();
+      const list = json.data || json.tags || [];
+      if (Array.isArray(list)) {
+        setTags(
+          list.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            color: t.colorHex || t.color || '#3B82F6',
+            category: t.category,
+          }))
+        );
       }
     } catch (err) {
       console.error('Failed to load tags:', err);
@@ -84,14 +92,22 @@ export function TagsModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: search.trim(),
+          colorHex: selectedColor,
           color: selectedColor,
           category: 'session',
         }),
       });
-      const data = await res.json();
-      if (data.tag) {
-        setTags([data.tag, ...tags]);
-        setSelected([...selected, data.tag.name]);
+      const json = await res.json();
+      const created = json.data || json.tag;
+      if (created) {
+        const mapped: TagItem = {
+          id: created.id,
+          name: created.name,
+          color: created.colorHex || created.color || selectedColor,
+          category: created.category,
+        };
+        setTags([mapped, ...tags]);
+        setSelected([...selected, mapped.name]);
         setSearch('');
       }
     } catch (err) {

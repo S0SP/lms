@@ -27,6 +27,11 @@ import {
   Sparkle,
 } from 'lucide-react';
 import { CalendarSessionItem } from './SessionPopoverCard';
+import { ChangeHostModal } from './ChangeHostModal';
+
+// In-memory caches to eliminate redundant DB roundtrips and UI lag
+const sessionDetailCache = new Map<string, { data: any; timestamp: number }>();
+const sessionAttendanceCache = new Map<string, { data: any[]; timestamp: number }>();
 
 export interface SessionDetailModalProps {
   isOpen: boolean;
@@ -57,6 +62,19 @@ export function SessionDetailModal({
   const [generatingNotes, setGeneratingNotes] = useState(false);
   const [notesGenerated, setNotesGenerated] = useState(false);
 
+  // Live session details fetched from DB (with SWR caching)
+  const [liveDetails, setLiveDetails] = useState<any>(() => {
+    return sessionDetailCache.get(session.id)?.data || null;
+  });
+  const [loadingLiveDetails, setLoadingLiveDetails] = useState(false);
+
+  // Educator state
+  const [currentEducator, setCurrentEducator] = useState({
+    id: session.educatorId || null,
+    name: session.educatorName || 'Abir Sir',
+  });
+  const [changeHostModalOpen, setChangeHostModalOpen] = useState(false);
+
   // 3-dot dropdown menu
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,28 +96,117 @@ export function SessionDetailModal({
   // Toast notification inside modal
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Mark Attendance Sub-Modal
+  // Mark Attendance Sub-Modal (Lazy loaded)
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
   const [attendanceSearch, setAttendanceSearch] = useState('');
-  const [learnersAttendance, setLearnersAttendance] = useState<{ name: string; attended: boolean; percentage: number }[]>([]);
+  const [learnersAttendance, setLearnersAttendance] = useState<{ name: string; attended: boolean; percentage: number; email?: string }[]>(() => {
+    const names = session.learnerNames && session.learnerNames.length > 0 ? session.learnerNames : [];
+    return names.map((name) => ({
+      name,
+      attended: session.status === 'completed',
+      percentage: session.status === 'completed' ? 100 : 0,
+    }));
+  });
 
   const isAdmin = userRole === 'admin' || userRole === 'owner';
 
+  // 1. Initial sync with passed session prop
   useEffect(() => {
-    // Populate attendance list from session learners or default
-    const names = session.learnerNames && session.learnerNames.length > 0 
-      ? session.learnerNames 
-      : ['Reyan Gaddam'];
-    setLearnersAttendance(
-      names.map((name, i) => ({
-        name,
-        attended: session.status === 'completed' ? true : false,
-        percentage: session.status === 'completed' ? 99 : 0,
-      }))
-    );
+    setCurrentEducator({
+      id: session.educatorId || null,
+      name: session.educatorName || 'Abir Sir',
+    });
     setCreditsInput(String(session.creditsConsumed ?? (session.status === 'cancelled' ? '0' : '1')));
     setRenameInput(session.title);
+    setPrivateNoteInput(session.topic || '');
   }, [session]);
+
+  // 2. Non-blocking SWR fetch for authoritative live session data & zoom webhook assets
+  useEffect(() => {
+    if (!isOpen || !session.id) return;
+
+    const cached = sessionDetailCache.get(session.id);
+    const isFresh = cached && Date.now() - cached.timestamp < 60_000;
+    if (cached) {
+      setLiveDetails(cached.data);
+      if (cached.data.educatorName) {
+        setCurrentEducator((prev) => ({
+          id: cached.data.educatorId || prev.id,
+          name: cached.data.educatorName,
+        }));
+      }
+      if (cached.data.topic) setPrivateNoteInput(cached.data.topic);
+      if (cached.data.feedback?.comments) {
+        setFeedbackInput(cached.data.feedback.comments);
+        setFeedbackStatus('Submitted');
+      }
+    }
+
+    if (!isFresh) {
+      if (!cached) setLoadingLiveDetails(true);
+      fetch(`/api/v1/sessions/${session.id}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            sessionDetailCache.set(session.id, { data: json.data, timestamp: Date.now() });
+            setLiveDetails(json.data);
+            if (json.data.educatorName) {
+              setCurrentEducator((prev) => ({
+                id: json.data.educatorId || prev.id,
+                name: json.data.educatorName,
+              }));
+            }
+            if (json.data.topic) setPrivateNoteInput(json.data.topic);
+            if (json.data.feedback?.comments) {
+              setFeedbackInput(json.data.feedback.comments);
+              setFeedbackStatus('Submitted');
+            }
+          }
+        })
+        .catch((err) => console.error('Failed to load session details:', err))
+        .finally(() => setLoadingLiveDetails(false));
+
+      fetch(`/api/v1/sessions/${session.id}/ai`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            if (json.data.hasQuiz) setQuizGenerated(true);
+            if (json.data.hasNotes) setNotesGenerated(true);
+            if (json.data.aiSummary) {
+              setLiveDetails((prev: any) => ({ ...prev, aiSummary: json.data.aiSummary }));
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen, session.id]);
+
+  // 3. Lazy fetch attendance ONLY when attendance modal opens
+  useEffect(() => {
+    if (!attendanceModalOpen || !session.id) return;
+
+    const cached = sessionAttendanceCache.get(session.id);
+    if (cached && Date.now() - cached.timestamp < 60_000) {
+      setLearnersAttendance(cached.data);
+      return;
+    }
+
+    fetch(`/api/v1/sessions/${session.id}/attendance`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped = json.data.map((att: any) => ({
+            name: att.learnerName || 'Student',
+            email: att.learnerEmail || '',
+            attended: att.isPresent || session.status === 'completed',
+            percentage: att.isPresent || session.status === 'completed' ? 100 : 0,
+          }));
+          setLearnersAttendance(mapped);
+          sessionAttendanceCache.set(session.id, { data: mapped, timestamp: Date.now() });
+        }
+      })
+      .catch((err) => console.error('Failed to load session attendance:', err));
+  }, [attendanceModalOpen, session.id, session.status]);
 
   // Handle outside click for 3-dot menu
   useEffect(() => {
@@ -145,29 +252,55 @@ export function SessionDetailModal({
   const isCancelled = session.status === 'cancelled';
   const isUpcoming = !isCompleted && !isCancelled;
 
-  const educatorInitials = (session.educatorName || 'Abir Sir')
+  const educatorInitials = (currentEducator.name || session.educatorName || 'Host')
     .split(' ')
     .slice(0, 2)
     .map((w) => w[0])
     .join('')
     .toUpperCase();
 
-  const handleGenerateQuiz = () => {
+  const handleGenerateQuiz = async () => {
     setGeneratingQuiz(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/v1/sessions/${session.id}/ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'quiz' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setQuizGenerated(true);
+        showToast('AI Quiz generated & posted to course timeline!');
+      } else {
+        showToast(data.error?.message || 'Failed to generate quiz');
+      }
+    } catch {
+      showToast('Error generating AI quiz');
+    } finally {
       setGeneratingQuiz(false);
-      setQuizGenerated(true);
-      showToast('Post-session quiz generated successfully!');
-    }, 1200);
+    }
   };
 
-  const handleGenerateNotes = () => {
+  const handleGenerateNotes = async () => {
     setGeneratingNotes(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/v1/sessions/${session.id}/ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'notes' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotesGenerated(true);
+        showToast('Revision notes prepared & published!');
+      } else {
+        showToast(data.error?.message || 'Failed to generate revision notes');
+      }
+    } catch {
+      showToast('Error generating revision notes');
+    } finally {
       setGeneratingNotes(false);
-      setNotesGenerated(true);
-      showToast('Revision notes prepared with AI!');
-    }, 1200);
+    }
   };
 
   const handleSavePrivateNote = async () => {
@@ -192,11 +325,28 @@ export function SessionDetailModal({
   };
 
   const handleSaveFeedback = async () => {
-    if (feedbackInput.trim()) {
-      setFeedbackStatus('Submitted');
-      showToast('Educator feedback submitted');
+    if (!feedbackInput.trim()) {
+      setIsEditingFeedback(false);
+      return;
     }
-    setIsEditingFeedback(false);
+    try {
+      const res = await fetch(`/api/v1/sessions/${session.id}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments: feedbackInput.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFeedbackStatus('Submitted');
+        showToast('Educator feedback saved');
+      } else {
+        showToast(data.error?.message || 'Failed to save feedback');
+      }
+    } catch {
+      showToast('Error saving feedback');
+    } finally {
+      setIsEditingFeedback(false);
+    }
   };
 
   const handleSaveRename = async () => {
@@ -216,8 +366,14 @@ export function SessionDetailModal({
   };
 
   const handleDownloadAttendance = () => {
-    const csvContent = 'Learner Name,Status,Attendance Percentage\n' +
-      learnersAttendance.map(l => `"${l.name}",${l.attended ? 'Present' : 'Absent'},${l.percentage}%`).join('\n');
+    const csvContent =
+      'Learner Name,Email,Status,Attendance Percentage\n' +
+      learnersAttendance
+        .map(
+          (l) =>
+            `"${l.name}","${l.email || ''}",${l.attended ? 'Present' : 'Absent'},${l.percentage}%`
+        )
+        .join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -231,30 +387,44 @@ export function SessionDetailModal({
   };
 
   const handleDownloadTranscript = () => {
-    const transcriptText = `WEBVTT\n\n00:00:01.000 --> 00:00:15.000\n${session.educatorName || 'Simra Sayeed'}: Welcome to today's session on imagery and analytical methodology.\n\n00:00:16.000 --> 00:00:45.000\nReyan: Thank you! I had some questions regarding visual and tactile imagery from the worksheet.\n\n00:00:46.000 --> 00:01:20.000\n${session.educatorName || 'Simra Sayeed'}: Let's break down each category step by step...`;
-    const blob = new Blob([transcriptText], { type: 'text/vtt;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `transcript_${session.title.replace(/[^a-zA-Z0-9]/g, '_')}.vtt`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('Zoom transcript downloaded');
+    const vtt = liveDetails?.transcriptVtt || session.transcriptVtt;
+    const text = liveDetails?.transcriptText || session.transcriptText;
+
+    if (vtt || text) {
+      const content = vtt || text;
+      const isVtt = Boolean(vtt);
+      const blob = new Blob([content], {
+        type: isVtt ? 'text/vtt;charset=utf-8;' : 'text/plain;charset=utf-8;',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `transcript_${session.title.replace(/[^a-zA-Z0-9]/g, '_')}.${isVtt ? 'vtt' : 'txt'}`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Zoom transcript downloaded');
+    } else {
+      showToast('No Zoom transcript recorded for this session yet');
+    }
     setMenuOpen(false);
   };
 
   const handleDownloadChat = () => {
-    const chatText = `Session Chat Log - ${session.title}\nDate: ${dateObj.toLocaleDateString()}\n\n05:05 AM - ${session.educatorName || 'Simra Sayeed'}: Welcome to the session! Sharing worksheet link in chat.\n05:12 AM - Reyan: Got the link, opening now.\n05:40 AM - ${session.educatorName || 'Simra Sayeed'}: Great work on question 4!\n06:00 AM - Reyan: Thank you for the session!`;
-    const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `chat_log_${session.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('In-meeting chat log downloaded');
+    const files = liveDetails?.recordingFiles || session.recordingFiles || [];
+    const chatFile = Array.isArray(files)
+      ? files.find((f: any) => f.file_type === 'CHAT' || f.file_extension === 'TXT')
+      : null;
+
+    if (chatFile?.download_url) {
+      window.open(chatFile.download_url, '_blank');
+      showToast('Opening Zoom meeting chat download...');
+    } else {
+      showToast('In-meeting chat was not captured by Zoom for this session');
+    }
     setMenuOpen(false);
   };
 
@@ -589,7 +759,7 @@ export function SessionDetailModal({
                   HOSTED BY
                 </p>
                 <p className="text-sm font-extrabold text-gray-950 dark:text-white">
-                  {session.educatorName || 'Abir Sir'}
+                  {currentEducator.name}
                 </p>
               </div>
             </div>
@@ -599,8 +769,14 @@ export function SessionDetailModal({
               <button
                 type="button"
                 onClick={() => {
-                  if (onChangeEducator) onChangeEducator(session);
-                  else showToast('Change educator modal triggered');
+                  if (onChangeEducator) {
+                    onChangeEducator({
+                      ...session,
+                      educatorId: currentEducator.id,
+                      educatorName: currentEducator.name,
+                    });
+                  }
+                  setChangeHostModalOpen(true);
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
               >
@@ -629,24 +805,25 @@ export function SessionDetailModal({
                     </span>
                   </div>
 
-                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-normal">
-                    {session.aiSummary
-                      ? session.aiSummary
-                      : session.topic
-                      ? session.topic
-                      : `The meeting was an interactive lesson between ${session.educatorName || 'Simra'} and ${session.learnerNames?.[0] || 'Reyan'}. ${session.educatorName || 'Simra'} reviewed curriculum concepts, imagery types, and analytical exercises with live queries.`}
-                    {summaryExpanded && (
-                      <span className="block mt-2 text-gray-600 dark:text-gray-400">
-                        Additional details: Visual and auditory examples were practiced with 1-on-1 feedback. Homework questions were set for the upcoming review module.
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-normal whitespace-pre-line">
+                    {liveDetails?.aiSummary ||
+                      session.aiSummary ||
+                      session.topic ||
+                      'No AI meeting summary was generated by Zoom for this session.'}
+                    {summaryExpanded && liveDetails?.transcriptText && (
+                      <span className="block mt-2 text-gray-600 dark:text-gray-400 font-mono text-[11px] max-h-40 overflow-y-auto p-2 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                        {liveDetails.transcriptText.slice(0, 500)}...
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => setSummaryExpanded(!summaryExpanded)}
-                      className="ml-1 text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
-                    >
-                      {summaryExpanded ? 'See Less' : 'See More'}
-                    </button>
+                    {(liveDetails?.aiSummary || liveDetails?.transcriptText) && (
+                      <button
+                        type="button"
+                        onClick={() => setSummaryExpanded(!summaryExpanded)}
+                        className="ml-1 text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
+                      >
+                        {summaryExpanded ? 'See Less' : 'See More'}
+                      </button>
+                    )}
                   </p>
                 </div>
               </div>
@@ -1067,6 +1244,31 @@ export function SessionDetailModal({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─── CHANGE HOST SUB-MODAL ─── */}
+      {changeHostModalOpen && (
+        <ChangeHostModal
+          isOpen={changeHostModalOpen}
+          sessionId={session.id}
+          sessionTitle={session.title}
+          sessionTime={`${weekdayShort}, ${startTimeStr} - ${endTimeStr}`}
+          courseName={session.courseName}
+          currentEducatorId={currentEducator.id}
+          currentEducatorName={currentEducator.name}
+          onClose={() => setChangeHostModalOpen(false)}
+          onHostChanged={async (newHost) => {
+            setCurrentEducator({ id: newHost.id, name: newHost.name });
+            sessionDetailCache.delete(session.id);
+            if (onUpdateSession) {
+              await onUpdateSession(session.id, {
+                educatorId: newHost.id,
+                educatorName: newHost.name,
+              });
+            }
+            showToast(`Session host updated to ${newHost.name}`);
+          }}
+        />
       )}
     </div>
   );

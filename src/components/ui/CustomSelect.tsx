@@ -47,6 +47,7 @@ export function CustomSelect<T extends string | number = string>({
   width,
 }: CustomSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpwards, setOpenUpwards] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,19 @@ export function CustomSelect<T extends string | number = string>({
   const id = customId || autoId;
 
   const selectedOption = options.find((opt) => opt.value === value);
+
+  // Auto-detect if menu should flip upwards when close to bottom of screen
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 200 && rect.top > 200) {
+        setOpenUpwards(true);
+      } else {
+        setOpenUpwards(false);
+      }
+    }
+  }, [isOpen]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -237,7 +251,7 @@ export function CustomSelect<T extends string | number = string>({
           aria-activedescendant={
             highlightedIndex >= 0 ? `${id}-opt-${highlightedIndex}` : undefined
           }
-          className={`absolute mt-1.5 min-w-full max-h-64 overflow-y-auto rounded-xl p-1.5 z-50 bg-white/95 dark:bg-[#151C28]/95 backdrop-blur-xl border border-gray-200/90 dark:border-gray-700/80 shadow-2xl focus:outline-none animate-in fade-in zoom-in-95 duration-150 ${
+          className={`absolute ${openUpwards ? 'bottom-full mb-1.5' : 'mt-1.5'} min-w-full max-h-64 overflow-y-auto rounded-xl p-1.5 z-50 bg-white/95 dark:bg-[#151C28]/95 backdrop-blur-xl border border-gray-200/90 dark:border-gray-700/80 shadow-2xl focus:outline-none animate-in fade-in zoom-in-95 duration-150 ${
             align === 'right' ? 'right-0' : 'left-0'
           } ${menuClassName}`}
           style={{

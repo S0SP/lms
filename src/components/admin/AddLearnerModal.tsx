@@ -131,6 +131,7 @@ export function AddLearnerModal({ isOpen, onClose, onSuccess }: AddLearnerModalP
           board: schoolCity ? `School: ${schoolCity}` : undefined,
           grade: age ? `Age: ${age}` : undefined,
           dob: dob || undefined,
+          hobbies: hobbies.trim() || undefined,
           parentName: parentName.trim() || undefined,
           parentEmail: parentEmail.trim().toLowerCase() || undefined,
           parentPhone: showParentPhone && parentPhone ? parentPhone : undefined,

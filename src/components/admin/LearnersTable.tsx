@@ -3,8 +3,9 @@
 import React, { useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Plus, Upload, MoreHorizontal, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Upload, Download, MoreHorizontal, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { LearnerSummary } from '@/lib/api-client';
+import { BulkLearnerImportModal } from './BulkLearnerImportModal';
 
 interface LearnersTableProps {
   learners: LearnerSummary[];
@@ -18,8 +19,34 @@ export function LearnersTable({ learners, total, page, perPage, q: initialQ }: L
   const router = useRouter();
   const [q, setQ] = useState(initialQ);
   const [isPending, startTransition] = useTransition();
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
   const totalPages = Math.ceil(total / perPage);
+
+  const handleExportCsv = () => {
+    if (learners.length === 0) return;
+    const headers = ['ID', 'Name', 'Email', 'Phone', 'Grade', 'Board', 'Status', 'Created At'];
+    const rows = learners.map((l: any) => [
+      `"${l.id}"`,
+      `"${l.name || ''}"`,
+      `"${l.email || ''}"`,
+      `"${l.phone || ''}"`,
+      `"${l.grade || ''}"`,
+      `"${l.board || ''}"`,
+      `"${l.status || 'active'}"`,
+      `"${l.createdAt ? new Date(l.createdAt).toISOString() : ''}"`,
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `learners_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const navigate = useCallback(
     (params: Record<string, string | number | undefined>) => {
@@ -60,8 +87,22 @@ export function LearnersTable({ learners, total, page, perPage, q: initialQ }: L
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold text-sm">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={learners.length === 0}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold text-sm cursor-pointer disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
             Export CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsBulkImportOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold text-sm cursor-pointer"
+          >
+            <Upload className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            Import CSV
           </button>
           <Link
             href="/admin/users/learners/add"
@@ -193,6 +234,14 @@ export function LearnersTable({ learners, total, page, perPage, q: initialQ }: L
           </div>
         )}
       </div>
+
+      <BulkLearnerImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

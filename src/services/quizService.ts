@@ -69,4 +69,8 @@ export const quizService = {
   async getAttemptDetails(attemptId: string) {
     return await quizRepository.getAttemptDetails(attemptId);
   },
+
+  async saveDraftAttempt(attemptId: string, learnerId: string, answers: { questionId: string; answerJson: any }[]) {
+    return await quizRepository.saveDraftAttempt(attemptId, learnerId, answers);
+  },
 };
