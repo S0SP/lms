@@ -32,15 +32,41 @@ import {
 } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
-// Modals
-import { DownloadSessionReportModal } from './DownloadSessionReportModal';
-import { ManageCreditsModal } from './ManageCreditsModal';
-import { SessionCreditsModal } from './SessionCreditsModal';
-import { AddEducatorModal } from './AddEducatorModal';
-import { AddPollQuizModal } from './AddPollQuizModal';
-import { CreateChitChatModal } from './CreateChitChatModal';
-import { SessionDetailsModal } from './SessionDetailsModal';
-import { VideoPlayerModal } from './VideoPlayerModal';
+import dynamic from 'next/dynamic';
+
+// Modals - dynamically imported to reduce initial bundle execution
+const DownloadSessionReportModal = dynamic(
+  () => import('./DownloadSessionReportModal').then((mod) => mod.DownloadSessionReportModal),
+  { ssr: false }
+);
+const ManageCreditsModal = dynamic(
+  () => import('./ManageCreditsModal').then((mod) => mod.ManageCreditsModal),
+  { ssr: false }
+);
+const SessionCreditsModal = dynamic(
+  () => import('./SessionCreditsModal').then((mod) => mod.SessionCreditsModal),
+  { ssr: false }
+);
+const AddEducatorModal = dynamic(
+  () => import('./AddEducatorModal').then((mod) => mod.AddEducatorModal),
+  { ssr: false }
+);
+const AddPollQuizModal = dynamic(
+  () => import('./AddPollQuizModal').then((mod) => mod.AddPollQuizModal),
+  { ssr: false }
+);
+const CreateChitChatModal = dynamic(
+  () => import('./CreateChitChatModal').then((mod) => mod.CreateChitChatModal),
+  { ssr: false }
+);
+const SessionDetailsModal = dynamic(
+  () => import('./SessionDetailsModal').then((mod) => mod.SessionDetailsModal),
+  { ssr: false }
+);
+const VideoPlayerModal = dynamic(
+  () => import('./VideoPlayerModal').then((mod) => mod.VideoPlayerModal),
+  { ssr: false }
+);
 
 export interface CourseWorkspaceProps {
   courseId: string;
@@ -102,43 +128,73 @@ export function CourseWorkspace1on1({
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
-  // Fetch all course workspace data concurrently
+  // Fetch course workspace data (lightweight background sync when initialData exists)
   const fetchData = async () => {
-    setLoading(true);
+    // If we don't have initial course data, show the loading screen; otherwise keep the UI interactive
+    if (!course) {
+      setLoading(true);
+    }
     try {
-      // 1. Fetch main datasets in parallel
-      const [courseRes, sessionsRes, timelineRes, educatorsRes] = await Promise.all([
-        fetch(`/api/v1/courses/${courseId}`),
+      // If course is already provided by Server Component, only fetch timeline and sessions
+      const fetchList: Promise<Response>[] = [
         fetch(`/api/v1/sessions?courseId=${courseId}&perPage=100`),
         fetch(`/api/v1/courses/${courseId}/timeline`),
-        fetch(`/api/v1/courses/${courseId}/educators`),
-      ]);
+      ];
 
-      if (!courseRes.ok) throw new Error('Course not found');
-      const courseData = await courseRes.json();
-      const c = courseData.data || courseData;
-      setCourse(c);
-      setCourseNameInput(c.name || '');
-      setCourseSubjectInput(c.subject || '');
-      setCourseGradeInput(c.grade || '');
-      setCourseBoardInput(c.board || (typeof c.curriculum === 'string' ? c.curriculum : 'Cambridge IGCSE'));
-      setCourseStatusInput(c.status || 'active');
+      // Only fetch course info and educators if not already preloaded
+      if (!initialData?.course) {
+        fetchList.push(fetch(`/api/v1/courses/${courseId}`));
+        fetchList.push(fetch(`/api/v1/courses/${courseId}/educators`));
+      }
 
-      // 2. Process Educators
-      let eduList: any[] = [];
-      if (educatorsRes.ok) {
+      const results = await Promise.all(fetchList);
+      const sessRes = results[0];
+      const timelineRes = results[1];
+      const courseRes = results[2];
+      const educatorsRes = results[3];
+
+      if (courseRes && courseRes.ok) {
+        const courseData = await courseRes.json();
+        const c = courseData.data || courseData;
+        setCourse(c);
+        setCourseNameInput(c.name || '');
+        setCourseSubjectInput(c.subject || '');
+        setCourseGradeInput(c.grade || '');
+        setCourseBoardInput(c.board || (typeof c.curriculum === 'string' ? c.curriculum : 'Cambridge IGCSE'));
+        setCourseStatusInput(c.status || 'active');
+
+        // Process Content curriculum sections
+        const loadedSections = (c.curriculum && Array.isArray(c.curriculum) && c.curriculum.length > 0)
+          ? c.curriculum
+          : (c.sections && Array.isArray(c.sections) && c.sections.length > 0)
+          ? c.sections
+          : null;
+
+        if (loadedSections) {
+          setContentSections(loadedSections);
+        }
+
+        if (c.credits) {
+          setCredits({
+            remaining: Number(c.credits.total || 0) - Number(c.credits.consumed || 0),
+            consumed: Number(c.credits.consumed || 0),
+            total: Number(c.credits.total || 0),
+          });
+        }
+      }
+
+      if (educatorsRes && educatorsRes.ok) {
         const eduData = await educatorsRes.json();
-        eduList = eduData.data || eduData.educators || [];
+        const eduList = eduData.data || eduData.educators || [];
+        if (eduList.length > 0) {
+          setEducators(eduList);
+          setSelectedEducatorId(eduList[0].id);
+        }
       }
-      if (eduList.length === 0 && Array.isArray(c.educators) && c.educators.length > 0) {
-        eduList = c.educators;
-      }
-      setEducators(eduList);
-      if (eduList.length > 0) setSelectedEducatorId(eduList[0].id);
 
-      // 3. Process Sessions
-      if (sessionsRes.ok) {
-        const sessData = await sessionsRes.json();
+      // Process Sessions
+      if (sessRes && sessRes.ok) {
+        const sessData = await sessRes.json();
         setSessions(sessData.data || sessData.sessions || []);
       }
 
@@ -148,28 +204,8 @@ export function CourseWorkspace1on1({
         setTimelinePosts(timeData.data || timeData.posts || []);
       }
 
-      // 5. Process Content curriculum sections
-      const loadedSections = (c.curriculum && Array.isArray(c.curriculum) && c.curriculum.length > 0)
-        ? c.curriculum
-        : (c.sections && Array.isArray(c.sections) && c.sections.length > 0)
-        ? c.sections
-        : null;
-
-      if (loadedSections) {
-        setContentSections(loadedSections);
-      }
-
-      // 6. Fast Credits Initialization
-      if (c.credits) {
-        setCredits({
-          remaining: Number(c.credits.total || 0) - Number(c.credits.consumed || 0),
-          consumed: Number(c.credits.consumed || 0),
-          total: Number(c.credits.total || 0),
-        });
-      }
-
       // Fetch credits & history asynchronously without blocking
-      const learnerId = c.learners?.[0]?.id;
+      const learnerId = (courseRes ? (await courseRes.clone().json()).data?.learners?.[0]?.id : course?.learners?.[0]?.id) || initialData?.course?.learners?.[0]?.id;
       fetch(`/api/v1/credits?courseId=${courseId}${learnerId ? `&learnerId=${learnerId}` : ''}&history=true`)
         .then(async (res) => {
           if (res.ok) {

@@ -17,10 +17,10 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is not set.');
 }
 
-// Connection pool settings that work well across providers:
-// - max: 10 connections in long-running server (Next.js dev / Node server)
-// - max: 1 connection in serverless (each function invocation gets one)
-// The DATABASE_URL can include ?sslmode=require for providers that need SSL.
+// Connection pool settings optimized for serverless & low-latency execution:
+// - Neon pooled endpoint handles connection multiplexing via PgBouncer.
+// - Holding connections idle across warm invocations (e.g. 15-20s) avoids TLS re-handshakes on every query.
+// - Global singleton caching on globalThis across all environments maintains warm pools across requests.
 const isServerless =
   process.env.VERCEL === '1' ||
   process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined ||
@@ -35,15 +35,13 @@ const globalForDb = globalThis as unknown as {
 export const sql =
   globalForDb._postgresSql ??
   postgres(process.env.DATABASE_URL, {
-    max: isServerless ? 1 : 15,
-    idle_timeout: isServerless ? 0 : 30,
+    max: isServerless ? 5 : 20,
+    idle_timeout: 20,
     connect_timeout: 10,
     prepare: false,
   });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb._postgresSql = sql;
-}
+globalForDb._postgresSql = sql;
 
 export const db =
   globalForDb._drizzleDb ??
@@ -52,8 +50,6 @@ export const db =
     logger: process.env.DEBUG_DB === 'true',
   });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb._drizzleDb = db;
-}
+globalForDb._drizzleDb = db;
 
 export default db;

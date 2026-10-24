@@ -19,16 +19,24 @@ import {
   MapPin,
   ExternalLink,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
 import { CalendarViewSelector, CalendarViewType } from '@/components/calendar/CalendarViewSelector';
 import { SessionPopoverCard } from '@/components/calendar/SessionPopoverCard';
-import { SessionDetailModal } from '@/components/calendar/SessionDetailModal';
-import { ZoomRecordingPlayerModal } from '@/components/calendar/ZoomRecordingPlayerModal';
 import {
   CalendarAdvancedFilterModal,
   CalendarFilterState,
   INITIAL_CALENDAR_FILTERS,
 } from '@/components/calendar/CalendarAdvancedFilterModal';
+
+const SessionDetailModal = dynamic(
+  () => import('@/components/calendar/SessionDetailModal').then((mod) => mod.SessionDetailModal),
+  { ssr: false }
+);
+const ZoomRecordingPlayerModal = dynamic(
+  () => import('@/components/calendar/ZoomRecordingPlayerModal').then((mod) => mod.ZoomRecordingPlayerModal),
+  { ssr: false }
+);
 
 export type AdminCalendarSession = {
   id: string;

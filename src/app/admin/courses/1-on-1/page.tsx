@@ -27,8 +27,13 @@ import {
   Tag as TagIcon,
   Calendar
 } from 'lucide-react';
-import { CourseSellingPageWizardModal } from '@/components/admin/CourseSellingPageWizardModal';
+import dynamic from 'next/dynamic';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+
+const CourseSellingPageWizardModal = dynamic(
+  () => import('@/components/admin/CourseSellingPageWizardModal').then((mod) => mod.CourseSellingPageWizardModal),
+  { ssr: false }
+);
 
 interface Course {
   id: string;

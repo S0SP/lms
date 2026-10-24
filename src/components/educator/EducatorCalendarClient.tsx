@@ -32,15 +32,23 @@ import {
 } from 'lucide-react';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import dynamic from 'next/dynamic';
 import { CalendarViewSelector, CalendarViewType } from '@/components/calendar/CalendarViewSelector';
 import { SessionPopoverCard } from '@/components/calendar/SessionPopoverCard';
-import { SessionDetailModal } from '@/components/calendar/SessionDetailModal';
-import { ZoomRecordingPlayerModal } from '@/components/calendar/ZoomRecordingPlayerModal';
 import {
   CalendarAdvancedFilterModal,
   CalendarFilterState,
   INITIAL_CALENDAR_FILTERS,
 } from '@/components/calendar/CalendarAdvancedFilterModal';
+
+const SessionDetailModal = dynamic(
+  () => import('@/components/calendar/SessionDetailModal').then((mod) => mod.SessionDetailModal),
+  { ssr: false }
+);
+const ZoomRecordingPlayerModal = dynamic(
+  () => import('@/components/calendar/ZoomRecordingPlayerModal').then((mod) => mod.ZoomRecordingPlayerModal),
+  { ssr: false }
+);
 import type { CalendarSession } from '@/app/educator/calendar/page';
 
 interface CourseOption {
